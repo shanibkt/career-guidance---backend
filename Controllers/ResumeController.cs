@@ -1,0 +1,230 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using MySql.Data.MySqlClient;
+using System.Security.Claims;
+using System.Text.Json;
+
+namespace MyFirstApi.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    [Authorize]
+    public class ResumeController : ControllerBase
+    {
+        private readonly IConfiguration _configuration;
+
+        public ResumeController(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
+        // POST /api/resume/save - Save or update resume data
+        [HttpPost("save")]
+        public IActionResult SaveResume([FromBody] ResumeDataRequest request)
+        {
+            try
+            {
+                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+                if (userId == 0) return Unauthorized();
+
+                using MySqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
+                conn.Open();
+
+                // Check if resume exists
+                string checkQuery = "SELECT id FROM user_resumes WHERE user_id = @userId";
+                int? resumeId = null;
+
+                using (MySqlCommand checkCmd = new(checkQuery, conn))
+                {
+                    checkCmd.Parameters.AddWithValue("@userId", userId);
+                    var result = checkCmd.ExecuteScalar();
+                    if (result != null) resumeId = Convert.ToInt32(result);
+                }
+
+                if (resumeId.HasValue)
+                {
+                    // Update existing resume
+                    string updateQuery = @"
+                        UPDATE user_resumes SET
+                            full_name = @fullName,
+                            job_title = @jobTitle,
+                            email = @email,
+                            phone = @phone,
+                            location = @location,
+                            linkedin = @linkedin,
+                            professional_summary = @summary,
+                            skills = @skills,
+                            experiences = @experiences,
+                            education = @education,
+                            updated_at = NOW()
+                        WHERE id = @resumeId";
+
+                    using MySqlCommand updateCmd = new(updateQuery, conn);
+                    updateCmd.Parameters.AddWithValue("@resumeId", resumeId.Value);
+                    updateCmd.Parameters.AddWithValue("@fullName", request.FullName ?? "");
+                    updateCmd.Parameters.AddWithValue("@jobTitle", request.JobTitle ?? "");
+                    updateCmd.Parameters.AddWithValue("@email", request.Email ?? "");
+                    updateCmd.Parameters.AddWithValue("@phone", request.Phone ?? "");
+                    updateCmd.Parameters.AddWithValue("@location", request.Location ?? "");
+                    updateCmd.Parameters.AddWithValue("@linkedin", request.LinkedIn ?? "");
+                    updateCmd.Parameters.AddWithValue("@summary", request.ProfessionalSummary ?? "");
+                    updateCmd.Parameters.AddWithValue("@skills", JsonSerializer.Serialize(request.Skills ?? new List<string>()));
+                    updateCmd.Parameters.AddWithValue("@experiences", JsonSerializer.Serialize(request.Experiences ?? new List<Experience>()));
+                    updateCmd.Parameters.AddWithValue("@education", JsonSerializer.Serialize(request.Education ?? new List<Education>()));
+                    updateCmd.ExecuteNonQuery();
+                }
+                else
+                {
+                    // Insert new resume
+                    string insertQuery = @"
+                        INSERT INTO user_resumes 
+                        (user_id, full_name, job_title, email, phone, location, linkedin, 
+                         professional_summary, skills, experiences, education)
+                        VALUES (@userId, @fullName, @jobTitle, @email, @phone, @location, @linkedin,
+                                @summary, @skills, @experiences, @education)";
+
+                    using MySqlCommand insertCmd = new(insertQuery, conn);
+                    insertCmd.Parameters.AddWithValue("@userId", userId);
+                    insertCmd.Parameters.AddWithValue("@fullName", request.FullName ?? "");
+                    insertCmd.Parameters.AddWithValue("@jobTitle", request.JobTitle ?? "");
+                    insertCmd.Parameters.AddWithValue("@email", request.Email ?? "");
+                    insertCmd.Parameters.AddWithValue("@phone", request.Phone ?? "");
+                    insertCmd.Parameters.AddWithValue("@location", request.Location ?? "");
+                    insertCmd.Parameters.AddWithValue("@linkedin", request.LinkedIn ?? "");
+                    insertCmd.Parameters.AddWithValue("@summary", request.ProfessionalSummary ?? "");
+                    insertCmd.Parameters.AddWithValue("@skills", JsonSerializer.Serialize(request.Skills ?? new List<string>()));
+                    insertCmd.Parameters.AddWithValue("@experiences", JsonSerializer.Serialize(request.Experiences ?? new List<Experience>()));
+                    insertCmd.Parameters.AddWithValue("@education", JsonSerializer.Serialize(request.Education ?? new List<Education>()));
+                    insertCmd.ExecuteNonQuery();
+
+                    resumeId = (int)insertCmd.LastInsertedId;
+                }
+
+                return Ok(new { message = "Resume saved successfully", resumeId });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error saving resume: {ex.Message}");
+                return StatusCode(500, new { error = "Failed to save resume", details = ex.Message });
+            }
+        }
+
+        // GET /api/resume - Get user's resume
+        [HttpGet]
+        public IActionResult GetResume()
+        {
+            try
+            {
+                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+                if (userId == 0) return Unauthorized();
+
+                using MySqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
+                conn.Open();
+
+                string query = @"
+                    SELECT id, full_name, job_title, email, phone, location, linkedin,
+                           professional_summary, skills, experiences, education, created_at, updated_at
+                    FROM user_resumes
+                    WHERE user_id = @userId";
+
+                using MySqlCommand cmd = new(query, conn);
+                cmd.Parameters.AddWithValue("@userId", userId);
+
+                using var reader = cmd.ExecuteReader();
+                if (reader.Read())
+                {
+                    var skillsJson = reader.GetString("skills");
+                    var experiencesJson = reader.GetString("experiences");
+                    var educationJson = reader.GetString("education");
+
+                    var result = new
+                    {
+                        id = reader.GetInt32("id"),
+                        fullName = reader.GetString("full_name"),
+                        jobTitle = reader.GetString("job_title"),
+                        email = reader.GetString("email"),
+                        phone = reader.GetString("phone"),
+                        location = reader.GetString("location"),
+                        linkedin = reader.GetString("linkedin"),
+                        professionalSummary = reader.GetString("professional_summary"),
+                        skills = JsonSerializer.Deserialize<List<string>>(skillsJson),
+                        experiences = JsonSerializer.Deserialize<List<Experience>>(experiencesJson),
+                        education = JsonSerializer.Deserialize<List<Education>>(educationJson),
+                        createdAt = reader.GetDateTime("created_at"),
+                        updatedAt = reader.GetDateTime("updated_at")
+                    };
+
+                    return Ok(result);
+                }
+
+                return NotFound(new { message = "Resume not found" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting resume: {ex.Message}");
+                return StatusCode(500, new { error = "Failed to get resume", details = ex.Message });
+            }
+        }
+
+        // DELETE /api/resume - Delete resume
+        [HttpDelete]
+        public IActionResult DeleteResume()
+        {
+            try
+            {
+                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+                if (userId == 0) return Unauthorized();
+
+                using MySqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
+                conn.Open();
+
+                string deleteQuery = "DELETE FROM user_resumes WHERE user_id = @userId";
+                using MySqlCommand cmd = new(deleteQuery, conn);
+                cmd.Parameters.AddWithValue("@userId", userId);
+                
+                int rowsAffected = cmd.ExecuteNonQuery();
+
+                if (rowsAffected > 0)
+                {
+                    return Ok(new { message = "Resume deleted successfully" });
+                }
+
+                return NotFound(new { message = "Resume not found" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting resume: {ex.Message}");
+                return StatusCode(500, new { error = "Failed to delete resume", details = ex.Message });
+            }
+        }
+    }
+
+    public class ResumeDataRequest
+    {
+        public string? FullName { get; set; }
+        public string? JobTitle { get; set; }
+        public string? Email { get; set; }
+        public string? Phone { get; set; }
+        public string? Location { get; set; }
+        public string? LinkedIn { get; set; }
+        public string? ProfessionalSummary { get; set; }
+        public List<string>? Skills { get; set; }
+        public List<Experience>? Experiences { get; set; }
+        public List<Education>? Education { get; set; }
+    }
+
+    public class Experience
+    {
+        public string Role { get; set; } = "";
+        public string Company { get; set; } = "";
+        public string Period { get; set; } = "";
+        public string Description { get; set; } = "";
+    }
+
+    public class Education
+    {
+        public string Degree { get; set; } = "";
+        public string Institution { get; set; } = "";
+        public string Year { get; set; } = "";
+    }
+}

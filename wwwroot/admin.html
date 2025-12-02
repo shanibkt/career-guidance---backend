@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Guidance - Admin Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-box h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .login-box p {
+            color: #666;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #333;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        /* Dashboard Styles */
+        .dashboard {
+            display: none;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar h2 {
+            color: #667eea;
+        }
+
+        .navbar .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-logout {
+            padding: 8px 20px;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card h3 {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: white;
+            padding: 10px;
+            border-radius: 12px;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .search-bar button {
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table th {
+            background: #f5f5f5;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+        }
+
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        table tr:hover {
+            background: #f9f9f9;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .badge-warning {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+
+        .badge-danger {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .btn-view {
+            padding: 6px 16px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-delete {
+            padding: 6px 16px;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .pagination button {
+            padding: 8px 16px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .pagination button.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            width: 90%;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-container" id="loginScreen">
+        <div class="login-box">
+            <h1>🎓 Admin Portal</h1>
+            <p>Career Guidance System</p>
+            
+            <div class="error-message" id="errorMessage"></div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Email or Username</label>
+                    <input type="text" id="loginEmail" placeholder="Enter your email or username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                </div>
+                
+                <button type="submit" class="btn-login">Sign In</button>
+            </form>
+            
+            <p style="margin-top: 20px; font-size: 12px; color: #999;">
+                Default: admin@careerguidance.com / Admin@123
+            </p>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="dashboard" id="dashboardScreen">
+        <div class="navbar">
+            <h2>📊 Admin Dashboard</h2>
+            <div class="user-info">
+                <span id="adminName">Administrator</span>
+                <button class="btn-logout" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <!-- Stats Cards -->
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card">
+                    <h3>Total Users</h3>
+                    <div class="number" id="totalUsers">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Active Today</h3>
+                    <div class="number" id="activeToday">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Active This Week</h3>
+                    <div class="number" id="activeWeek">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Videos Watched</h3>
+                    <div class="number" id="totalVideos">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Resumes</h3>
+                    <div class="number" id="totalResumes">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Average Progress</h3>
+                    <div class="number" id="avgProgress">0%</div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('users')">👥 Users</button>
+                <button class="tab" onclick="switchTab('activities')">📈 Recent Activities</button>
+                <button class="tab" onclick="switchTab('careers')">💼 Popular Careers</button>
+                <button class="tab" onclick="switchTab('export')">📥 Export Data</button>
+            </div>
+
+            <!-- Users Tab -->
+            <div class="tab-content active" id="usersTab">
+                <div class="card">
+                    <div class="search-bar">
+                        <input type="text" id="searchInput" placeholder="Search users by name, email, or username...">
+                        <button onclick="searchUsers()">🔍 Search</button>
+                        <button onclick="loadUsers()">🔄 Refresh</button>
+                    </div>
+
+                    <div id="usersTableContainer">
+                        <div class="loading">Loading users...</div>
+                    </div>
+
+                    <div class="pagination" id="pagination"></div>
+                </div>
+            </div>
+
+            <!-- Activities Tab -->
+            <div class="tab-content" id="activitiesTab">
+                <div class="card">
+                    <h3 style="margin-bottom: 20px;">Recent User Activities</h3>
+                    <div id="activitiesContainer">
+                        <div class="loading">Loading activities...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Careers Tab -->
+            <div class="tab-content" id="careersTab">
+                <div class="card">
+                    <h3 style="margin-bottom: 20px;">Popular Career Paths</h3>
+                    <div id="careersContainer">
+                        <div class="loading">Loading careers...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Export Tab -->
+            <div class="tab-content" id="exportTab">
+                <div class="card">
+                    <h3 style="margin-bottom: 20px;">Export Data</h3>
+                    <p style="margin-bottom: 20px;">Download user data and analytics in CSV format.</p>
+                    <button class="btn-login" onclick="exportUsers()">📥 Export All Users to CSV</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Detail Modal -->
+    <div class="modal" id="userModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>User Details</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="userDetailContent">
+                <div class="loading">Loading user details...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5001/api';
+        let authToken = '';
+        let currentPage = 1;
+        let currentSearch = '';
+
+        // Login
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.token) {
+                    authToken = data.token;
+                    localStorage.setItem('adminToken', authToken);
+                    document.getElementById('adminName').textContent = data.user?.fullName || 'Administrator';
+                    
+                    document.getElementById('loginScreen').style.display = 'none';
+                    document.getElementById('dashboardScreen').style.display = 'block';
+                    
+                    loadDashboard();
+                } else {
+                    showError(data.message || 'Invalid credentials');
+                }
+            } catch (error) {
+                showError('Connection error. Please try again.');
+            }
+        });
+
+        function showError(message) {
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+            setTimeout(() => errorEl.style.display = 'none', 5000);
+        }
+
+        function logout() {
+            localStorage.removeItem('adminToken');
+            authToken = '';
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('dashboardScreen').style.display = 'none';
+        }
+
+        async function loadDashboard() {
+            await loadStats();
+            await loadUsers();
+        }
+
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_URL}/admin/stats`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                const data = await response.json();
+
+                document.getElementById('totalUsers').textContent = data.totalUsers || 0;
+                document.getElementById('activeToday').textContent = data.activeUsersToday || 0;
+                document.getElementById('activeWeek').textContent = data.activeUsersWeek || 0;
+                document.getElementById('totalVideos').textContent = data.totalVideosWatched || 0;
+                document.getElementById('totalResumes').textContent = data.totalResumes || 0;
+                document.getElementById('avgProgress').textContent = (data.averageProgress || 0).toFixed(1) + '%';
+
+                // Load activities
+                if (data.recentActivities) {
+                    displayActivities(data.recentActivities);
+                }
+
+                // Load careers
+                if (data.popularCareers) {
+                    displayCareers(data.popularCareers);
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        async function loadUsers(page = 1, search = '') {
+            currentPage = page;
+            currentSearch = search;
+
+            try {
+                const response = await fetch(
+                    `${API_URL}/admin/users?page=${page}&pageSize=20&search=${search}`,
+                    { headers: { 'Authorization': `Bearer ${authToken}` } }
+                );
+
+                const data = await response.json();
+
+                if (data.users) {
+                    displayUsers(data.users);
+                    displayPagination(data.totalPages, page);
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+            }
+        }
+
+        function displayUsers(users) {
+            const container = document.getElementById('usersTableContainer');
+            
+            if (users.length === 0) {
+                container.innerHTML = '<p style="text-align: center; padding: 40px;">No users found</p>';
+                return;
+            }
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Career</th>
+                            <th>Progress</th>
+                            <th>Videos</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            users.forEach(user => {
+                const progressBadge = user.overallProgress >= 70 ? 'badge-success' :
+                                     user.overallProgress >= 30 ? 'badge-warning' : 'badge-danger';
+                const statusBadge = user.lastActive ? 'badge-success' : 'badge-warning';
+                const lastActive = user.lastActive ? 
+                    new Date(user.lastActive).toLocaleDateString() : 'Never';
+
+                html += `
+                    <tr>
+                        <td>${user.userId}</td>
+                        <td><strong>${user.fullName}</strong><br><small>${user.username}</small></td>
+                        <td>${user.email}</td>
+                        <td>${user.selectedCareer || '-'}</td>
+                        <td>
+                            <span class="badge ${progressBadge}">${user.overallProgress.toFixed(1)}%</span>
+                        </td>
+                        <td>${user.completedVideos}/${user.totalVideosWatched}</td>
+                        <td><span class="badge ${statusBadge}">${lastActive}</span></td>
+                        <td>
+                            <button class="btn-view" onclick="viewUser(${user.userId})">View</button>
+                            <button class="btn-delete" onclick="deleteUser(${user.userId}, '${user.fullName}')">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        }
+
+        function displayPagination(totalPages, currentPage) {
+            const container = document.getElementById('pagination');
+            let html = '';
+
+            for (let i = 1; i <= totalPages; i++) {
+                html += `<button class="${i === currentPage ? 'active' : ''}" 
+                         onclick="loadUsers(${i}, '${currentSearch}')">${i}</button>`;
+            }
+
+            container.innerHTML = html;
+        }
+
+        async function viewUser(userId) {
+            const modal = document.getElementById('userModal');
+            const content = document.getElementById('userDetailContent');
+            
+            modal.classList.add('active');
+            content.innerHTML = '<div class="loading">Loading user details...</div>';
+
+            try {
+                const response = await fetch(`${API_URL}/admin/users/${userId}`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                const user = await response.json();
+
+                let html = `
+                    <h3>Basic Information</h3>
+                    <p><strong>Username:</strong> ${user.username}</p>
+                    <p><strong>Full Name:</strong> ${user.fullName}</p>
+                    <p><strong>Email:</strong> ${user.email}</p>
+                    <p><strong>Joined:</strong> ${new Date(user.createdAt).toLocaleDateString()}</p>
+                    <hr style="margin: 20px 0;">
+                `;
+
+                if (user.career) {
+                    html += `
+                        <h3>Career Progress</h3>
+                        <p><strong>Selected Career:</strong> ${user.career.careerName}</p>
+                        <p><strong>Overall Progress:</strong> ${user.career.overallProgress.toFixed(1)}%</p>
+                        <p><strong>Courses:</strong> ${user.career.completedCourses}/${user.career.totalCourses}</p>
+                        <hr style="margin: 20px 0;">
+                    `;
+                }
+
+                if (user.videoProgress.length > 0) {
+                    html += `
+                        <h3>Video Progress (Last 10)</h3>
+                        <table style="font-size: 12px;">
+                            <tr><th>Video</th><th>Skill</th><th>Progress</th></tr>
+                    `;
+                    user.videoProgress.slice(0, 10).forEach(video => {
+                        html += `
+                            <tr>
+                                <td>${video.videoTitle}</td>
+                                <td>${video.skillName}</td>
+                                <td>${video.watchPercentage.toFixed(1)}%</td>
+                            </tr>
+                        `;
+                    });
+                    html += `</table><hr style="margin: 20px 0;">`;
+                }
+
+                if (user.resume) {
+                    html += `
+                        <h3>Resume</h3>
+                        <p><strong>Job Title:</strong> ${user.resume.jobTitle}</p>
+                        <p><strong>Updated:</strong> ${new Date(user.resume.updatedAt).toLocaleDateString()}</p>
+                    `;
+                }
+
+                content.innerHTML = html;
+            } catch (error) {
+                content.innerHTML = '<p>Error loading user details</p>';
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('userModal').classList.remove('active');
+        }
+
+        async function deleteUser(userId, userName) {
+            if (!confirm(`Are you sure you want to delete user "${userName}"? This action cannot be undone.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/admin/users/${userId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    alert('User deleted successfully');
+                    loadUsers(currentPage, currentSearch);
+                    loadStats();
+                } else {
+                    alert('Error deleting user');
+                }
+            } catch (error) {
+                alert('Error deleting user');
+            }
+        }
+
+        function searchUsers() {
+            const search = document.getElementById('searchInput').value;
+            loadUsers(1, search);
+        }
+
+        function displayActivities(activities) {
+            const container = document.getElementById('activitiesContainer');
+            
+            let html = '<table><tr><th>User</th><th>Activity</th><th>Details</th><th>Time</th></tr>';
+            
+            activities.forEach(activity => {
+                html += `
+                    <tr>
+                        <td>${activity.fullName}</td>
+                        <td>${activity.activityType}</td>
+                        <td>${activity.activityDetail}</td>
+                        <td>${new Date(activity.activityTime).toLocaleString()}</td>
+                    </tr>
+                `;
+            });
+            
+            html += '</table>';
+            container.innerHTML = html;
+        }
+
+        function displayCareers(careers) {
+            const container = document.getElementById('careersContainer');
+            
+            let html = '<table><tr><th>Career Path</th><th>Total Users</th><th>Popularity</th></tr>';
+            
+            const maxCount = careers[0]?.count || 1;
+            
+            careers.forEach(career => {
+                const percentage = (career.count / maxCount * 100).toFixed(0);
+                html += `
+                    <tr>
+                        <td><strong>${career.careerName}</strong></td>
+                        <td>${career.count}</td>
+                        <td>
+                            <div style="background: #e0e0e0; border-radius: 10px; height: 20px; width: 200px;">
+                                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                                           height: 100%; width: ${percentage}%; border-radius: 10px;"></div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += '</table>';
+            container.innerHTML = html;
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+
+        async function exportUsers() {
+            try {
+                const response = await fetch(`${API_URL}/admin/export/users`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `users_export_${new Date().toISOString().split('T')[0]}.csv`;
+                a.click();
+            } catch (error) {
+                alert('Error exporting data');
+            }
+        }
+
+        // Check for existing token on load
+        window.addEventListener('load', () => {
+            const token = localStorage.getItem('adminToken');
+            if (token) {
+                authToken = token;
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('dashboardScreen').style.display = 'block';
+                loadDashboard();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -21,7 +21,6 @@ namespace MyFirstApi.Models
         public string? EducationLevel { get; set; }
         public string? FieldOfStudy { get; set; }
         public List<string>? Skills { get; set; }
-        public string? AreasOfInterest { get; set; }
         public string? ProfileImagePath { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }

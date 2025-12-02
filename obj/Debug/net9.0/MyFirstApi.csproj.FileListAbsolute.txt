@@ -61,3 +61,4 @@ C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Debug\net9.0\Microsoft.Identit
 C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Debug\net9.0\System.IdentityModel.Tokens.Jwt.dll
 C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Debug\net9.0\MyFirstApi.staticwebassets.runtime.json
 C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\obj\Debug\net9.0\MyFirstApi.sourcelink.json
+C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\obj\Debug\net9.0\compressed\kgf2qu4yx0-lkupwntnmw.gz

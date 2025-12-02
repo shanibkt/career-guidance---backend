@@ -34,7 +34,16 @@ namespace MyFirstApi.Models
     public class LoginResponse
     {
         public string Token { get; set; } = string.Empty;
+        public string RefreshToken { get; set; } = string.Empty;
+        public DateTime TokenExpiration { get; set; }
         public UserResponse User { get; set; } = new UserResponse();
+    }
+
+    // Refresh token request
+    public class RefreshTokenRequest
+    {
+        public string Token { get; set; } = string.Empty;
+        public string RefreshToken { get; set; } = string.Empty;
     }
 
     // Update user DTO
@@ -55,6 +64,5 @@ namespace MyFirstApi.Models
         public string? EducationLevel { get; set; }
         public string? FieldOfStudy { get; set; }
         public List<string>? Skills { get; set; }
-        public string? AreasOfInterest { get; set; }
     }
 }
