@@ -21,8 +21,16 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Register HttpClient for GroqService
+// Register HttpClient for GroqService and JobApiService
 builder.Services.AddHttpClient<GroqService>();
+builder.Services.AddHttpClient<JobApiService>();
+
+// Register Job Services
+builder.Services.AddScoped<JobApiService>();
+builder.Services.AddScoped<JobDatabaseService>();
+
+// Register Crash Reporting Service
+builder.Services.AddScoped<ICrashReportingService, LocalCrashReportingService>();
 
 var jwtSection = builder.Configuration.GetSection("Jwt");
 var jwtKey = jwtSection.GetValue<string>("Key");
