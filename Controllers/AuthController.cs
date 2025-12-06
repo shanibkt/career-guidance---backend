@@ -161,9 +161,20 @@ namespace MyFirstApi.Controllers
                     }
                     catch { /* Role column might not exist in older databases */ }
                     
-                    int createdAtOrdinal = reader.GetOrdinal("CreatedAt");
-                    if (!reader.IsDBNull(createdAtOrdinal))
-                        createdAt = reader.GetDateTime(createdAtOrdinal);
+                    // Handle CreatedAt with MySQL timestamp compatibility
+                    try
+                    {
+                        int createdAtOrdinal = reader.GetOrdinal("CreatedAt");
+                        if (!reader.IsDBNull(createdAtOrdinal))
+                        {
+                            var value = reader.GetValue(createdAtOrdinal);
+                            if (value is DateTime dt)
+                                createdAt = dt;
+                            else if (value is string str && DateTime.TryParse(str, out DateTime parsed))
+                                createdAt = parsed;
+                        }
+                    }
+                    catch { /* CreatedAt might not exist or have different type */ }
                 } // DataReader is closed here
 
                 // Now verify password
