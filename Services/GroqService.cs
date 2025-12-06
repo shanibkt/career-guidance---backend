@@ -7,18 +7,19 @@ namespace MyFirstApi.Services
     public class GroqService
     {
         private readonly HttpClient _httpClient;
-        private readonly string _apiKey = "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"; // Get from https://console.groq.com/keys
+        private readonly string _apiKey;
         private readonly string _model = "llama-3.1-8b-instant";
         private readonly string _chatModel = "llama-3.1-8b-instant"; // Changed from 70b to 8b for better reliability
 
-        public GroqService(HttpClient httpClient)
+        public GroqService(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
+            _apiKey = configuration["Groq:ApiKey"] ?? throw new InvalidOperationException("Groq API key not configured");
             _httpClient.BaseAddress = new Uri("https://api.groq.com/openai/v1/");
             _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiKey}");
             
             Console.WriteLine($"🔧 GroqService initialized with chat model: {_chatModel}");
-            Console.WriteLine($"🔧 API Key (first 20 chars): {_apiKey.Substring(0, 20)}...");
+            Console.WriteLine($"🔧 API Key (first 20 chars): {_apiKey.Substring(0, Math.Min(20, _apiKey.Length))}...");
         }
 
         public async Task<string> GenerateQuizQuestions(string userProfile)
