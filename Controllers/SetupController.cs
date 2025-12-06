@@ -319,7 +319,7 @@ namespace MyFirstApi.Controllers
 
                 // 2. Delete existing admin user if any
                 using (var deleteCmd = new MySqlCommand(
-                    "DELETE FROM Users WHERE Email = 'admin@careerguidance.com'", conn))
+                    "DELETE FROM users WHERE Email = 'admin@careerguidance.com'", conn))
                 {
                     int deleted = deleteCmd.ExecuteNonQuery();
                     if (deleted > 0)
@@ -330,7 +330,7 @@ namespace MyFirstApi.Controllers
                 var passwordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123");
                 
                 using (var insertCmd = new MySqlCommand(@"
-                    INSERT INTO Users (Username, FullName, Email, PasswordHash, Role, CreatedAt)
+                    INSERT INTO users (Username, FullName, Email, PasswordHash, Role, CreatedAt)
                     VALUES (@username, @fullName, @email, @passwordHash, @role, NOW())", conn))
                 {
                     insertCmd.Parameters.AddWithValue("@username", "admin");
@@ -370,7 +370,7 @@ namespace MyFirstApi.Controllers
 
                 // 5. Verify admin user
                 using (var verifyCmd = new MySqlCommand(
-                    "SELECT Id, Username, Email, Role, CreatedAt FROM Users WHERE Email = 'admin@careerguidance.com'", conn))
+                    "SELECT Id, Username, Email, Role, CreatedAt FROM users WHERE Email = 'admin@careerguidance.com'", conn))
                 {
                     using var reader = verifyCmd.ExecuteReader();
                     

@@ -233,50 +233,8 @@ public class ChatController : ControllerBase
         }
     }
 
-    [HttpGet("sessions")]
-    public async Task<IActionResult> GetSessions()
-    {
-        try
-        {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
-            {
-                return Unauthorized(new { error = "Invalid user token" });
-            }
-
-            using var connection = new MySqlConnection(_configuration.GetConnectionString("DefaultConnection"));
-            await connection.OpenAsync();
-
-            var query = @"
-                SELECT SessionId, CreatedAt
-                FROM ChatSessions
-                WHERE UserId = @UserId
-                ORDER BY CreatedAt DESC
-                LIMIT 20";
-
-            using var cmd = new MySqlCommand(query, connection);
-            cmd.Parameters.AddWithValue("@UserId", userId);
-
-            using var reader = await cmd.ExecuteReaderAsync();
-            var sessions = new List<object>();
-
-            while (await reader.ReadAsync())
-            {
-                sessions.Add(new
-                {
-                    sessionId = Guid.Parse(reader.GetString(reader.GetOrdinal("SessionId"))),
-                    createdAt = reader.GetDateTime(reader.GetOrdinal("CreatedAt"))
-                });
-            }
-
-            return Ok(new { sessions });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"Error getting sessions: {ex.Message}");
-            return StatusCode(500, new { error = "Failed to retrieve sessions" });
-        }
-    }
+    // NOTE: GetSessions endpoint moved to ChatHistoryController to avoid route conflicts
+    // Use ChatHistoryController.GetSessions() for retrieving chat sessions
 
     private async Task<Guid> CreateSessionAsync(MySqlConnection connection, int userId)
     {
@@ -374,7 +332,7 @@ public class ChatController : ControllerBase
         {
             var query = @"
                 SELECT u.FullName, up.EducationLevel, up.FieldOfStudy, up.Skills, up.Age
-                FROM Users u
+                FROM users u
                 LEFT JOIN UserProfiles up ON u.Id = up.UserId
                 WHERE u.Id = @UserId
                 LIMIT 1";

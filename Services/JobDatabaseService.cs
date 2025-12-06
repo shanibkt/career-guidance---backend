@@ -119,24 +119,24 @@ namespace MyFirstApi.Services
                 {
                     var job = new JobResponse
                     {
-                        Id = reader.GetString("job_id"),
-                        Title = reader.GetString("title"),
-                        Company = reader.GetString("company"),
-                        Location = reader.GetString("location"),
-                        Url = reader.IsDBNull(reader.GetOrdinal("url")) ? null : reader.GetString("url"),
-                        Description = reader.IsDBNull(reader.GetOrdinal("description")) ? null : reader.GetString("description"),
-                        JobType = reader.IsDBNull(reader.GetOrdinal("job_type")) ? null : reader.GetString("job_type"),
-                        SalaryMin = reader.IsDBNull(reader.GetOrdinal("salary_min")) ? null : reader.GetString("salary_min"),
-                        SalaryMax = reader.IsDBNull(reader.GetOrdinal("salary_max")) ? null : reader.GetString("salary_max"),
-                        SalaryCurrency = reader.IsDBNull(reader.GetOrdinal("salary_currency")) ? "USD" : reader.GetString("salary_currency"),
-                        ExperienceLevel = reader.IsDBNull(reader.GetOrdinal("experience_level")) ? null : reader.GetString("experience_level"),
-                        PostedDate = reader.IsDBNull(reader.GetOrdinal("posted_date")) ? null : reader.GetString("posted_date"),
+                        Id = reader.GetString(reader.GetOrdinal("job_id")),
+                        Title = reader.GetString(reader.GetOrdinal("title")),
+                        Company = reader.GetString(reader.GetOrdinal("company")),
+                        Location = reader.GetString(reader.GetOrdinal("location")),
+                        Url = reader.IsDBNull(reader.GetOrdinal("url")) ? null : reader.GetString(reader.GetOrdinal("url")),
+                        Description = reader.IsDBNull(reader.GetOrdinal("description")) ? null : reader.GetString(reader.GetOrdinal("description")),
+                        JobType = reader.IsDBNull(reader.GetOrdinal("job_type")) ? null : reader.GetString(reader.GetOrdinal("job_type")),
+                        SalaryMin = reader.IsDBNull(reader.GetOrdinal("salary_min")) ? null : reader.GetString(reader.GetOrdinal("salary_min")),
+                        SalaryMax = reader.IsDBNull(reader.GetOrdinal("salary_max")) ? null : reader.GetString(reader.GetOrdinal("salary_max")),
+                        SalaryCurrency = reader.IsDBNull(reader.GetOrdinal("salary_currency")) ? "USD" : reader.GetString(reader.GetOrdinal("salary_currency")),
+                        ExperienceLevel = reader.IsDBNull(reader.GetOrdinal("experience_level")) ? null : reader.GetString(reader.GetOrdinal("experience_level")),
+                        PostedDate = reader.IsDBNull(reader.GetOrdinal("posted_date")) ? null : reader.GetString(reader.GetOrdinal("posted_date")),
                         IsSaved = true,
                     };
 
                     if (!reader.IsDBNull(reader.GetOrdinal("required_skills")))
                     {
-                        var skillsJson = reader.GetString("required_skills");
+                        var skillsJson = reader.GetString(reader.GetOrdinal("required_skills"));
                         job.RequiredSkills = JsonSerializer.Deserialize<List<string>>(skillsJson) ?? new List<string>();
                     }
 

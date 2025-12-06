@@ -28,7 +28,7 @@ namespace MyFirstApi.Controllers
                 using MySqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
                 conn.Open();
 
-                using MySqlCommand cmd = new("my_database.sp_get_user_by_id", conn);
+                using MySqlCommand cmd = new("sp_get_user_by_id", conn);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("p_userId", userId);
 
@@ -64,7 +64,7 @@ namespace MyFirstApi.Controllers
                 using MySqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
                 conn.Open();
 
-                using MySqlCommand cmd = new("my_database.sp_update_user", conn);
+                using MySqlCommand cmd = new("sp_update_user", conn);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("p_userId", userId);
                 cmd.Parameters.AddWithValue("p_username", dto.Username);
@@ -98,7 +98,7 @@ namespace MyFirstApi.Controllers
                 using MySqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
                 conn.Open();
 
-                using MySqlCommand cmd = new("my_database.sp_delete_user", conn);
+                using MySqlCommand cmd = new("sp_delete_user", conn);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("p_userId", userId);
 
@@ -138,7 +138,7 @@ namespace MyFirstApi.Controllers
                 using MySqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
                 conn.Open();
 
-                using MySqlCommand cmd = new("my_database.sp_get_profile_by_userid", conn);
+                using MySqlCommand cmd = new("sp_get_profile_by_userid", conn);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("p_userId", userId);
 
@@ -191,7 +191,7 @@ namespace MyFirstApi.Controllers
                 Console.WriteLine($"Phone: {dto.PhoneNumber}, Age: {dto.Age}, Gender: {dto.Gender}");
                 Console.WriteLine($"Education: {dto.EducationLevel}, Field: {dto.FieldOfStudy}");
 
-                using MySqlCommand cmd = new("my_database.sp_create_or_update_profile", conn);
+                using MySqlCommand cmd = new("sp_create_or_update_profile", conn);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("p_userId", dto.UserId);
                 cmd.Parameters.AddWithValue("p_phoneNumber", string.IsNullOrWhiteSpace(dto.PhoneNumber) ? DBNull.Value : dto.PhoneNumber);

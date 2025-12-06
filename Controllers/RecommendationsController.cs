@@ -51,7 +51,7 @@ namespace MyFirstApi.Controllers
                 // Get user profile
                 string profileQuery = @"
                     SELECT u.FullName, p.EducationLevel, p.FieldOfStudy, p.Skills, p.AreasOfInterest
-                    FROM Users u
+                    FROM users u
                     LEFT JOIN UserProfiles p ON u.Id = p.UserId
                     WHERE u.Id = @userId";
 

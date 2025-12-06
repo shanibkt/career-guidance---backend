@@ -121,7 +121,7 @@ namespace MyFirstApi.Controllers
                             u.CreatedAt
                         ) as LastActive,
                         COALESCE(SUM(vwh.current_position_seconds), 0) / 60 as TotalWatchTimeMinutes
-                    FROM Users u
+                    FROM users u
                     LEFT JOIN user_career_progress ucp ON u.Id = ucp.user_id AND ucp.is_active = TRUE
                     LEFT JOIN video_watch_history vwh ON u.Id = vwh.user_id
                     LEFT JOIN user_resumes ur ON u.Id = ur.user_id
@@ -172,7 +172,7 @@ namespace MyFirstApi.Controllers
                 // Get total count
                 var countQuery = $@"
                     SELECT COUNT(DISTINCT u.Id)
-                    FROM Users u
+                    FROM users u
                     WHERE 1=1 {searchCondition}";
 
                 using var countCmd = new MySqlCommand(countQuery, connection);
@@ -210,7 +210,7 @@ namespace MyFirstApi.Controllers
                 await connection.OpenAsync();
 
                 // Get user basic info
-                var userQuery = "SELECT Id, Username, FullName, Email, CreatedAt FROM Users WHERE Id = @UserId";
+                var userQuery = "SELECT Id, Username, FullName, Email, CreatedAt FROM users WHERE Id = @UserId";
                 using var userCmd = new MySqlCommand(userQuery, connection);
                 userCmd.Parameters.AddWithValue("@UserId", userId);
 
@@ -377,7 +377,7 @@ namespace MyFirstApi.Controllers
                 var stats = new SystemStats();
 
                 // Total users
-                using (var cmd = new MySqlCommand("SELECT COUNT(*) FROM Users", connection))
+                using (var cmd = new MySqlCommand("SELECT COUNT(*) FROM users", connection))
                 {
                     stats.TotalUsers = Convert.ToInt32(await cmd.ExecuteScalarAsync());
                 }
@@ -463,7 +463,7 @@ namespace MyFirstApi.Controllers
                         vwh.video_title as activity_detail,
                         vwh.last_watched as activity_time
                     FROM video_watch_history vwh
-                    JOIN Users u ON vwh.user_id = u.Id
+                    JOIN users u ON vwh.user_id = u.Id
                     ORDER BY vwh.last_watched DESC
                     LIMIT 20";
                 using (var cmd = new MySqlCommand(activityQuery, connection))
@@ -504,7 +504,7 @@ namespace MyFirstApi.Controllers
                 await connection.OpenAsync();
 
                 // Delete user (cascades to all related tables)
-                var query = "DELETE FROM Users WHERE Id = @UserId";
+                var query = "DELETE FROM users WHERE Id = @UserId";
                 using var cmd = new MySqlCommand(query, connection);
                 cmd.Parameters.AddWithValue("@UserId", userId);
                 await cmd.ExecuteNonQueryAsync();
@@ -530,7 +530,7 @@ namespace MyFirstApi.Controllers
                 using var connection = new MySqlConnection(connectionString);
                 await connection.OpenAsync();
 
-                var query = "UPDATE Users SET Role = @Role WHERE Id = @UserId";
+                var query = "UPDATE users SET Role = @Role WHERE Id = @UserId";
                 using var cmd = new MySqlCommand(query, connection);
                 cmd.Parameters.AddWithValue("@Role", request.Role);
                 cmd.Parameters.AddWithValue("@UserId", userId);
@@ -568,7 +568,7 @@ namespace MyFirstApi.Controllers
                         ucp.career_name, ucp.overall_progress,
                         COUNT(DISTINCT vwh.video_id) as videos_watched,
                         SUM(CASE WHEN vwh.is_completed THEN 1 ELSE 0 END) as completed_videos
-                    FROM Users u
+                    FROM users u
                     LEFT JOIN user_career_progress ucp ON u.Id = ucp.user_id AND ucp.is_active = TRUE
                     LEFT JOIN video_watch_history vwh ON u.Id = vwh.user_id
                     GROUP BY u.Id, u.Username, u.FullName, u.Email, u.CreatedAt, ucp.career_name, ucp.overall_progress";
@@ -617,7 +617,7 @@ namespace MyFirstApi.Controllers
 
                 var query = @"
                     SELECT DATE(CreatedAt) as date, COUNT(*) as count
-                    FROM Users
+                    FROM users
                     WHERE CreatedAt >= DATE_SUB(CURDATE(), INTERVAL @Days DAY)
                     GROUP BY DATE(CreatedAt)
                     ORDER BY date ASC";

@@ -52,7 +52,7 @@ namespace MyFirstApi.Controllers
                     SELECT u.FullName, u.Email, 
                            p.PhoneNumber, p.Age, p.Gender, p.EducationLevel, 
                            p.FieldOfStudy, p.Skills
-                    FROM Users u
+                    FROM users u
                     LEFT JOIN UserProfiles p ON u.Id = p.UserId
                     WHERE u.Id = @userId";
 

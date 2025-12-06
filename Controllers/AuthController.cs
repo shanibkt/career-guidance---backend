@@ -36,10 +36,9 @@ namespace MyFirstApi.Controllers
                 conn.Open();
 
                 // Check if user already exists
-                using (MySqlCommand checkCmd = new("my_database.sp_get_user_by_email", conn))
+                using (MySqlCommand checkCmd = new("SELECT Id FROM users WHERE Email = @email LIMIT 1", conn))
                 {
-                    checkCmd.CommandType = CommandType.StoredProcedure;
-                    checkCmd.Parameters.AddWithValue("p_email", req.Email);
+                    checkCmd.Parameters.AddWithValue("@email", req.Email);
                     using var reader = checkCmd.ExecuteReader();
                     if (reader.Read())
                     {
@@ -49,12 +48,11 @@ namespace MyFirstApi.Controllers
 
                 string hashed = BCrypt.Net.BCrypt.HashPassword(req.Password);
 
-                using MySqlCommand cmd = new("my_database.sp_create_user", conn);
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("p_username", req.Username);
-                cmd.Parameters.AddWithValue("p_fullName", req.FullName);
-                cmd.Parameters.AddWithValue("p_email", req.Email);
-                cmd.Parameters.AddWithValue("p_passwordHash", hashed);
+                using MySqlCommand cmd = new("INSERT INTO users (Username, FullName, Email, PasswordHash) VALUES (@username, @fullName, @email, @passwordHash); SELECT LAST_INSERT_ID();", conn);
+                cmd.Parameters.AddWithValue("@username", req.Username);
+                cmd.Parameters.AddWithValue("@fullName", req.FullName);
+                cmd.Parameters.AddWithValue("@email", req.Email);
+                cmd.Parameters.AddWithValue("@passwordHash", hashed);
 
                 object idObj = cmd.ExecuteScalar();
                 int newId = Convert.ToInt32(idObj ?? 0);
@@ -62,7 +60,7 @@ namespace MyFirstApi.Controllers
                 // Create profile if additional data provided
                 if (!string.IsNullOrWhiteSpace(req.Phone) || req.Age.HasValue || !string.IsNullOrWhiteSpace(req.Gender))
                 {
-                    using MySqlCommand profileCmd = new("my_database.sp_create_or_update_profile", conn);
+                    using MySqlCommand profileCmd = new("freedb_career_guidence.sp_create_or_update_profile", conn);
                     profileCmd.CommandType = CommandType.StoredProcedure;
                     profileCmd.Parameters.AddWithValue("p_userId", newId);
                     profileCmd.Parameters.AddWithValue("p_phoneNumber", string.IsNullOrWhiteSpace(req.Phone) ? DBNull.Value : req.Phone);
@@ -140,10 +138,9 @@ namespace MyFirstApi.Controllers
                 DateTime createdAt = DateTime.UtcNow;
 
                 // Read user data and CLOSE the reader before doing anything else
-                using (MySqlCommand cmd = new("my_database.sp_get_user_by_email", conn))
+                using (MySqlCommand cmd = new("SELECT Id, Username, FullName, Email, PasswordHash, CreatedAt, UpdatedAt FROM users WHERE Email = @email LIMIT 1", conn))
                 {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("p_email", req.Email);
+                    cmd.Parameters.AddWithValue("@email", req.Email);
 
                     using MySqlDataReader reader = cmd.ExecuteReader();
                     if (!reader.Read()) return Unauthorized("Invalid credentials.");
