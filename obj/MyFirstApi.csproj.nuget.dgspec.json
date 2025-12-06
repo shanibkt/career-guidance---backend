@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Dell\\Desktop\\dotnet\\learn\\MyFirstApi\\MyFirstApi.csproj": {}
+    "C:\\Users\\Dell\\Desktop\\Career guidence\\career-guidance---backend\\MyFirstApi.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Dell\\Desktop\\dotnet\\learn\\MyFirstApi\\MyFirstApi.csproj": {
+    "C:\\Users\\Dell\\Desktop\\Career guidence\\career-guidance---backend\\MyFirstApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Dell\\Desktop\\dotnet\\learn\\MyFirstApi\\MyFirstApi.csproj",
+        "projectUniqueName": "C:\\Users\\Dell\\Desktop\\Career guidence\\career-guidance---backend\\MyFirstApi.csproj",
         "projectName": "MyFirstApi",
-        "projectPath": "C:\\Users\\Dell\\Desktop\\dotnet\\learn\\MyFirstApi\\MyFirstApi.csproj",
+        "projectPath": "C:\\Users\\Dell\\Desktop\\Career guidence\\career-guidance---backend\\MyFirstApi.csproj",
         "packagesPath": "C:\\Users\\Dell\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Dell\\Desktop\\dotnet\\learn\\MyFirstApi\\obj\\",
+        "outputPath": "C:\\Users\\Dell\\Desktop\\Career guidence\\career-guidance---backend\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Dell\\AppData\\Roaming\\NuGet\\NuGet.Config"

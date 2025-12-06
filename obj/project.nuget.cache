@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "bLgpkmp66xc=",
+  "dgSpecHash": "QtheN9lgY0s=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Dell\\Desktop\\dotnet\\learn\\MyFirstApi\\MyFirstApi.csproj",
+  "projectFilePath": "C:\\Users\\Dell\\Desktop\\Career guidence\\career-guidance---backend\\MyFirstApi.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Dell\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\Dell\\.nuget\\packages\\bouncycastle.cryptography\\2.5.1\\bouncycastle.cryptography.2.5.1.nupkg.sha512",

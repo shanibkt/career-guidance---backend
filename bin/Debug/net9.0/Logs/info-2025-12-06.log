@@ -1,0 +1,162 @@
+{
+  "Timestamp": "2025-12-06T05:02:50.6222639Z",
+  "Level": "INFO",
+  "Message": "Personalized jobs requested",
+  "ExceptionType": null,
+  "ExceptionMessage": null,
+  "StackTrace": null,
+  "CustomData": {
+    "userId": "1",
+    "careerTitle": "Android Developer",
+    "skillsCount": "0"
+  }
+}
+--------------------------------------------------------------------------------
+{
+  "Timestamp": "2025-12-06T05:02:59.8848562Z",
+  "Level": "INFO",
+  "Message": "Personalized jobs generated",
+  "ExceptionType": null,
+  "ExceptionMessage": null,
+  "StackTrace": null,
+  "CustomData": {
+    "userId": "1",
+    "jobsCount": "10"
+  }
+}
+--------------------------------------------------------------------------------
+{
+  "Timestamp": "2025-12-06T05:14:54.9466666Z",
+  "Level": "INFO",
+  "Message": "Personalized jobs requested",
+  "ExceptionType": null,
+  "ExceptionMessage": null,
+  "StackTrace": null,
+  "CustomData": {
+    "userId": "1",
+    "careerTitle": "Flutter Developer",
+    "skillsCount": "2"
+  }
+}
+--------------------------------------------------------------------------------
+{
+  "Timestamp": "2025-12-06T05:15:01.1448773Z",
+  "Level": "INFO",
+  "Message": "Personalized jobs generated",
+  "ExceptionType": null,
+  "ExceptionMessage": null,
+  "StackTrace": null,
+  "CustomData": {
+    "userId": "1",
+    "jobsCount": "10"
+  }
+}
+--------------------------------------------------------------------------------
+{
+  "Timestamp": "2025-12-06T05:15:07.8619188Z",
+  "Level": "INFO",
+  "Message": "Personalized jobs requested",
+  "ExceptionType": null,
+  "ExceptionMessage": null,
+  "StackTrace": null,
+  "CustomData": {
+    "userId": "1",
+    "careerTitle": "Flutter Developer",
+    "skillsCount": "2"
+  }
+}
+--------------------------------------------------------------------------------
+{
+  "Timestamp": "2025-12-06T05:15:17.4383953Z",
+  "Level": "INFO",
+  "Message": "Personalized jobs generated",
+  "ExceptionType": null,
+  "ExceptionMessage": null,
+  "StackTrace": null,
+  "CustomData": {
+    "userId": "1",
+    "jobsCount": "10"
+  }
+}
+--------------------------------------------------------------------------------
+{
+  "Timestamp": "2025-12-06T05:48:15.6147549Z",
+  "Level": "INFO",
+  "Message": "Personalized jobs requested",
+  "ExceptionType": null,
+  "ExceptionMessage": null,
+  "StackTrace": null,
+  "CustomData": {
+    "userId": "1",
+    "careerTitle": "Flutter Developer",
+    "skillsCount": "2"
+  }
+}
+--------------------------------------------------------------------------------
+{
+  "Timestamp": "2025-12-06T05:48:21.2920565Z",
+  "Level": "INFO",
+  "Message": "Personalized jobs generated",
+  "ExceptionType": null,
+  "ExceptionMessage": null,
+  "StackTrace": null,
+  "CustomData": {
+    "userId": "1",
+    "jobsCount": "10"
+  }
+}
+--------------------------------------------------------------------------------
+{
+  "Timestamp": "2025-12-06T05:49:52.1819865Z",
+  "Level": "INFO",
+  "Message": "Personalized jobs requested",
+  "ExceptionType": null,
+  "ExceptionMessage": null,
+  "StackTrace": null,
+  "CustomData": {
+    "userId": "1",
+    "careerTitle": "Flutter Developer",
+    "skillsCount": "2"
+  }
+}
+--------------------------------------------------------------------------------
+{
+  "Timestamp": "2025-12-06T05:49:57.1696013Z",
+  "Level": "INFO",
+  "Message": "Personalized jobs generated",
+  "ExceptionType": null,
+  "ExceptionMessage": null,
+  "StackTrace": null,
+  "CustomData": {
+    "userId": "1",
+    "jobsCount": "10"
+  }
+}
+--------------------------------------------------------------------------------
+{
+  "Timestamp": "2025-12-06T05:50:02.3102885Z",
+  "Level": "INFO",
+  "Message": "Job search initiated",
+  "ExceptionType": null,
+  "ExceptionMessage": null,
+  "StackTrace": null,
+  "CustomData": {
+    "userId": "1",
+    "query": "android",
+    "location": "none"
+  }
+}
+--------------------------------------------------------------------------------
+{
+  "Timestamp": "2025-12-06T05:50:07.6546728Z",
+  "Level": "INFO",
+  "Message": "Job search completed",
+  "ExceptionType": null,
+  "ExceptionMessage": null,
+  "StackTrace": null,
+  "CustomData": {
+    "userId": "1",
+    "resultsCount": "10"
+  }
+}
+--------------------------------------------------------------------------------

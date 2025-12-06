@@ -2,6 +2,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
 using MyFirstApi.Services;
+using MyFirstApi.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,14 +17,21 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Add services to the container.
-builder.Services.AddControllers();
+// Add services to the container with global exception filter
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<GlobalExceptionFilter>();
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Register HttpClient for GroqService and JobApiService
 builder.Services.AddHttpClient<GroqService>();
 builder.Services.AddHttpClient<JobApiService>();
+
+// Register Core Services
+builder.Services.AddScoped<DatabaseService>();
+builder.Services.AddScoped<CareerProgressService>();
 
 // Register Job Services
 builder.Services.AddScoped<JobApiService>();

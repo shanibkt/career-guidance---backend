@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS saved_jobs (
     posted_date VARCHAR(100),
     saved_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_user_id (user_id),
-    FOREIGN KEY (user_id) REFERENCES Users(Id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES Users(Id) ON DELETE CASCADEq
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Table: job_applications
