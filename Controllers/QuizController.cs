@@ -53,7 +53,7 @@ namespace MyFirstApi.Controllers
                            p.PhoneNumber, p.Age, p.Gender, p.EducationLevel, 
                            p.FieldOfStudy, p.Skills
                     FROM users u
-                    LEFT JOIN UserProfiles p ON u.Id = p.UserId
+                    LEFT JOIN userprofiles p ON u.Id = p.UserId
                     WHERE u.Id = @userId";
 
                 using MySqlCommand cmd = new(query, conn);
@@ -160,6 +160,16 @@ namespace MyFirstApi.Controllers
                 
                 var questions = questionsArray.GetRawText();
 
+                // Validate questions JSON is not empty
+                if (string.IsNullOrWhiteSpace(questions))
+                {
+                    _logger.LogError("Questions JSON is null or empty!");
+                    return StatusCode(500, new { error = "Failed to serialize questions", details = "Questions data is empty" });
+                }
+
+                _logger.LogInformation($"Questions JSON length: {questions.Length} characters");
+                _logger.LogInformation($"Questions preview: {questions.Substring(0, Math.Min(200, questions.Length))}...");
+
                 // Generate UUID for quiz
                 var quizId = Guid.NewGuid().ToString();
                 _logger.LogInformation($"Generated quiz_id: {quizId}");
@@ -206,36 +216,75 @@ namespace MyFirstApi.Controllers
                 conn.Open();
 
                 // Verify quiz belongs to user and get questions
+                _logger.LogInformation($"Looking up quiz_id: {request.QuizId}");
                 string checkQuery = "SELECT user_id, questions FROM quiz_sessions WHERE quiz_id = @quizId";
                 using MySqlCommand checkCmd = new(checkQuery, conn);
                 checkCmd.Parameters.AddWithValue("@quizId", request.QuizId);
                 
                 using var reader = checkCmd.ExecuteReader();
                 if (!reader.Read())
+                {
+                    _logger.LogWarning($"Quiz not found: {request.QuizId}");
                     return BadRequest(new { error = "Invalid quiz_id" });
+                }
+                
+                _logger.LogInformation("Quiz found, checking user_id...");
 
                 var sessionUserId = reader.GetInt32("user_id");
+                _logger.LogInformation($"Quiz belongs to user_id: {sessionUserId}, requesting user: {userId}");
                 if (sessionUserId != userId)
                     return Unauthorized(new { error = "Quiz does not belong to this user" });
 
+                // Check if questions column is null
+                var questionsOrdinal = reader.GetOrdinal("questions");
+                _logger.LogInformation($"Questions column ordinal: {questionsOrdinal}");
+                
+                if (reader.IsDBNull(questionsOrdinal))
+                {
+                    _logger.LogError("Questions column is NULL in database!");
+                    reader.Close();
+                    return StatusCode(500, new { error = "Quiz data is corrupted", details = "Questions data is missing from database" });
+                }
+
                 var questionsJson = reader.GetString("questions");
+                _logger.LogInformation($"Retrieved questions JSON, length: {questionsJson?.Length ?? 0} characters");
+                _logger.LogInformation($"Questions JSON preview: {questionsJson?.Substring(0, Math.Min(200, questionsJson?.Length ?? 0))}");
                 reader.Close();
 
                 // Parse questions to get correct answers and skill categories
-                var questionsObj = JsonSerializer.Deserialize<JsonElement>(questionsJson);
-                var questionsList = JsonSerializer.Deserialize<List<QuizQuestion>>(questionsObj.GetRawText());
+                List<QuizQuestion>? questionsList;
+                try
+                {
+                    var questionsObj = JsonSerializer.Deserialize<JsonElement>(questionsJson!);
+                    _logger.LogInformation("✅ Deserialized to JsonElement successfully");
+                    questionsList = JsonSerializer.Deserialize<List<QuizQuestion>>(questionsObj.GetRawText());
+                    _logger.LogInformation($"✅ Deserialized to List<QuizQuestion>, count: {questionsList?.Count ?? 0}");
+                }
+                catch (Exception parseEx)
+                {
+                    _logger.LogError($"❌ JSON parse error: {parseEx.Message}");
+                    _logger.LogError($"❌ JSON content: {questionsJson}");
+                    return StatusCode(500, new { error = "Failed to parse quiz questions", details = parseEx.Message });
+                }
 
                 if (questionsList == null || questionsList.Count == 0)
                     return StatusCode(500, new { error = "No questions found for this quiz" });
 
+                _logger.LogInformation($"📊 Starting score calculation for {request.Answers?.Count ?? 0} answers");
+                
                 // Calculate scores per skill
                 var skillScores = new Dictionary<string, (int correct, int total)>();
                 int totalCorrect = 0;
 
                 foreach (var answer in request.Answers)
                 {
+                    _logger.LogInformation($"Processing answer for question {answer.QuestionId}");
                     var question = questionsList.FirstOrDefault(q => q.Id == answer.QuestionId);
-                    if (question == null) continue;
+                    if (question == null) 
+                    {
+                        _logger.LogWarning($"Question {answer.QuestionId} not found in list");
+                        continue;
+                    }
 
                     var skill = question.SkillCategory ?? "Unknown";
                     if (!skillScores.ContainsKey(skill))
@@ -254,6 +303,8 @@ namespace MyFirstApi.Controllers
 
                     skillScores[skill] = (correct, total);
                 }
+                
+                _logger.LogInformation($"✅ Score calculation complete. Total correct: {totalCorrect}");
 
                 // Convert to SkillScore list with percentages
                 var skillBreakdown = skillScores.Select(kvp => new SkillScore
@@ -268,6 +319,7 @@ namespace MyFirstApi.Controllers
                 var overallPercentage = totalQuestions > 0 ? (decimal)totalCorrect / totalQuestions * 100 : 0;
 
                 // Load careers and calculate matches
+                _logger.LogInformation("🎯 Loading careers for matching...");
                 string careersQuery = "SELECT id, career_name, required_skills, skill_weights, min_score_percentage, salary_range FROM careers";
                 using MySqlCommand careersCmd = new(careersQuery, conn);
                 using var careersReader = careersCmd.ExecuteReader();
@@ -276,17 +328,32 @@ namespace MyFirstApi.Controllers
 
                 while (careersReader.Read())
                 {
-                    var careerId = careersReader.GetInt32("id");
-                    var careerName = careersReader.GetString("career_name");
-                    var requiredSkillsJson = careersReader.GetString("required_skills");
-                    var skillWeightsJson = careersReader.GetString("skill_weights");
-                    var minScorePercentage = careersReader.GetDecimal("min_score_percentage");
-                    var salaryRange = careersReader.IsDBNull(careersReader.GetOrdinal("salary_range")) 
-                        ? null : careersReader.GetString("salary_range");
+                    try
+                    {
+                        var careerId = careersReader.GetInt32("id");
+                        var careerName = careersReader.IsDBNull(careersReader.GetOrdinal("career_name")) 
+                            ? "Unknown" 
+                            : careersReader.GetString("career_name");
+                        
+                        if (careersReader.IsDBNull(careersReader.GetOrdinal("required_skills")))
+                        {
+                            _logger.LogWarning($"Career {careerId} has null required_skills, skipping");
+                            continue;
+                        }
+                        
+                        var requiredSkillsJson = careersReader.GetString("required_skills");
+                        var skillWeightsJson = careersReader.IsDBNull(careersReader.GetOrdinal("skill_weights"))
+                            ? "{}"
+                            : careersReader.GetString("skill_weights");
+                        var minScorePercentage = careersReader.IsDBNull(careersReader.GetOrdinal("min_score_percentage"))
+                            ? 0m
+                            : careersReader.GetDecimal("min_score_percentage");
+                        var salaryRange = careersReader.IsDBNull(careersReader.GetOrdinal("salary_range")) 
+                            ? null : careersReader.GetString("salary_range");
 
-                    // Parse required skills and weights
-                    var requiredSkills = JsonSerializer.Deserialize<List<string>>(requiredSkillsJson) ?? new List<string>();
-                    var skillWeights = JsonSerializer.Deserialize<Dictionary<string, int>>(skillWeightsJson) ?? new Dictionary<string, int>();
+                        // Parse required skills and weights
+                        var requiredSkills = JsonSerializer.Deserialize<List<string>>(requiredSkillsJson) ?? new List<string>();
+                        var skillWeights = JsonSerializer.Deserialize<Dictionary<string, int>>(skillWeightsJson) ?? new Dictionary<string, int>();
 
                     // Calculate weighted match percentage
                     decimal totalWeight = 0;
@@ -311,23 +378,31 @@ namespace MyFirstApi.Controllers
                         }
                     }
 
-                    var matchPercentage = totalWeight > 0 ? weightedScore / totalWeight * 100 : 0;
+                        var matchPercentage = totalWeight > 0 ? weightedScore / totalWeight * 100 : 0;
 
-                    // Only include careers that meet minimum score threshold
-                    if (matchPercentage >= minScorePercentage)
-                    {
-                        careerMatches.Add(new CareerMatch
+                        // Only include careers that meet minimum score threshold
+                        if (matchPercentage >= minScorePercentage)
                         {
-                            CareerId = careerId,
-                            CareerName = careerName,
-                            MatchPercentage = Math.Round(matchPercentage, 2),
-                            MatchingSkills = matchingSkills,
-                            MissingSkills = missingSkills,
-                            SalaryRange = salaryRange
-                        });
+                            careerMatches.Add(new CareerMatch
+                            {
+                                CareerId = careerId,
+                                CareerName = careerName,
+                                MatchPercentage = Math.Round(matchPercentage, 2),
+                                MatchingSkills = matchingSkills,
+                                MissingSkills = missingSkills,
+                                SalaryRange = salaryRange
+                            });
+                        }
+                    }
+                    catch (Exception careerEx)
+                    {
+                        _logger.LogError($"❌ Error processing career: {careerEx.Message}");
+                        continue;
                     }
                 }
                 careersReader.Close();
+                
+                _logger.LogInformation($"✅ Career matching complete. Found {careerMatches.Count} matches");
 
                 // Sort career matches by percentage descending
                 careerMatches = careerMatches.OrderByDescending(c => c.MatchPercentage).ToList();

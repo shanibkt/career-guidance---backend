@@ -77,16 +77,23 @@ namespace MyFirstApi.Services
                 }
 
                 var content = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"📡 JSearch API response length: {content.Length} characters");
+                
                 var jsonDocument = JsonDocument.Parse(content);
                 var root = jsonDocument.RootElement;
 
                 var jobs = new List<JobResponse>();
                 if (root.TryGetProperty("data", out var jobsData))
                 {
+                    Console.WriteLine($"✅ Found data property with {jobsData.GetArrayLength()} jobs");
                     foreach (var job in jobsData.EnumerateArray())
                     {
                         jobs.Add(ParseJobFromJSearch(job));
                     }
+                }
+                else
+                {
+                    Console.WriteLine($"❌ No 'data' property in response. Response preview: {content.Substring(0, Math.Min(500, content.Length))}");
                 }
 
                 var totalResults = jobs.Count;
@@ -117,20 +124,18 @@ namespace MyFirstApi.Services
         {
             try
             {
-                // Build search query from career and skills
+                // Start with just career title for broader results
                 var searchQuery = careerTitle;
-                if (skills?.Count > 0)
-                {
-                    searchQuery += $" {string.Join(" ", skills.Take(3))}";
-                }
+                Console.WriteLine($"🔍 Searching jobs with query: {searchQuery}");
 
                 var request = new JobSearchRequest
                 {
                     Query = searchQuery,
-                    PageSize = 15
+                    PageSize = 20
                 };
 
                 var response = await SearchJobsAsync(request);
+                Console.WriteLine($"📋 JSearch returned {response.Jobs.Count} jobs");
 
                 // Calculate match percentage based on skills match
                 foreach (var job in response.Jobs)

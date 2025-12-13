@@ -155,6 +155,7 @@ namespace MyFirstApi.Controllers
                     EducationLevel = reader.IsDBNull(reader.GetOrdinal("EducationLevel")) ? null : reader.GetString("EducationLevel"),
                     FieldOfStudy = reader.IsDBNull(reader.GetOrdinal("FieldOfStudy")) ? null : reader.GetString("FieldOfStudy"),
                     Skills = reader.IsDBNull(reader.GetOrdinal("Skills")) ? null : JsonSerializer.Deserialize<List<string>>(reader.GetString("Skills")),
+                    CareerPath = reader.IsDBNull(reader.GetOrdinal("career_path")) ? null : reader.GetString("career_path"),
                     ProfileImagePath = reader.IsDBNull(reader.GetOrdinal("ProfileImagePath")) ? null : reader.GetString("ProfileImagePath"),
                     CreatedAt = reader.GetDateTime("CreatedAt"),
                     UpdatedAt = reader.GetDateTime("UpdatedAt")
@@ -200,6 +201,7 @@ namespace MyFirstApi.Controllers
                 cmd.Parameters.AddWithValue("p_educationLevel", string.IsNullOrWhiteSpace(dto.EducationLevel) ? DBNull.Value : dto.EducationLevel);
                 cmd.Parameters.AddWithValue("p_fieldOfStudy", string.IsNullOrWhiteSpace(dto.FieldOfStudy) ? DBNull.Value : dto.FieldOfStudy);
                 cmd.Parameters.AddWithValue("p_skills", string.IsNullOrWhiteSpace(skillsJson) ? DBNull.Value : skillsJson);
+                cmd.Parameters.AddWithValue("p_careerPath", string.IsNullOrWhiteSpace(dto.CareerPath) ? DBNull.Value : dto.CareerPath);
                 cmd.Parameters.AddWithValue("p_profileImagePath", DBNull.Value);
 
                 Console.WriteLine("Executing stored procedure...");
@@ -273,7 +275,7 @@ namespace MyFirstApi.Controllers
 
                 // Update only the profile image path
                 string updateQuery = @"
-                    UPDATE UserProfiles 
+                    UPDATE userprofiles 
                     SET ProfileImagePath = @path, UpdatedAt = CURRENT_TIMESTAMP 
                     WHERE UserId = @userId";
                 

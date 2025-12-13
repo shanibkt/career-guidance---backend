@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
 using System.Security.Claims;
 using System.Text.Json;
+using MyFirstApi.Services;
 
 namespace MyFirstApi.Controllers
 {
@@ -12,10 +13,12 @@ namespace MyFirstApi.Controllers
     public class ResumeController : ControllerBase
     {
         private readonly IConfiguration _configuration;
+        private readonly GroqService _groqService;
 
-        public ResumeController(IConfiguration configuration)
+        public ResumeController(IConfiguration configuration, GroqService groqService)
         {
             _configuration = configuration;
+            _groqService = groqService;
         }
 
         // POST /api/resume/save - Save or update resume data
@@ -197,6 +200,78 @@ namespace MyFirstApi.Controllers
                 return StatusCode(500, new { error = "Failed to delete resume", details = ex.Message });
             }
         }
+
+        // POST /api/resume/enhance-summary - AI enhance professional summary
+        [HttpPost("enhance-summary")]
+        public async Task<IActionResult> EnhanceSummary([FromBody] EnhanceSummaryRequest request)
+        {
+            try
+            {
+                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+                if (userId == 0) return Unauthorized();
+
+                Console.WriteLine($"📝 Enhancing summary for user {userId}");
+                Console.WriteLine($"📝 Job Title: {request.JobTitle}");
+                Console.WriteLine($"📝 Current Summary: {request.CurrentSummary?.Substring(0, Math.Min(50, request.CurrentSummary?.Length ?? 0))}...");
+
+                // Extract experience descriptions for context
+                var experienceDescriptions = request.Experiences?
+                    .Select(e => $"{e.Role} at {e.Company}: {e.Description}")
+                    .ToList() ?? new List<string>();
+
+                // Call AI service to enhance summary with timeout handling
+                string enhancedSummary;
+                try
+                {
+                    enhancedSummary = await _groqService.EnhanceProfessionalSummary(
+                        request.CurrentSummary ?? "",
+                        request.JobTitle ?? "Professional",
+                        request.Skills ?? new List<string>(),
+                        experienceDescriptions
+                    );
+                }
+                catch (TaskCanceledException)
+                {
+                    Console.WriteLine($"⚠️ Groq API timeout - AI took longer than 40 seconds");
+                    return StatusCode(500, new { 
+                        error = "AI service timeout", 
+                        details = "AI service took too long. Please try again." 
+                    });
+                }
+                catch (HttpRequestException ex)
+                {
+                    Console.WriteLine($"⚠️ Groq API HTTP error: {ex.Message}");
+                    return StatusCode(500, new { 
+                        error = "AI service error", 
+                        details = ex.Message 
+                    });
+                }
+
+                Console.WriteLine($"✅ Enhanced summary generated: {enhancedSummary.Substring(0, Math.Min(100, enhancedSummary.Length))}...");
+
+                return Ok(new { 
+                    enhancedSummary = enhancedSummary.Trim(),
+                    message = "Summary enhanced successfully" 
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error enhancing summary: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                return StatusCode(500, new { 
+                    error = "Failed to enhance summary", 
+                    details = ex.Message 
+                });
+            }
+        }
+    }
+
+    public class EnhanceSummaryRequest
+    {
+        public string? CurrentSummary { get; set; }
+        public string? JobTitle { get; set; }
+        public List<string>? Skills { get; set; }
+        public List<Experience>? Experiences { get; set; }
     }
 
     public class ResumeDataRequest

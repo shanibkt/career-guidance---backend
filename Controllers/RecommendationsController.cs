@@ -50,9 +50,9 @@ namespace MyFirstApi.Controllers
 
                 // Get user profile
                 string profileQuery = @"
-                    SELECT u.FullName, p.EducationLevel, p.FieldOfStudy, p.Skills, p.AreasOfInterest
+                    SELECT u.FullName, p.EducationLevel, p.FieldOfStudy, p.Skills, p.career_path
                     FROM users u
-                    LEFT JOIN UserProfiles p ON u.Id = p.UserId
+                    LEFT JOIN userprofiles p ON u.Id = p.UserId
                     WHERE u.Id = @userId";
 
                 using MySqlCommand profileCmd = new(profileQuery, conn);
@@ -67,12 +67,12 @@ namespace MyFirstApi.Controllers
                     education = profileReader.IsDBNull(profileReader.GetOrdinal("EducationLevel")) ? "Not specified" : profileReader.GetString("EducationLevel"),
                     fieldOfStudy = profileReader.IsDBNull(profileReader.GetOrdinal("FieldOfStudy")) ? "Not specified" : profileReader.GetString("FieldOfStudy"),
                     skills = profileReader.IsDBNull(profileReader.GetOrdinal("Skills")) ? "[]" : profileReader.GetString("Skills"),
-                    interests = profileReader.IsDBNull(profileReader.GetOrdinal("AreasOfInterest")) ? "Not specified" : profileReader.GetString("AreasOfInterest")
+                    careerPath = profileReader.IsDBNull(profileReader.GetOrdinal("career_path")) ? "Not specified" : profileReader.GetString("career_path")
                 };
                 profileReader.Close();
 
                 // Get all careers
-                string careersQuery = "SELECT id, name, description, required_education, key_skills FROM careers";
+                string careersQuery = "SELECT id, career_name, description, required_education, key_skills FROM careers";
                 using MySqlCommand careersCmd = new(careersQuery, conn);
                 using var careersReader = careersCmd.ExecuteReader();
 
@@ -82,7 +82,7 @@ namespace MyFirstApi.Controllers
                     careers.Add(new
                     {
                         id = careersReader.GetInt32("id"),
-                        name = careersReader.GetString("name"),
+                        career_name = careersReader.GetString("career_name"),
                         description = careersReader.IsDBNull(careersReader.GetOrdinal("description")) ? "" : careersReader.GetString("description"),
                         required_education = careersReader.IsDBNull(careersReader.GetOrdinal("required_education")) ? "" : careersReader.GetString("required_education"),
                         key_skills = careersReader.IsDBNull(careersReader.GetOrdinal("key_skills")) ? "[]" : careersReader.GetString("key_skills")
@@ -147,7 +147,7 @@ namespace MyFirstApi.Controllers
 
                     // Get career name
                     var career = careers.FirstOrDefault(c => ((dynamic)c).id == careerId);
-                    var careerName = career != null ? ((dynamic)career).name : "Unknown";
+                    var careerName = career != null ? ((dynamic)career).career_name : "Unknown";
 
                     recommendations.Add(new Recommendation
                     {
@@ -183,7 +183,7 @@ namespace MyFirstApi.Controllers
                 conn.Open();
 
                 string query = @"
-                    SELECT r.id, r.career_id, c.name as career_name, r.match_percentage, 
+                    SELECT r.id, r.career_id, c.career_name as career_name, r.match_percentage, 
                            r.reasoning, r.strengths, r.areas_to_develop, r.created_at
                     FROM recommendations r
                     JOIN careers c ON r.career_id = c.id
@@ -230,7 +230,7 @@ namespace MyFirstApi.Controllers
                 conn.Open();
 
                 string query = @"
-                    SELECT id, career_name, description, required_skills
+                    SELECT id, career_name, description, key_skills
                     FROM careers
                     ORDER BY career_name";
 
@@ -240,9 +240,9 @@ namespace MyFirstApi.Controllers
                 var careers = new List<object>();
                 while (reader.Read())
                 {
-                    var requiredSkillsJson = reader.IsDBNull(reader.GetOrdinal("required_skills")) 
+                    var requiredSkillsJson = reader.IsDBNull(reader.GetOrdinal("key_skills")) 
                         ? "[]" 
-                        : reader.GetString("required_skills");
+                        : reader.GetString("key_skills");
 
                     careers.Add(new
                     {

@@ -1,22 +1,32 @@
--- Create Chat Sessions Table
+-- =============================================
+-- Create Chat Tables for AI Chatbot
+-- Fixed for case-sensitive table names
+-- =============================================
+
+USE freedb_career_guidence;
+
+-- Create ChatSessions table
 CREATE TABLE IF NOT EXISTS ChatSessions (
-    Id INT PRIMARY KEY AUTO_INCREMENT,
+    Id VARCHAR(36) PRIMARY KEY,
     UserId INT NOT NULL,
-    SessionId VARCHAR(36) NOT NULL UNIQUE,
+    Title VARCHAR(255) NOT NULL DEFAULT 'New Chat',
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (UserId) REFERENCES users(id) ON DELETE CASCADE,
-    INDEX idx_user_sessions (UserId, CreatedAt),
-    INDEX idx_session_id (SessionId)
+    UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE,
+    INDEX idx_user_sessions (UserId, UpdatedAt)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Create Chat Messages Table
+-- Create ChatMessages table
 CREATE TABLE IF NOT EXISTS ChatMessages (
-    Id INT PRIMARY KEY AUTO_INCREMENT,
+    Id INT AUTO_INCREMENT PRIMARY KEY,
     SessionId VARCHAR(36) NOT NULL,
     Role VARCHAR(20) NOT NULL,
-    Message TEXT NOT NULL,
-    Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (SessionId) REFERENCES ChatSessions(SessionId) ON DELETE CASCADE,
-    INDEX idx_session_messages (SessionId, Timestamp),
-    INDEX idx_timestamp (Timestamp)
+    Content TEXT NOT NULL,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (SessionId) REFERENCES ChatSessions(Id) ON DELETE CASCADE,
+    INDEX idx_session_messages (SessionId, CreatedAt)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Verify tables were created
+SELECT 'Chat tables created successfully' AS Status;
+SHOW TABLES LIKE 'Chat%';

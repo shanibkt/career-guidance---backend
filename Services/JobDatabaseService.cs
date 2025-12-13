@@ -221,6 +221,59 @@ namespace MyFirstApi.Services
         }
 
         /// <summary>
+        /// Check multiple jobs saved status in one query (batch operation)
+        /// </summary>
+        public async Task<Dictionary<string, bool>> AreJobsSavedAsync(int userId, List<string> jobIds)
+        {
+            var result = new Dictionary<string, bool>();
+            
+            if (jobIds == null || jobIds.Count == 0)
+                return result;
+
+            try
+            {
+                using var conn = new MySqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+                await conn.OpenAsync();
+
+                // Create parameterized query with IN clause
+                var placeholders = string.Join(",", jobIds.Select((_, i) => $"@jobId{i}"));
+                var query = $@"
+                    SELECT DISTINCT job_id 
+                    FROM saved_jobs 
+                    WHERE user_id = @userId AND job_id IN ({placeholders})";
+
+                using var cmd = new MySqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@userId", userId);
+                
+                for (int i = 0; i < jobIds.Count; i++)
+                {
+                    cmd.Parameters.AddWithValue($"@jobId{i}", jobIds[i]);
+                }
+
+                using var reader = await cmd.ExecuteReaderAsync();
+                var savedJobIds = new HashSet<string>();
+                while (await reader.ReadAsync())
+                {
+                    savedJobIds.Add(reader.GetString(reader.GetOrdinal("job_id")));
+                }
+
+                // Map all job IDs to true/false
+                foreach (var jobId in jobIds)
+                {
+                    result[jobId] = savedJobIds.Contains(jobId);
+                }
+
+                Console.WriteLine($"✅ Batch checked {jobIds.Count} jobs saved status: {savedJobIds.Count} saved");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error checking saved jobs batch: {ex.Message}");
+                return jobIds.ToDictionary(id => id, _ => false);
+            }
+        }
+
+        /// <summary>
         /// Check if user has applied for job
         /// </summary>
         public async Task<bool> IsJobAppliedAsync(int userId, string jobId)
@@ -241,6 +294,59 @@ namespace MyFirstApi.Services
             catch (Exception ex)
             {
                 throw new Exception($"Error checking job application: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Check multiple jobs applied status in one query (batch operation)
+        /// </summary>
+        public async Task<Dictionary<string, bool>> AreJobsAppliedAsync(int userId, List<string> jobIds)
+        {
+            var result = new Dictionary<string, bool>();
+            
+            if (jobIds == null || jobIds.Count == 0)
+                return result;
+
+            try
+            {
+                using var conn = new MySqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+                await conn.OpenAsync();
+
+                // Create parameterized query with IN clause
+                var placeholders = string.Join(",", jobIds.Select((_, i) => $"@jobId{i}"));
+                var query = $@"
+                    SELECT DISTINCT job_id 
+                    FROM job_applications 
+                    WHERE user_id = @userId AND job_id IN ({placeholders})";
+
+                using var cmd = new MySqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@userId", userId);
+                
+                for (int i = 0; i < jobIds.Count; i++)
+                {
+                    cmd.Parameters.AddWithValue($"@jobId{i}", jobIds[i]);
+                }
+
+                using var reader = await cmd.ExecuteReaderAsync();
+                var appliedJobIds = new HashSet<string>();
+                while (await reader.ReadAsync())
+                {
+                    appliedJobIds.Add(reader.GetString(reader.GetOrdinal("job_id")));
+                }
+
+                // Map all job IDs to true/false
+                foreach (var jobId in jobIds)
+                {
+                    result[jobId] = appliedJobIds.Contains(jobId);
+                }
+
+                Console.WriteLine($"✅ Batch checked {jobIds.Count} jobs applied status: {appliedJobIds.Count} applied");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error checking applied jobs batch: {ex.Message}");
+                return jobIds.ToDictionary(id => id, _ => false);
             }
         }
     }

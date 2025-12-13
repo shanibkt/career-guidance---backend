@@ -64,5 +64,6 @@ namespace MyFirstApi.Models
         public string? EducationLevel { get; set; }
         public string? FieldOfStudy { get; set; }
         public List<string>? Skills { get; set; }
+        public string? CareerPath { get; set; }
     }
 }

@@ -160,3 +160,57 @@
   }
 }
 --------------------------------------------------------------------------------
+{
+  "Timestamp": "2025-12-06T16:47:44.546188Z",
+  "Level": "INFO",
+  "Message": "Personalized jobs requested",
+  "ExceptionType": null,
+  "ExceptionMessage": null,
+  "StackTrace": null,
+  "CustomData": {
+    "userId": "13",
+    "careerTitle": "Android Developer",
+    "skillsCount": "2"
+  }
+}
+--------------------------------------------------------------------------------
+{
+  "Timestamp": "2025-12-06T16:47:55.0190943Z",
+  "Level": "INFO",
+  "Message": "Personalized jobs generated",
+  "ExceptionType": null,
+  "ExceptionMessage": null,
+  "StackTrace": null,
+  "CustomData": {
+    "userId": "13",
+    "jobsCount": "0"
+  }
+}
+--------------------------------------------------------------------------------
+{
+  "Timestamp": "2025-12-06T16:48:02.6993824Z",
+  "Level": "INFO",
+  "Message": "Job search initiated",
+  "ExceptionType": null,
+  "ExceptionMessage": null,
+  "StackTrace": null,
+  "CustomData": {
+    "userId": "13",
+    "query": "flutter",
+    "location": "none"
+  }
+}
+--------------------------------------------------------------------------------
+{
+  "Timestamp": "2025-12-06T16:48:21.155119Z",
+  "Level": "INFO",
+  "Message": "Job search completed",
+  "ExceptionType": null,
+  "ExceptionMessage": null,
+  "StackTrace": null,
+  "CustomData": {
+    "userId": "13",
+    "resultsCount": "10"
+  }
+}
+--------------------------------------------------------------------------------

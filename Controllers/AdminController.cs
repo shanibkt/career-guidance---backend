@@ -231,7 +231,7 @@ namespace MyFirstApi.Controllers
                 }
 
                 // Get profile
-                var profileQuery = "SELECT * FROM UserProfiles WHERE UserId = @UserId";
+                var profileQuery = "SELECT * FROM userprofiles WHERE UserId = @UserId";
                 using var profileCmd = new MySqlCommand(profileQuery, connection);
                 profileCmd.Parameters.AddWithValue("@UserId", userId);
                 using (var reader = await profileCmd.ExecuteReaderAsync())

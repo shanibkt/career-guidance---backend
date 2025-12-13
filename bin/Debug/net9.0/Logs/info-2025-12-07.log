@@ -1,0 +1,54 @@
+{
+  "Timestamp": "2025-12-06T19:04:12.9225515Z",
+  "Level": "INFO",
+  "Message": "Personalized jobs requested",
+  "ExceptionType": null,
+  "ExceptionMessage": null,
+  "StackTrace": null,
+  "CustomData": {
+    "userId": "13",
+    "careerTitle": "Backend Developer",
+    "skillsCount": "2"
+  }
+}
+--------------------------------------------------------------------------------
+{
+  "Timestamp": "2025-12-06T19:04:25.6719149Z",
+  "Level": "INFO",
+  "Message": "Personalized jobs requested",
+  "ExceptionType": null,
+  "ExceptionMessage": null,
+  "StackTrace": null,
+  "CustomData": {
+    "userId": "13",
+    "careerTitle": "Backend Developer",
+    "skillsCount": "2"
+  }
+}
+--------------------------------------------------------------------------------
+{
+  "Timestamp": "2025-12-06T19:04:32.8549206Z",
+  "Level": "INFO",
+  "Message": "Personalized jobs generated",
+  "ExceptionType": null,
+  "ExceptionMessage": null,
+  "StackTrace": null,
+  "CustomData": {
+    "userId": "13",
+    "jobsCount": "10"
+  }
+}
+--------------------------------------------------------------------------------
+{
+  "Timestamp": "2025-12-06T19:04:44.5867129Z",
+  "Level": "INFO",
+  "Message": "Personalized jobs generated",
+  "ExceptionType": null,
+  "ExceptionMessage": null,
+  "StackTrace": null,
+  "CustomData": {
+    "userId": "13",
+    "jobsCount": "10"
+  }
+}
+--------------------------------------------------------------------------------

@@ -69,7 +69,7 @@ namespace MyFirstApi.Controllers
                     profileCmd.Parameters.AddWithValue("p_educationLevel", DBNull.Value);
                     profileCmd.Parameters.AddWithValue("p_fieldOfStudy", DBNull.Value);
                     profileCmd.Parameters.AddWithValue("p_skills", DBNull.Value);
-                    profileCmd.Parameters.AddWithValue("p_areasOfInterest", DBNull.Value);
+                    profileCmd.Parameters.AddWithValue("p_careerPath", DBNull.Value);
                     profileCmd.Parameters.AddWithValue("p_profileImagePath", DBNull.Value);
                     profileCmd.ExecuteNonQuery();
                 }

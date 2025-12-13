@@ -1,7 +1,8 @@
 -- Safe stored procedures creation
 -- Replaces procedures without dropping tables
+-- Fixed for case-sensitive table names (lowercase)
 
-USE my_database;
+USE freedb_career_guidence;
 
 DELIMITER $$
 
@@ -14,7 +15,7 @@ CREATE PROCEDURE sp_create_user(
   IN p_passwordHash VARCHAR(255)
 )
 BEGIN
-  INSERT INTO Users (Username, FullName, Email, PasswordHash)
+  INSERT INTO users (Username, FullName, Email, PasswordHash)
   VALUES (p_username, p_fullName, p_email, p_passwordHash);
   SELECT LAST_INSERT_ID() AS Id;
 END$$
@@ -26,7 +27,7 @@ CREATE PROCEDURE sp_get_user_by_email(
 )
 BEGIN
   SELECT Id, Username, FullName, Email, PasswordHash, CreatedAt, UpdatedAt 
-  FROM Users 
+  FROM users 
   WHERE Email = p_email 
   LIMIT 1;
 END$$
@@ -38,7 +39,7 @@ CREATE PROCEDURE sp_get_user_by_id(
 )
 BEGIN
   SELECT Id, Username, FullName, Email, CreatedAt, UpdatedAt 
-  FROM Users 
+  FROM users 
   WHERE Id = p_userId 
   LIMIT 1;
 END$$
@@ -52,7 +53,7 @@ CREATE PROCEDURE sp_update_user(
   IN p_email VARCHAR(255)
 )
 BEGIN
-  UPDATE Users 
+  UPDATE users 
   SET FullName = p_fullName, Username = p_username, Email = p_email 
   WHERE Id = p_userId;
   SELECT ROW_COUNT() AS AffectedRows;
@@ -64,7 +65,7 @@ CREATE PROCEDURE sp_delete_user(
   IN p_userId INT
 )
 BEGIN
-  DELETE FROM Users WHERE Id = p_userId;
+  DELETE FROM users WHERE Id = p_userId;
   SELECT ROW_COUNT() AS AffectedRows;
 END$$
 
@@ -74,18 +75,18 @@ CREATE PROCEDURE sp_create_or_update_profile(
   IN p_userId INT,
   IN p_phoneNumber VARCHAR(20),
   IN p_age INT,
-  IN p_gender VARCHAR(10),
+  IN p_gender VARCHAR(20),
   IN p_educationLevel VARCHAR(100),
-  IN p_fieldOfStudy VARCHAR(100),
+  IN p_fieldOfStudy VARCHAR(200),
   IN p_skills JSON,
-  IN p_areasOfInterest TEXT,
+  IN p_careerPath VARCHAR(255),
   IN p_profileImagePath VARCHAR(500)
 )
 BEGIN
-  INSERT INTO UserProfiles 
-    (UserId, PhoneNumber, Age, Gender, EducationLevel, FieldOfStudy, Skills, AreasOfInterest, ProfileImagePath)
+  INSERT INTO userprofiles 
+    (UserId, PhoneNumber, Age, Gender, EducationLevel, FieldOfStudy, Skills, career_path, ProfileImagePath)
   VALUES 
-    (p_userId, p_phoneNumber, p_age, p_gender, p_educationLevel, p_fieldOfStudy, p_skills, p_areasOfInterest, p_profileImagePath)
+    (p_userId, p_phoneNumber, p_age, p_gender, p_educationLevel, p_fieldOfStudy, p_skills, p_careerPath, p_profileImagePath)
   ON DUPLICATE KEY UPDATE
     PhoneNumber = VALUES(PhoneNumber),
     Age = VALUES(Age),
@@ -93,10 +94,10 @@ BEGIN
     EducationLevel = VALUES(EducationLevel),
     FieldOfStudy = VALUES(FieldOfStudy),
     Skills = VALUES(Skills),
-    AreasOfInterest = VALUES(AreasOfInterest),
+    career_path = VALUES(career_path),
     ProfileImagePath = COALESCE(VALUES(ProfileImagePath), ProfileImagePath);
   
-  SELECT Id, UserId FROM UserProfiles WHERE UserId = p_userId LIMIT 1;
+  SELECT Id, UserId FROM userprofiles WHERE UserId = p_userId LIMIT 1;
 END$$
 
 -- Get profile by user ID
@@ -106,8 +107,8 @@ CREATE PROCEDURE sp_get_profile_by_userid(
 )
 BEGIN
   SELECT Id, UserId, PhoneNumber, Age, Gender, EducationLevel, FieldOfStudy, 
-         Skills, AreasOfInterest, ProfileImagePath, CreatedAt, UpdatedAt
-  FROM UserProfiles 
+         Skills, career_path, ProfileImagePath, CreatedAt, UpdatedAt
+  FROM userprofiles 
   WHERE UserId = p_userId 
   LIMIT 1;
 END$$

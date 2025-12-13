@@ -240,5 +240,67 @@ KEY RULES:
                 throw;
             }
         }
+
+        public async Task<string> EnhanceProfessionalSummary(string currentSummary, string jobTitle, List<string> skills, List<string> experiences)
+        {
+            var skillsList = skills != null && skills.Count > 0 ? string.Join(", ", skills) : "various technical skills";
+            var experiencesList = experiences != null && experiences.Count > 0 
+                ? string.Join("; ", experiences.Take(3)) 
+                : "professional experience";
+
+            var prompt = $@"Write a professional 3-sentence resume summary for a {jobTitle}.
+
+Skills: {skillsList}
+Experience: {experiencesList}
+
+Write ONLY 3 sentences. No questions, no greetings, just the summary.";
+
+            var requestBody = new
+            {
+                model = _chatModel,
+                messages = new[]
+                {
+                    new { role = "system", content = "You write professional resume summaries. Output ONLY the summary text." },
+                    new { role = "user", content = prompt }
+                },
+                temperature = 0.7,
+                max_tokens = 150,
+                response_format = new { type = "text" }
+            };
+
+            var json = JsonSerializer.Serialize(requestBody);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            Console.WriteLine($"🔵 Sending request to Groq API...");
+            Console.WriteLine($"🔵 Prompt: {prompt.Substring(0, Math.Min(200, prompt.Length))}...");
+            
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(40));
+            var apiResponse = await _httpClient.PostAsync("chat/completions", content, cts.Token);
+            
+            Console.WriteLine($"🔵 Groq API Status: {apiResponse.StatusCode}");
+            
+            apiResponse.EnsureSuccessStatusCode();
+
+            var responseJson = await apiResponse.Content.ReadAsStringAsync();
+            Console.WriteLine($"🔵 Groq Response JSON: {responseJson.Substring(0, Math.Min(500, responseJson.Length))}...");
+            
+            var result = JsonDocument.Parse(responseJson);
+            var response = result.RootElement
+                .GetProperty("choices")[0]
+                .GetProperty("message")
+                .GetProperty("content")
+                .GetString() ?? string.Empty;
+
+            Console.WriteLine($"✅ Groq response (length: {response.Length}): {response}");
+            
+            if (string.IsNullOrWhiteSpace(response))
+            {
+                Console.WriteLine($"⚠️ WARNING: Groq returned empty response!");
+                return "Unable to generate AI summary at this time.";
+            }
+            
+            return response.Trim();
+        }
     }
 }
+

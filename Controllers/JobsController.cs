@@ -62,11 +62,15 @@ namespace MyFirstApi.Controllers
 
                 var response = await _jobApiService.SearchJobsAsync(request);
 
-                // Mark jobs as saved/applied for this user
+                // Mark jobs as saved/applied for this user (batch operation)
+                var jobIds = response.Jobs.Select(j => j.Id).ToList();
+                var savedStatus = await _jobDatabaseService.AreJobsSavedAsync(userId, jobIds);
+                var appliedStatus = await _jobDatabaseService.AreJobsAppliedAsync(userId, jobIds);
+
                 foreach (var job in response.Jobs)
                 {
-                    job.IsSaved = await _jobDatabaseService.IsJobSavedAsync(userId, job.Id);
-                    job.IsApplied = await _jobDatabaseService.IsJobAppliedAsync(userId, job.Id);
+                    job.IsSaved = savedStatus.GetValueOrDefault(job.Id, false);
+                    job.IsApplied = appliedStatus.GetValueOrDefault(job.Id, false);
                 }
 
                 await _crashReporting.LogInfoAsync("Job search completed", new Dictionary<string, string>
@@ -120,11 +124,15 @@ namespace MyFirstApi.Controllers
                     _configuration
                 );
 
-                // Mark jobs as saved/applied
+                // Mark jobs as saved/applied (batch operation)
+                var jobIds = jobs.Select(j => j.Id).ToList();
+                var savedStatus = await _jobDatabaseService.AreJobsSavedAsync(userId, jobIds);
+                var appliedStatus = await _jobDatabaseService.AreJobsAppliedAsync(userId, jobIds);
+
                 foreach (var job in jobs)
                 {
-                    job.IsSaved = await _jobDatabaseService.IsJobSavedAsync(userId, job.Id);
-                    job.IsApplied = await _jobDatabaseService.IsJobAppliedAsync(userId, job.Id);
+                    job.IsSaved = savedStatus.GetValueOrDefault(job.Id, false);
+                    job.IsApplied = appliedStatus.GetValueOrDefault(job.Id, false);
                 }
 
                 await _crashReporting.LogInfoAsync("Personalized jobs generated", new Dictionary<string, string>
@@ -133,7 +141,18 @@ namespace MyFirstApi.Controllers
                     { "jobsCount", jobs.Count.ToString() }
                 });
 
-                return Ok(new { jobs = jobs });
+                _logger.LogInformation($"✅ Returning {jobs.Count} personalized jobs to client");
+                if (jobs.Count > 0)
+                {
+                    _logger.LogInformation($"First job: {jobs[0].Title} at {jobs[0].Company}");
+                    _logger.LogInformation($"First job details - ID: {jobs[0].Id}, Location: {jobs[0].Location}");
+                }
+
+                var response = new { jobs = jobs };
+                var jsonResponse = System.Text.Json.JsonSerializer.Serialize(response);
+                _logger.LogInformation($"JSON response preview: {jsonResponse.Substring(0, Math.Min(500, jsonResponse.Length))}");
+
+                return Ok(response);
             }
             catch (Exception ex)
             {
