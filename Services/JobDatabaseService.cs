@@ -11,6 +11,47 @@ namespace MyFirstApi.Services
         public JobDatabaseService(IConfiguration configuration)
         {
             _configuration = configuration;
+            // Run migrations on initialization
+            _ = EnsureSchemaAsync();
+        }
+
+        /// <summary>
+        /// Ensure database schema is up to date
+        /// </summary>
+        private async Task EnsureSchemaAsync()
+        {
+            try
+            {
+                using var conn = new MySqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+                await conn.OpenAsync();
+
+                var alterQueries = new[]
+                {
+                    "ALTER TABLE saved_jobs ADD COLUMN salary_currency VARCHAR(10) DEFAULT 'USD' AFTER salary_max;",
+                    "ALTER TABLE saved_jobs ADD COLUMN experience_level VARCHAR(50) AFTER salary_currency;",
+                };
+
+                foreach (var alterQuery in alterQueries)
+                {
+                    using var cmd = new MySqlCommand(alterQuery, conn);
+                    try
+                    {
+                        await cmd.ExecuteNonQueryAsync();
+                        var columnName = alterQuery.Contains("salary_currency") ? "salary_currency" : "experience_level";
+                        Console.WriteLine($"✅ Database schema updated: {columnName} column added");
+                    }
+                    catch (MySqlException ex) when (ex.Message.Contains("Duplicate column name"))
+                    {
+                        // Column already exists, ignore
+                        var columnName = alterQuery.Contains("salary_currency") ? "salary_currency" : "experience_level";
+                        Console.WriteLine($"ℹ️  Database schema OK: {columnName} column already exists");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"⚠️ Warning: Could not update database schema: {ex.Message}");
+            }
         }
 
         /// <summary>

@@ -98,6 +98,7 @@ namespace MyFirstApi.Models
     public class SaveJobRequest
     {
         public bool Save { get; set; }
+        public JobResponse? Job { get; set; }
     }
 
     // Job filter metadata for frontend

@@ -62,15 +62,13 @@ namespace MyFirstApi.Controllers
 
                 var response = await _jobApiService.SearchJobsAsync(request);
 
-                // Mark jobs as saved/applied for this user (batch operation)
+                // Mark jobs as saved for this user (batch operation)
                 var jobIds = response.Jobs.Select(j => j.Id).ToList();
                 var savedStatus = await _jobDatabaseService.AreJobsSavedAsync(userId, jobIds);
-                var appliedStatus = await _jobDatabaseService.AreJobsAppliedAsync(userId, jobIds);
 
                 foreach (var job in response.Jobs)
                 {
                     job.IsSaved = savedStatus.GetValueOrDefault(job.Id, false);
-                    job.IsApplied = appliedStatus.GetValueOrDefault(job.Id, false);
                 }
 
                 await _crashReporting.LogInfoAsync("Job search completed", new Dictionary<string, string>
@@ -124,15 +122,13 @@ namespace MyFirstApi.Controllers
                     _configuration
                 );
 
-                // Mark jobs as saved/applied (batch operation)
+                // Mark jobs as saved (batch operation)
                 var jobIds = jobs.Select(j => j.Id).ToList();
                 var savedStatus = await _jobDatabaseService.AreJobsSavedAsync(userId, jobIds);
-                var appliedStatus = await _jobDatabaseService.AreJobsAppliedAsync(userId, jobIds);
 
                 foreach (var job in jobs)
                 {
                     job.IsSaved = savedStatus.GetValueOrDefault(job.Id, false);
-                    job.IsApplied = appliedStatus.GetValueOrDefault(job.Id, false);
                 }
 
                 await _crashReporting.LogInfoAsync("Personalized jobs generated", new Dictionary<string, string>
@@ -196,15 +192,23 @@ namespace MyFirstApi.Controllers
 
                 if (request.Save)
                 {
-                    // Create a minimal job object for saving
-                    var job = new JobResponse { Id = jobId };
-                    var result = await _jobDatabaseService.SaveJobAsync(userId, job);
+                    // Validate that job data is provided
+                    if (request.Job == null)
+                    {
+                        return BadRequest(new { message = "Job data is required when saving" });
+                    }
+
+                    var result = await _jobDatabaseService.SaveJobAsync(userId, request.Job);
                     if (!result)
                     {
                         await _crashReporting.LogErrorAsync("Failed to save job to database", null, 
                             new Dictionary<string, string> { { "jobId", jobId }, { "userId", userId.ToString() } });
                         return StatusCode(500, new { message = "Failed to save job" });
                     }
+
+                    // Return the job with saved status
+                    request.Job.IsSaved = true;
+                    return Ok(request.Job);
                 }
                 else
                 {
@@ -215,9 +219,12 @@ namespace MyFirstApi.Controllers
                             new Dictionary<string, string> { { "jobId", jobId }, { "userId", userId.ToString() } });
                         return StatusCode(500, new { message = "Failed to remove saved job" });
                     }
-                }
 
-                return Ok(new { message = request.Save ? "Job saved successfully" : "Job removed from saved" });
+                    // Return minimal job with unsaved status
+                    var updatedJob = request.Job ?? new JobResponse { Id = jobId };
+                    updatedJob.IsSaved = false;
+                    return Ok(updatedJob);
+                }
             }
             catch (Exception ex)
             {
@@ -238,7 +245,10 @@ namespace MyFirstApi.Controllers
         /// <summary>
         /// Apply for a job
         /// POST: api/jobs/{jobId}/apply
+        /// [DEPRECATED] Apply for a job - No longer used, jobs open externally
+        /// POST: api/jobs/{jobId}/apply
         /// </summary>
+        /* REMOVED: Apply for job functionality - jobs now open externally
         [HttpPost("{jobId}/apply")]
         public async Task<IActionResult> ApplyForJob(string jobId, [FromBody] JobApplication? application = null)
         {
@@ -289,6 +299,7 @@ namespace MyFirstApi.Controllers
                 return StatusCode(500, new { message = $"Error applying for job: {ex.Message}" });
             }
         }
+        */
 
         /// <summary>
         /// Get saved jobs for current user
