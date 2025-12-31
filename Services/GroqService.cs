@@ -131,8 +131,8 @@ Return top 10 careers ranked by match percentage.";
             var json = JsonSerializer.Serialize(requestBody);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            // Set timeout for HTTP request (20 seconds)
-            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(20));
+            // Set timeout for HTTP request (45 seconds)
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(45));
             
             var response = await _httpClient.PostAsync("chat/completions", content, cts.Token);
             response.EnsureSuccessStatusCode();
@@ -207,8 +207,8 @@ KEY RULES:
                 Console.WriteLine($"🔵 Calling Groq API with model: {_chatModel}");
                 Console.WriteLine($"🔵 API URL: {_httpClient.BaseAddress}chat/completions");
 
-                // Set timeout for chat (30 seconds)
-                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+                // Set timeout for chat (60 seconds)
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
                 
                 var response = await _httpClient.PostAsync("chat/completions", content, cts.Token);
                 
