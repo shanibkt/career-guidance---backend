@@ -12,8 +12,8 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
             min-height: 100vh;
         }
 
@@ -110,30 +110,78 @@
 
         .navbar {
             background: white;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 16px 32px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
         .navbar h2 {
-            color: #667eea;
+            color: #1a1a1a;
+            font-size: 24px;
+            font-weight: 700;
         }
 
         .navbar .user-info {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 16px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            background: #f8f9fa;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .user-profile:hover {
+            background: #e9ecef;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .user-name {
+            font-weight: 500;
+            color: #1a1a1a;
+            font-size: 14px;
         }
 
         .btn-logout {
             padding: 8px 20px;
-            background: #f44336;
+            background: #dc3545;
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .btn-logout:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
         }
 
         .container {
@@ -151,46 +199,82 @@
 
         .stat-card {
             background: white;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e9ecef;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
 
         .stat-card h3 {
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 10px;
+            color: #6c757d;
+            font-size: 13px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
         }
 
         .stat-card .number {
-            font-size: 32px;
-            font-weight: bold;
-            color: #667eea;
+            font-size: 36px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .tabs {
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 8px;
+            margin-bottom: 24px;
             background: white;
-            padding: 10px;
-            border-radius: 12px;
+            padding: 8px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e9ecef;
+            overflow-x: auto;
         }
 
         .tab {
-            padding: 12px 24px;
+            padding: 12px 20px;
             background: transparent;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             cursor: pointer;
             font-weight: 500;
-            color: #666;
-            transition: all 0.3s;
+            color: #6c757d;
+            transition: all 0.2s;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .tab:hover {
+            background: #f8f9fa;
+            color: #495057;
         }
 
         .tab.active {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
         .tab-content {
@@ -203,23 +287,33 @@
 
         .card {
             background: white;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e9ecef;
         }
 
         .search-bar {
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
         }
 
         .search-bar input {
             flex: 1;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            min-width: 200px;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
             font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         .search-bar button {
@@ -227,8 +321,17 @@
             background: #667eea;
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .search-bar button:hover {
+            background: #5568d3;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
         table {
@@ -237,20 +340,31 @@
         }
 
         table th {
-            background: #f5f5f5;
-            padding: 12px;
+            background: #f8f9fa;
+            padding: 14px 16px;
             text-align: left;
             font-weight: 600;
-            color: #333;
+            color: #495057;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #e9ecef;
         }
 
         table td {
-            padding: 12px;
-            border-bottom: 1px solid #e0e0e0;
+            padding: 14px 16px;
+            border-bottom: 1px solid #f1f3f5;
+            color: #212529;
+            font-size: 14px;
         }
 
         table tr:hover {
-            background: #f9f9f9;
+            background: #f8f9fa;
+            transition: background 0.2s;
+        }
+
+        table tr:last-child td {
+            border-bottom: none;
         }
 
         .badge {
@@ -277,24 +391,40 @@
         }
 
         .btn-view {
-            padding: 6px 16px;
+            padding: 8px 16px;
             background: #667eea;
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-view:hover {
+            background: #5568d3;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
         }
 
         .btn-delete {
-            padding: 6px 16px;
-            background: #f44336;
+            padding: 8px 16px;
+            background: #dc3545;
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 12px;
-            margin-left: 5px;
+            font-size: 13px;
+            font-weight: 500;
+            margin-left: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-delete:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
         }
 
         .loading {
@@ -331,10 +461,17 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
             z-index: 1000;
             justify-content: center;
             align-items: center;
+            animation: fadeIn 0.2s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .modal.active {
@@ -343,26 +480,80 @@
 
         .modal-content {
             background: white;
-            border-radius: 12px;
-            padding: 30px;
+            border-radius: 20px;
+            padding: 32px;
             max-width: 800px;
             max-height: 90vh;
             overflow-y: auto;
             width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .modal-content::-webkit-scrollbar-track {
+            background: #f1f3f5;
+            border-radius: 10px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+            background: #ced4da;
+            border-radius: 10px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb:hover {
+            background: #adb5bd;
         }
 
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #f1f3f5;
+        }
+
+        .modal-header h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin: 0;
         }
 
         .modal-close {
-            background: none;
+            background: #f8f9fa;
             border: none;
-            font-size: 24px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 20px;
             cursor: pointer;
+            color: #495057;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            background: #e9ecef;
+            color: #212529;
+            transform: rotate(90deg);
         }
     </style>
 </head>
@@ -400,7 +591,10 @@
         <div class="navbar">
             <h2>📊 Admin Dashboard</h2>
             <div class="user-info">
-                <span id="adminName">Administrator</span>
+                <div class="user-profile">
+                    <div class="user-avatar" id="userAvatar">A</div>
+                    <div class="user-name" id="adminName">Administrator</div>
+                </div>
                 <button class="btn-logout" onclick="logout()">Logout</button>
             </div>
         </div>
@@ -437,9 +631,11 @@
             <!-- Tabs -->
             <div class="tabs">
                 <button class="tab active" onclick="switchTab('users')">👥 Users</button>
-                <button class="tab" onclick="switchTab('activities')">📈 Recent Activities</button>
-                <button class="tab" onclick="switchTab('careers')">💼 Popular Careers</button>
-                <button class="tab" onclick="switchTab('export')">📥 Export Data</button>
+                <button class="tab" onclick="switchTab('videos')">🎥 Videos</button>
+                <button class="tab" onclick="switchTab('categories')">📁 Categories</button>
+                <button class="tab" onclick="switchTab('activities')">📈 Activities</button>
+                <button class="tab" onclick="switchTab('careers')">💼 Careers</button>
+                <button class="tab" onclick="switchTab('export')">📥 Export</button>
             </div>
 
             <!-- Users Tab -->
@@ -456,6 +652,37 @@
                     </div>
 
                     <div class="pagination" id="pagination"></div>
+                </div>
+            </div>
+
+            <!-- Videos Tab -->
+            <div class="tab-content" id="videosTab">
+                <div class="card">
+                    <div class="search-bar">
+                        <input type="text" id="videoSearchInput" placeholder="Search videos by skill or title...">
+                        <button onclick="searchVideos()">🔍 Search</button>
+                        <button onclick="loadVideos()">🔄 Refresh</button>
+                        <button onclick="showVideoForm(null)">➕ Add Video</button>
+                    </div>
+
+                    <div id="videosTableContainer">
+                        <div class="loading">Loading videos...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categories Tab -->
+            <div class="tab-content" id="categoriesTab">
+                <div class="card">
+                    <div class="search-bar">
+                        <input type="text" id="categorySearchInput" placeholder="Search categories...">
+                        <button onclick="searchCategories()">🔍 Search</button>
+                        <button onclick="loadCategories()">🔄 Refresh</button>
+                    </div>
+
+                    <div id="categoriesTableContainer">
+                        <div class="loading">Loading categories...</div>
+                    </div>
                 </div>
             </div>
 
@@ -495,11 +722,135 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2>User Details</h2>
-                <button class="modal-close" onclick="closeModal()">&times;</button>
+                <button class="modal-close" onclick="closeModal('userModal')">&times;</button>
             </div>
             <div id="userDetailContent">
                 <div class="loading">Loading user details...</div>
             </div>
+        </div>
+    </div>
+
+    <!-- Video Form Modal -->
+    <div class="modal" id="videoModal">
+        <div class="modal-content" style="max-width: 900px;">
+            <div class="modal-header">
+                <h2 id="videoModalTitle">Add New Video</h2>
+                <button class="modal-close" onclick="closeModal('videoModal')">&times;</button>
+            </div>
+            <form id="videoForm" onsubmit="saveVideo(event)">
+                <input type="hidden" id="videoId">
+                <div class="form-group">
+                    <label>Skill Name *</label>
+                    <input type="text" id="videoSkillName" required placeholder="e.g., Python, React">
+                </div>
+                <div class="form-group">
+                    <label>Video Title *</label>
+                    <input type="text" id="videoTitle" required placeholder="e.g., Python Complete Tutorial">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="videoDescription" rows="3" placeholder="Brief description of the video"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>YouTube Video ID *</label>
+                    <input type="text" id="youtubeVideoId" required placeholder="e.g., dQw4w9WgXcQ">
+                </div>
+                <div class="form-group">
+                    <label>Duration (minutes) *</label>
+                    <input type="number" id="durationMinutes" required placeholder="e.g., 120">
+                </div>
+                <div class="form-group">
+                    <label>Thumbnail URL (optional)</label>
+                    <input type="text" id="thumbnailUrl" placeholder="Leave empty for auto-generated">
+                </div>
+                <div class="form-group">
+                    <label>Transcript <a href="https://www.downloadyoutubesubtitles.com/" target="_blank" style="font-size: 12px;">(Download subtitles)</a></label>
+                    <textarea id="videoTranscript" rows="10" placeholder="Paste full subtitle/transcript content here..." style="font-family: monospace; font-size: 12px;"></textarea>
+                    <small id="transcriptLength" style="color: #666;">0 characters</small>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn-login">💾 Save Video</button>
+                    <button type="button" onclick="closeModal('videoModal')" style="background: #999;">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Category Form Modal -->
+    <div class="modal" id="categoryModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="categoryModalTitle">Add New Category</h2>
+                <button class="modal-close" onclick="closeModal('categoryModal')">&times;</button>
+            </div>
+            <form id="categoryForm" onsubmit="saveCategory(event)">
+                <input type="hidden" id="categoryId">
+                <div class="form-group">
+                    <label>Category Name *</label>
+                    <input type="text" id="categoryName" required placeholder="e.g., Programming, Design">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="categoryDescription" rows="3" placeholder="Brief description of the category"></textarea>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn-login">💾 Save Category</button>
+                    <button type="button" onclick="closeModal('categoryModal')" style="background: #999;">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Career Modal -->
+    <div class="modal" id="careerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="careerModalTitle">Add New Career</h2>
+                <button class="modal-close" onclick="closeModal('careerModal')">&times;</button>
+            </div>
+            <form id="careerForm" onsubmit="saveCareer(event)">
+                <input type="hidden" id="careerId">
+                <div class="form-group">
+                    <label>Career Name *</label>
+                    <input type="text" id="careerName" required placeholder="e.g., Software Engineer">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="careerDescription" rows="3" placeholder="Brief description of the career"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Required Education</label>
+                    <input type="text" id="careerEducation" placeholder="e.g., Bachelor in Computer Science">
+                </div>
+                <div class="form-group">
+                    <label>Average Salary</label>
+                    <input type="text" id="careerSalary" placeholder="e.g., $80,000 - $150,000">
+                </div>
+                <div class="form-group">
+                    <label>Growth Outlook</label>
+                    <input type="text" id="careerOutlook" placeholder="e.g., Strong growth">
+                </div>
+                <div class="form-group">
+                    <label>Key Skills (comma-separated)</label>
+                    <input type="text" id="careerSkills" placeholder="e.g., Programming, Problem Solving, Teamwork">
+                    <small style="color: #999; font-size: 12px;">Enter skills separated by commas</small>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn-login">💾 Save Career</button>
+                    <button type="button" onclick="closeModal('careerModal')" style="background: #999;">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Career Videos Modal -->
+    <div class="modal" id="careerVideosModal">
+        <div class="modal-content" style="max-width: 1000px;">
+            <div class="modal-header">
+                <h2 id="careerVideosTitle">Career Videos</h2>
+                <button class="modal-close" onclick="closeModal('careerVideosModal')">&times;</button>
+            </div>
+            <div id="careerVideosContent" style="max-height: 600px; overflow-y: auto;"></div>
         </div>
     </div>
 
@@ -509,35 +860,139 @@
         let currentPage = 1;
         let currentSearch = '';
 
+        // Helper function to safely parse JSON responses
+        async function safeJsonParse(response) {
+            const contentType = response.headers.get('content-type');
+            const text = await response.text();
+            
+            console.log('Response Content-Type:', contentType);
+            console.log('Response Text Length:', text.length);
+            console.log('Response Text (first 200 chars):', text.substring(0, 200));
+            
+            // If empty response
+            if (!text || text.trim() === '') {
+                console.warn('Empty response body');
+                return null;
+            }
+            
+            // If not JSON content type
+            if (!contentType || !contentType.includes('application/json')) {
+                console.error('Non-JSON response:', text);
+                throw new Error(`Expected JSON but got ${contentType || 'unknown type'}: ${text.substring(0, 100)}`);
+            }
+            
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                console.error('JSON Parse Error:', e);
+                console.error('Response text:', text);
+                throw new Error(`Invalid JSON: ${e.message}`);
+            }
+        }
+
         // Login
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
+            const emailOrUsername = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
 
+            // Check if input is email or username
+            const isEmail = emailOrUsername.includes('@');
+            
             try {
+                // If username provided, first get the email
+                let loginEmail = emailOrUsername;
+                
+                if (!isEmail) {
+                    // Try to get email from username
+                    try {
+                        const userResponse = await fetch(`${API_URL}/auth/user-by-username/${emailOrUsername}`);
+                        if (userResponse.ok) {
+                            const userData = await safeJsonParse(userResponse);
+                            if (userData && userData.email) {
+                                loginEmail = userData.email;
+                            }
+                        }
+                    } catch (err) {
+                        // If username lookup fails, just try with what was provided
+                        console.log('Username lookup failed, trying as-is');
+                    }
+                }
+
                 const response = await fetch(`${API_URL}/auth/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
+                    body: JSON.stringify({ email: loginEmail, password: password })
                 });
 
-                const data = await response.json();
+                if (!response.ok) {
+                    const errorData = await safeJsonParse(response).catch(() => ({}));
+                    const errorMsg = errorData?.message || errorData?.error || `Error: ${response.status} ${response.statusText}`;
+                    
+                    if (response.status === 401) {
+                        showError('Invalid email/username or password. Please check your credentials.');
+                    } else {
+                        showError(errorMsg);
+                    }
+                    return;
+                }
 
-                if (response.ok && data.token) {
+                const data = await safeJsonParse(response);
+
+                if (data && data.token) {
                     authToken = data.token;
-                    localStorage.setItem('adminToken', authToken);
-                    document.getElementById('adminName').textContent = data.user?.fullName || 'Administrator';
                     
-                    document.getElementById('loginScreen').style.display = 'none';
-                    document.getElementById('dashboardScreen').style.display = 'block';
+                    // Decode and validate token
+                    console.log('=== TOKEN VALIDATION ===');
+                    console.log('Token received:', authToken.substring(0, 50) + '...');
                     
-                    loadDashboard();
+                    try {
+                        const payload = JSON.parse(atob(data.token.split('.')[1]));
+                        console.log('Token payload:', JSON.stringify(payload, null, 2));
+                        
+                        // Check all possible role claim formats
+                        const role = payload.role || 
+                                   payload.Role || 
+                                   payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ||
+                                   payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/Role'];
+                        
+                        console.log('User role:', role);
+                        console.log('Is Admin?', role?.toLowerCase() === 'admin');
+                        
+                        // Accept both 'admin' and 'Admin' (case-insensitive check)
+                        if (!role || role.toLowerCase() !== 'admin') {
+                            showError(`Access denied. Admin privileges required. Your role: ${role || 'none'}`);
+                            localStorage.removeItem('adminToken');
+                            console.error('Role check failed. User role:', role);
+                            return;
+                        }
+                        
+                        // Save token after validation
+                        localStorage.setItem('adminToken', authToken);
+                        console.log('✅ Admin token saved successfully');
+                        
+                        const adminName = data.user?.fullName || payload.unique_name || 'Administrator';
+                        document.getElementById('adminName').textContent = adminName;
+                        
+                        // Set avatar initials
+                        const initials = adminName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                        document.getElementById('userAvatar').textContent = initials;
+                        
+                        document.getElementById('loginScreen').style.display = 'none';
+                        document.getElementById('dashboardScreen').style.display = 'block';
+                        
+                        loadDashboard();
+                    } catch (tokenError) {
+                        console.error('Token decode error:', tokenError);
+                        showError('Invalid token format. Please contact administrator.');
+                        return;
+                    }
                 } else {
-                    showError(data.message || 'Invalid credentials');
+                    showError(data?.message || 'Invalid credentials - no token received');
                 }
             } catch (error) {
-                showError('Connection error. Please try again.');
+                console.error('Login error:', error);
+                showError(`Connection error: ${error.message}. Is the backend running on ${API_URL}?`);
             }
         });
 
@@ -561,12 +1016,25 @@
         }
 
         async function loadStats() {
+            console.log('=== LOAD STATS DEBUG ===');
+            console.log('Auth Token:', authToken ? authToken.substring(0, 20) + '...' : 'MISSING!');
+
             try {
                 const response = await fetch(`${API_URL}/admin/stats`, {
                     headers: { 'Authorization': `Bearer ${authToken}` }
                 });
 
-                const data = await response.json();
+                console.log('Stats Response Status:', response.status);
+
+                if (!response.ok) {
+                    const errorData = await safeJsonParse(response);
+                    console.error('Stats Error:', errorData);
+                    alert(`Failed to load statistics (${response.status}): ${errorData?.message || errorData?.error || 'Unknown error'}`);
+                    return;
+                }
+
+                const data = await safeJsonParse(response);
+                console.log('Stats loaded:', data);
 
                 document.getElementById('totalUsers').textContent = data.totalUsers || 0;
                 document.getElementById('activeToday').textContent = data.activeUsersToday || 0;
@@ -585,7 +1053,9 @@
                     displayCareers(data.popularCareers);
                 }
             } catch (error) {
+                console.error('=== CATCH ERROR ===');
                 console.error('Error loading stats:', error);
+                alert(`Error loading statistics: ${error.message}\nCheck console (F12) for details`);
             }
         }
 
@@ -593,20 +1063,42 @@
             currentPage = page;
             currentSearch = search;
 
-            try {
-                const response = await fetch(
-                    `${API_URL}/admin/users?page=${page}&pageSize=20&search=${search}`,
-                    { headers: { 'Authorization': `Bearer ${authToken}` } }
-                );
+            console.log('=== LOAD USERS DEBUG ===');
+            console.log('Page:', page);
+            console.log('Search:', search);
+            console.log('Auth Token:', authToken ? authToken.substring(0, 20) + '...' : 'MISSING!');
 
-                const data = await response.json();
+            try {
+                const url = `${API_URL}/admin/users?page=${page}&pageSize=20&search=${encodeURIComponent(search)}`;
+                console.log('Request URL:', url);
+
+                const response = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                console.log('Response Status:', response.status);
+
+                if (!response.ok) {
+                    const errorData = await safeJsonParse(response);
+                    console.error('Error Response:', errorData);
+                    alert(`Failed to load users (${response.status}): ${errorData?.message || errorData?.error || 'Unknown error'}`);
+                    return;
+                }
+
+                const data = await safeJsonParse(response);
+                console.log('Users loaded:', data.users ? data.users.length : 0);
 
                 if (data.users) {
                     displayUsers(data.users);
                     displayPagination(data.totalPages, page);
+                } else {
+                    console.error('No users array in response:', data);
+                    document.getElementById('usersTableContainer').innerHTML = '<p style="text-align: center; padding: 40px; color: red;">Error: Invalid response format</p>';
                 }
             } catch (error) {
+                console.error('=== CATCH ERROR ===');
                 console.error('Error loading users:', error);
+                document.getElementById('usersTableContainer').innerHTML = `<p style="text-align: center; padding: 40px; color: red;">Error: ${error.message}<br>Check console (F12) for details</p>`;
             }
         }
 
@@ -689,52 +1181,111 @@
                     headers: { 'Authorization': `Bearer ${authToken}` }
                 });
 
-                const user = await response.json();
+                if (!response.ok) {
+                    content.innerHTML = '<p style="color: red;">Error loading user details</p>';
+                    return;
+                }
+
+                const user = await safeJsonParse(response);
+
+                if (!user) {
+                    content.innerHTML = '<p style="color: red;">No user data received</p>';
+                    return;
+                }
 
                 let html = `
-                    <h3>Basic Information</h3>
-                    <p><strong>Username:</strong> ${user.username}</p>
-                    <p><strong>Full Name:</strong> ${user.fullName}</p>
-                    <p><strong>Email:</strong> ${user.email}</p>
-                    <p><strong>Joined:</strong> ${new Date(user.createdAt).toLocaleDateString()}</p>
-                    <hr style="margin: 20px 0;">
+                    <div style="display: grid; gap: 24px;">
+                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 24px; border-radius: 16px; color: white;">
+                            <h3 style="color: white; margin-bottom: 16px; font-size: 18px;">👤 Basic Information</h3>
+                            <div style="display: grid; gap: 12px;">
+                                <div><strong>Username:</strong> ${user.username}</div>
+                                <div><strong>Full Name:</strong> ${user.fullName}</div>
+                                <div><strong>Email:</strong> ${user.email}</div>
+                                <div><strong>Role:</strong> <span style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 12px; font-size: 13px;">${user.role || 'user'}</span></div>
+                                <div><strong>Joined:</strong> ${new Date(user.createdAt).toLocaleDateString()}</div>
+                            </div>
+                        </div>
+
+                        ${user.profile ? `
+                            <div style="background: #f8f9fa; padding: 24px; border-radius: 16px; border-left: 4px solid #667eea;">
+                                <h3 style="margin-bottom: 16px; color: #1a1a1a; font-size: 18px;">📋 Profile Information</h3>
+                                ${user.profile.profileImagePath ? `
+                                    <div style="margin-bottom: 20px; text-align: center;">
+                                        <img src="http://localhost:5001${user.profile.profileImagePath}" 
+                                             alt="Profile" 
+                                             style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #667eea; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" 
+                                             onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                        <div style="display: none; width: 120px; height: 120px; border-radius: 50%; background: #e9ecef; align-items: center; justify-content: center; margin: 0 auto; color: #6c757d;">No Image</div>
+                                    </div>
+                                ` : ''}
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                                    ${user.profile.phoneNumber ? `<div><strong>📞 Phone:</strong> ${user.profile.phoneNumber}</div>` : ''}
+                                    ${user.profile.age ? `<div><strong>🎂 Age:</strong> ${user.profile.age}</div>` : ''}
+                                    ${user.profile.gender ? `<div><strong>⚧ Gender:</strong> ${user.profile.gender}</div>` : ''}
+                                    ${user.profile.educationLevel ? `<div><strong>🎓 Education:</strong> ${user.profile.educationLevel}</div>` : ''}
+                                    ${user.profile.fieldOfStudy ? `<div><strong>📚 Field:</strong> ${user.profile.fieldOfStudy}</div>` : ''}
+                                    ${user.profile.skills ? `<div style="grid-column: 1 / -1;"><strong>💡 Skills:</strong> ${user.profile.skills}</div>` : ''}
+                                </div>
+                            </div>
+                        ` : '<div style="background: #f8f9fa; padding: 24px; border-radius: 16px; text-align: center; color: #6c757d;"><p>No profile information available</p></div>'}
+
+                        ${user.career ? `
+                            <div style="background: #e8f5e9; padding: 24px; border-radius: 16px; border-left: 4px solid #4caf50;">
+                                <h3 style="margin-bottom: 16px; color: #2e7d32; font-size: 18px;">💼 Career Progress</h3>
+                                <div style="display: grid; gap: 12px;">
+                                    <div><strong>Selected Career:</strong> ${user.career.careerName}</div>
+                                    <div>
+                                        <strong>Overall Progress:</strong> 
+                                        <div style="background: #fff; border-radius: 8px; height: 24px; overflow: hidden; margin-top: 8px; position: relative;">
+                                            <div style="width: ${user.career.overallProgress}%; height: 100%; background: linear-gradient(90deg, #4caf50, #8bc34a); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 12px;">
+                                                ${user.career.overallProgress.toFixed(1)}%
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div><strong>Courses:</strong> ${user.career.completedCourses}/${user.career.totalCourses} completed</div>
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        ${user.videoProgress && user.videoProgress.length > 0 ? `
+                            <div style="background: #fff3e0; padding: 24px; border-radius: 16px; border-left: 4px solid #ff9800;">
+                                <h3 style="margin-bottom: 16px; color: #e65100; font-size: 18px;">🎥 Video Progress (Last 10)</h3>
+                                <div style="overflow-x: auto;">
+                                    <table style="width: 100%; border-collapse: separate; border-spacing: 0 8px;">
+                                        <thead>
+                                            <tr style="background: rgba(255,152,0,0.1);">
+                                                <th style="padding: 12px; text-align: left; font-size: 13px;">Video</th>
+                                                <th style="padding: 12px; text-align: left; font-size: 13px;">Skill</th>
+                                                <th style="padding: 12px; text-align: left; font-size: 13px;">Progress</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${user.videoProgress.slice(0, 10).map(video => `
+                                                <tr style="background: white;">
+                                                    <td style="padding: 12px; font-size: 13px;">${video.videoTitle}</td>
+                                                    <td style="padding: 12px; font-size: 13px;">${video.skillName}</td>
+                                                    <td style="padding: 12px; font-size: 13px;">
+                                                        <span style="background: #4caf50; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                                                            ${video.watchPercentage.toFixed(1)}%
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            `).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        ${user.resume ? `
+                            <div style="background: #e3f2fd; padding: 24px; border-radius: 16px; border-left: 4px solid #2196f3;">
+                                <h3 style="margin-bottom: 16px; color: #1565c0; font-size: 18px;">📄 Resume</h3>
+                                <div><strong>Job Title:</strong> ${user.resume.jobTitle}</div>
+                                <div style="margin-top: 8px;"><strong>Last Updated:</strong> ${new Date(user.resume.updatedAt).toLocaleDateString()}</div>
+                            </div>
+                        ` : ''}
+                    </div>
                 `;
-
-                if (user.career) {
-                    html += `
-                        <h3>Career Progress</h3>
-                        <p><strong>Selected Career:</strong> ${user.career.careerName}</p>
-                        <p><strong>Overall Progress:</strong> ${user.career.overallProgress.toFixed(1)}%</p>
-                        <p><strong>Courses:</strong> ${user.career.completedCourses}/${user.career.totalCourses}</p>
-                        <hr style="margin: 20px 0;">
-                    `;
-                }
-
-                if (user.videoProgress.length > 0) {
-                    html += `
-                        <h3>Video Progress (Last 10)</h3>
-                        <table style="font-size: 12px;">
-                            <tr><th>Video</th><th>Skill</th><th>Progress</th></tr>
-                    `;
-                    user.videoProgress.slice(0, 10).forEach(video => {
-                        html += `
-                            <tr>
-                                <td>${video.videoTitle}</td>
-                                <td>${video.skillName}</td>
-                                <td>${video.watchPercentage.toFixed(1)}%</td>
-                            </tr>
-                        `;
-                    });
-                    html += `</table><hr style="margin: 20px 0;">`;
-                }
-
-                if (user.resume) {
-                    html += `
-                        <h3>Resume</h3>
-                        <p><strong>Job Title:</strong> ${user.resume.jobTitle}</p>
-                        <p><strong>Updated:</strong> ${new Date(user.resume.updatedAt).toLocaleDateString()}</p>
-                    `;
-                }
 
                 content.innerHTML = html;
             } catch (error) {
@@ -742,9 +1293,707 @@
             }
         }
 
-        function closeModal() {
-            document.getElementById('userModal').classList.remove('active');
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId || 'userModal');
+            modal.classList.remove('active');
+            
+            // Reset forms if they exist in the modal
+            const forms = modal.querySelectorAll('form');
+            forms.forEach(form => form.reset());
+            
+            // Clear hidden IDs
+            const hiddenIds = modal.querySelectorAll('input[type="hidden"]');
+            hiddenIds.forEach(input => input.value = '');
         }
+
+        // Video Management Functions
+        async function loadVideos() {
+            console.log('=== LOAD VIDEOS DEBUG ===');
+            console.log('Auth Token:', authToken ? authToken.substring(0, 20) + '...' : 'MISSING!');
+
+            try {
+                const url = `${API_URL}/learningvideos`;
+                console.log('Request URL:', url);
+
+                const response = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                console.log('Response Status:', response.status);
+
+                if (!response.ok) {
+                    const errorData = await safeJsonParse(response);
+                    console.error('Error Response:', errorData);
+                    alert(`Failed to load videos (${response.status}): ${errorData?.message || errorData?.error || 'Unknown error'}`);
+                    document.getElementById('videosTableContainer').innerHTML = '<p style="text-align: center; padding: 40px; color: red;">Failed to load videos</p>';
+                    return;
+                }
+
+                const data = await safeJsonParse(response);
+                console.log('Videos loaded:', data.videos ? data.videos.length : 0);
+
+                if (data.videos) {
+                    displayVideos(data.videos);
+                } else {
+                    console.error('No videos array in response:', data);
+                    document.getElementById('videosTableContainer').innerHTML = '<p style="text-align: center; padding: 40px; color: red;">Error: Invalid response format</p>';
+                }
+            } catch (error) {
+                console.error('=== CATCH ERROR ===');
+                console.error('Error loading videos:', error);
+                document.getElementById('videosTableContainer').innerHTML = `<p style="text-align: center; padding: 40px; color: red;">Error: ${error.message}<br>Check console (F12) for details</p>`;
+            }
+        }
+
+        function displayVideos(videos) {
+            const container = document.getElementById('videosTableContainer');
+            
+            if (videos.length === 0) {
+                container.innerHTML = '<p style="text-align: center; padding: 40px;">No videos found</p>';
+                return;
+            }
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Skill Name</th>
+                            <th>Video Title</th>
+                            <th>Duration</th>
+                            <th>Transcript</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            videos.forEach(video => {
+                const hasTranscript = video.hasTranscript || false;
+                const transcriptBadge = hasTranscript ? 'badge-success' : 'badge-warning';
+                const transcriptText = hasTranscript ? '✓ Yes' : '✗ No';
+
+                html += `
+                    <tr>
+                        <td>${video.id}</td>
+                        <td><strong>${video.skillName}</strong></td>
+                        <td>${video.videoTitle}</td>
+                        <td>${video.durationMinutes} min</td>
+                        <td><span class="badge ${transcriptBadge}">${transcriptText}</span></td>
+                        <td>
+                            <button class="btn-view" onclick="showVideoForm(${video.id})">Edit</button>
+                            <button class="btn-delete" onclick="deleteVideo(${video.id}, '${video.skillName}')">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        }
+
+        async function showVideoForm(videoId) {
+            const modal = document.getElementById('videoModal');
+            const form = document.getElementById('videoForm');
+            
+            form.reset();
+            document.getElementById('videoId').value = '';
+            document.getElementById('transcriptLength').textContent = '0 characters';
+
+            if (videoId) {
+                document.getElementById('videoModalTitle').textContent = 'Edit Video';
+                
+                try {
+                    // Load video details
+                    const videoResponse = await fetch(`${API_URL}/learningvideos`, {
+                        headers: { 'Authorization': `Bearer ${authToken}` }
+                    });
+                    
+                    if (!videoResponse.ok) {
+                        console.error('Failed to load videos');
+                        return;
+                    }
+                    
+                    const videoData = await safeJsonParse(videoResponse);
+                    if (!videoData || !videoData.videos) {
+                        console.error('Invalid video data');
+                        return;
+                    }
+                    
+                    const video = videoData.videos.find(v => v.id === videoId);
+
+                    if (video) {
+                        document.getElementById('videoId').value = video.id;
+                        document.getElementById('videoSkillName').value = video.skillName;
+                        document.getElementById('videoTitle').value = video.videoTitle;
+                        document.getElementById('videoDescription').value = video.videoDescription || '';
+                        document.getElementById('youtubeVideoId').value = video.youtubeVideoId;
+                        document.getElementById('durationMinutes').value = video.durationMinutes;
+                        document.getElementById('thumbnailUrl').value = video.thumbnailUrl || '';
+                    }
+
+                    // Load transcript
+                    const transcriptResponse = await fetch(`${API_URL}/learningvideos/${videoId}/transcript`, {
+                        headers: { 'Authorization': `Bearer ${authToken}` }
+                    });
+                    
+                    if (transcriptResponse.ok) {
+                        const transcriptData = await safeJsonParse(transcriptResponse);
+                        const transcript = transcriptData?.transcript || '';
+                        document.getElementById('videoTranscript').value = transcript;
+                        document.getElementById('transcriptLength').textContent = `${transcript.length} characters`;
+                    }
+
+                } catch (error) {
+                    console.error('Error loading video details:', error);
+                }
+            } else {
+                document.getElementById('videoModalTitle').textContent = 'Add New Video';
+            }
+
+            modal.classList.add('active');
+        }
+
+        async function saveVideo(event) {
+            event.preventDefault();
+
+            const videoId = document.getElementById('videoId').value;
+            const videoData = {
+                skillName: document.getElementById('videoSkillName').value.trim(),
+                videoTitle: document.getElementById('videoTitle').value.trim(),
+                videoDescription: document.getElementById('videoDescription').value.trim(),
+                youtubeVideoId: document.getElementById('youtubeVideoId').value.trim(),
+                durationMinutes: parseInt(document.getElementById('durationMinutes').value) || 0,
+                thumbnailUrl: document.getElementById('thumbnailUrl').value.trim() || '',
+                transcript: document.getElementById('videoTranscript').value.trim() || ''
+            };
+
+            // Validation
+            if (!videoData.skillName) {
+                alert('Skill Name is required');
+                return;
+            }
+            if (!videoData.videoTitle) {
+                alert('Video Title is required');
+                return;
+            }
+            if (!videoData.youtubeVideoId) {
+                alert('YouTube Video ID is required');
+                return;
+            }
+
+            console.log('=== SAVE VIDEO DEBUG ===');
+            console.log('Video ID:', videoId);
+            console.log('Video Data:', JSON.stringify(videoData, null, 2));
+            console.log('Auth Token:', authToken ? authToken.substring(0, 20) + '...' : 'MISSING!');
+
+            try {
+                const url = videoId 
+                    ? `${API_URL}/learningvideos/${videoId}`
+                    : `${API_URL}/learningvideos`;
+                const method = videoId ? 'PUT' : 'POST';
+
+                console.log('Request URL:', url);
+                console.log('Request Method:', method);
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(videoData)
+                });
+
+                console.log('Response Status:', response.status);
+                console.log('Response OK:', response.ok);
+
+                if (response.ok) {
+                    const responseData = await safeJsonParse(response);
+                    console.log('Response Data:', responseData);
+                    alert(videoId ? 'Video updated successfully!' : 'Video created successfully!');
+                    closeModal('videoModal');
+                    loadVideos();
+                } else {
+                    const errorData = await safeJsonParse(response);
+                    console.error('Error Response:', errorData);
+                    alert(`Error ${response.status}: ${errorData?.error || errorData?.message || 'Failed to save video'}\n\nDetails: ${JSON.stringify(errorData, null, 2)}`);
+                }
+            } catch (error) {
+                console.error('=== CATCH ERROR ===');
+                console.error('Error:', error);
+                console.error('Error Stack:', error.stack);
+                alert(`Network Error: ${error.message}\n\nCheck browser console (F12) for details`);
+            }
+        }
+
+        async function deleteVideo(videoId, skillName) {
+            if (!confirm(`Are you sure you want to delete video for "${skillName}"? This action cannot be undone.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/learningvideos/${videoId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    alert('Video deleted successfully');
+                    loadVideos();
+                } else {
+                    // Try to get error message if available
+                    const errorData = await safeJsonParse(response).catch(() => null);
+                    const errorMsg = errorData?.error || errorData?.message || 'Failed to delete video';
+                    alert(`Error: ${errorMsg}`);
+                }
+            } catch (error) {
+                console.error('Delete video error:', error);
+                alert(`Error deleting video: ${error.message}`);
+            }
+        }
+
+        function searchVideos() {
+            const search = document.getElementById('videoSearchInput').value.toLowerCase();
+            const table = document.querySelector('#videosTableContainer table');
+            const rows = table.querySelectorAll('tbody tr');
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(search) ? '' : 'none';
+            });
+        }
+
+        // Category Management Functions
+        async function loadCategories() {
+            const container = document.getElementById('categoriesTableContainer');
+            container.innerHTML = '<div class="loading">Loading career suggestions...</div>';
+
+            console.log('=== LOAD CATEGORIES DEBUG ===');
+            console.log('Auth Token:', authToken ? authToken.substring(0, 20) + '...' : 'MISSING!');
+
+            try {
+                // Fetch careers from database
+                const response = await fetch(`${API_URL}/admin/careers`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                console.log('Response status:', response.status);
+                console.log('Response ok:', response.ok);
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        container.innerHTML = '<p style="color: red; text-align: center; padding: 40px;">Authentication failed. Please logout and login again.</p>';
+                    } else if (response.status === 403) {
+                        container.innerHTML = '<p style="color: red; text-align: center; padding: 40px;">Access denied. Admin privileges required.</p>';
+                    } else {
+                        const errorText = await response.text();
+                        console.error('Error response:', errorText);
+                        container.innerHTML = `<p style="color: red; text-align: center; padding: 40px;">Failed to load careers (${response.status})</p>`;
+                    }
+                    return;
+                }
+
+                const careers = await safeJsonParse(response);
+                
+                console.log('Careers loaded:', careers?.length || 0);
+
+                if (!careers || careers.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 60px 20px;">
+                            <div style="font-size: 64px; margin-bottom: 16px;">📋</div>
+                            <h3 style="color: #666; margin-bottom: 12px;">No careers found</h3>
+                            <p style="color: #999; margin-bottom: 24px;">The careers table needs to be populated</p>
+                            <button onclick="window.open('${API_URL.replace('/api', '')}/api/setup/populate-careers', '_blank')" 
+                                    style="padding: 12px 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;">
+                                📦 Setup Careers Data
+                            </button>
+                            <p style="color: #999; margin-top: 12px; font-size: 12px;">After clicking, refresh this page</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = `
+                    <div style="margin-bottom: 24px; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px; color: white; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h3 style="margin: 0; font-size: 20px;">💼 Career Suggestions</h3>
+                            <p style="margin: 8px 0 0 0; opacity: 0.9;">Manage career paths and their learning videos</p>
+                        </div>
+                        <button onclick="showCareerForm()" style="padding: 10px 20px; background: white; color: #667eea; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                            ➕ Add New Career
+                        </button>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;">
+                `;
+
+                careers.forEach((career, index) => {
+                    const colors = [
+                        { bg: '#e3f2fd', border: '#2196f3', text: '#1565c0', icon: '💻' },
+                        { bg: '#f3e5f5', border: '#9c27b0', text: '#6a1b9a', icon: '📊' },
+                        { bg: '#e8f5e9', border: '#4caf50', text: '#2e7d32', icon: '🎨' },
+                        { bg: '#fff3e0', border: '#ff9800', text: '#e65100', icon: '🚀' },
+                        { bg: '#fce4ec', border: '#e91e63', text: '#c2185b', icon: '🔧' },
+                        { bg: '#e0f2f1', border: '#009688', text: '#00695c', icon: '🔐' },
+                        { bg: '#fce4ec', border: '#e91e63', text: '#ad1457', icon: '📈' },
+                        { bg: '#fff9c4', border: '#fbc02d', text: '#f57f17', icon: '💰' },
+                        { bg: '#e8eaf6', border: '#3f51b5', text: '#283593', icon: '⚙️' },
+                        { bg: '#e1f5fe', border: '#03a9f4', text: '#01579b', icon: '📚' }
+                    ];
+                    const color = colors[index % colors.length];
+                    
+                    // Parse skills if JSON
+                    let skills = [];
+                    try {
+                        skills = typeof career.key_skills === 'string' ? JSON.parse(career.key_skills) : career.key_skills;
+                    } catch {
+                        skills = [];
+                    }
+
+                    html += `
+                        <div style="background: ${color.bg}; padding: 24px; border-radius: 16px; border-left: 4px solid ${color.border}; transition: all 0.3s; position: relative; overflow: hidden;" 
+                             onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.15)'"
+                             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                            
+                            <div style="position: absolute; top: -20px; right: -20px; font-size: 80px; opacity: 0.1;">${color.icon}</div>
+                            
+                            <div style="position: relative; z-index: 1;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                                    <h4 style="margin: 0; color: ${color.text}; font-size: 18px; font-weight: 700;">${career.name || career.career_name}</h4>
+                                    <span style="font-size: 32px;">${color.icon}</span>
+                                </div>
+                                
+                                <p style="color: ${color.text}; font-size: 14px; margin: 12px 0; line-height: 1.5; opacity: 0.9;">
+                                    ${career.description || 'No description available'}
+                                </p>
+                                
+                                <div style="margin: 16px 0;">
+                                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                                        <span style="color: ${color.text}; font-size: 13px; font-weight: 600;">🎓 Education:</span>
+                                        <span style="color: ${color.text}; font-size: 13px; opacity: 0.8;">${career.required_education || 'Not specified'}</span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                                        <span style="color: ${color.text}; font-size: 13px; font-weight: 600;">💰 Salary:</span>
+                                        <span style="color: ${color.text}; font-size: 13px; opacity: 0.8;">${career.average_salary || 'Varies'}</span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <span style="color: ${color.text}; font-size: 13px; font-weight: 600;">📈 Outlook:</span>
+                                        <span style="color: ${color.text}; font-size: 13px; opacity: 0.8;">${career.growth_outlook || 'N/A'}</span>
+                                    </div>
+                                </div>
+                                
+                                ${skills.length > 0 ? `
+                                    <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid ${color.border};">
+                                        <div style="color: ${color.text}; font-size: 12px; font-weight: 600; margin-bottom: 8px;">🎯 Key Skills:</div>
+                                        <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                                            ${skills.slice(0, 4).map(skill => `
+                                                <span style="background: white; color: ${color.text}; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 500;">
+                                                    ${skill}
+                                                </span>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                ` : ''}
+                                
+                                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid ${color.border}; display: flex; gap: 8px; justify-content: space-between;">
+                                    <button onclick="viewCareerVideos(${career.id}, '${(career.name || career.career_name).replace(/'/g, "\\'")}')" 
+                                            style="flex: 1; padding: 8px; background: ${color.border}; color: white; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                                        📹 Videos
+                                    </button>
+                                    <button onclick="editCareer(${career.id})" 
+                                            style="flex: 1; padding: 8px; background: white; color: ${color.text}; border: 2px solid ${color.border}; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                                        ✏️ Edit
+                                    </button>
+                                    <button onclick="deleteCareer(${career.id}, '${(career.name || career.career_name).replace(/'/g, "\\'")}')" 
+                                            style="padding: 8px 12px; background: #dc3545; color: white; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                                        🗑️
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += '</div>';
+                container.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error loading careers:', error);
+                container.innerHTML = '<p style="color: red; text-align: center; padding: 40px;">Error loading careers</p>';
+            }
+        }
+
+        function showCategoryForm(categoryId) {
+            alert('Categories are auto-generated from video skills. Add videos to create new categories!');
+        }
+
+        function searchCategories() {
+            const searchTerm = document.getElementById('categorySearchInput').value.toLowerCase();
+            const container = document.getElementById('categoriesTableContainer');
+            const cards = container.querySelectorAll('[onclick^="filterVideosByCategory"]');
+            
+            cards.forEach(card => {
+                const categoryName = card.textContent.toLowerCase();
+                if (categoryName.includes(searchTerm)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        async function saveCategory(event) {
+            event.preventDefault();
+            alert('Categories are auto-generated from video skills. Add videos to create new categories!');
+        }
+
+        // Career CRUD Functions
+        function showCareerForm(careerId = null) {
+            if (careerId) {
+                document.getElementById('careerModalTitle').textContent = 'Edit Career';
+                // Load career data
+                loadCareerForEdit(careerId);
+            } else {
+                document.getElementById('careerModalTitle').textContent = 'Add New Career';
+                document.getElementById('careerForm').reset();
+                document.getElementById('careerId').value = '';
+            }
+            document.getElementById('careerModal').classList.add('active');
+        }
+
+        async function loadCareerForEdit(careerId) {
+            try {
+                const response = await fetch(`${API_URL}/admin/careers`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const careers = await safeJsonParse(response);
+                const career = careers.find(c => c.id === careerId);
+                
+                if (career) {
+                    document.getElementById('careerId').value = career.id;
+                    document.getElementById('careerName').value = career.name || career.career_name;
+                    document.getElementById('careerDescription').value = career.description || '';
+                    document.getElementById('careerEducation').value = career.required_education || '';
+                    document.getElementById('careerSalary').value = career.average_salary || '';
+                    document.getElementById('careerOutlook').value = career.growth_outlook || '';
+                    
+                    // Parse and display skills
+                    let skills = [];
+                    try {
+                        skills = typeof career.key_skills === 'string' ? JSON.parse(career.key_skills) : career.key_skills || [];
+                    } catch (e) {
+                        skills = [];
+                    }
+                    document.getElementById('careerSkills').value = skills.join(', ');
+                }
+            } catch (error) {
+                console.error('Error loading career:', error);
+                alert('Failed to load career data');
+            }
+        }
+
+        async function saveCareer(event) {
+            event.preventDefault();
+            
+            const careerId = document.getElementById('careerId').value;
+            const name = document.getElementById('careerName').value;
+            const description = document.getElementById('careerDescription').value;
+            const education = document.getElementById('careerEducation').value;
+            const salary = document.getElementById('careerSalary').value;
+            const outlook = document.getElementById('careerOutlook').value;
+            const skillsText = document.getElementById('careerSkills').value;
+            
+            // Convert skills to JSON array
+            const skills = skillsText.split(',').map(s => s.trim()).filter(s => s);
+            const skillsJson = JSON.stringify(skills);
+            
+            const careerData = {
+                name,
+                description,
+                requiredEducation: education,
+                averageSalary: salary,
+                growthOutlook: outlook,
+                keySkills: skillsJson
+            };
+            
+            try {
+                const url = careerId ? `${API_URL}/admin/careers/${careerId}` : `${API_URL}/admin/careers`;
+                const method = careerId ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(careerData)
+                });
+                
+                if (response.ok) {
+                    alert(careerId ? 'Career updated successfully!' : 'Career created successfully!');
+                    closeModal('careerModal');
+                    loadCategories(); // Refresh the careers list
+                } else {
+                    const error = await response.json();
+                    alert(`Error: ${error.message || 'Failed to save career'}`);
+                }
+            } catch (error) {
+                console.error('Error saving career:', error);
+                alert('Failed to save career. Check console for details.');
+            }
+        }
+
+        function editCareer(careerId) {
+            showCareerForm(careerId);
+        }
+
+        async function deleteCareer(careerId, careerName) {
+            if (!confirm(`Are you sure you want to delete "${careerName}"? This action cannot be undone.`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/admin/careers/${careerId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                if (response.ok) {
+                    alert('Career deleted successfully!');
+                    loadCategories(); // Refresh the careers list
+                } else {
+                    const error = await response.json();
+                    alert(`Error: ${error.message || 'Failed to delete career'}`);
+                }
+            } catch (error) {
+                console.error('Error deleting career:', error);
+                alert('Failed to delete career. Check console for details.');
+            }
+        }
+
+        async function viewCareerVideos(careerId, careerName) {
+            document.getElementById('careerVideosTitle').textContent = `Videos for ${careerName}`;
+            document.getElementById('careerVideosContent').innerHTML = '<div class="loading">Loading videos...</div>';
+            document.getElementById('careerVideosModal').classList.add('active');
+            
+            try {
+                const response = await fetch(`${API_URL}/admin/careers/${careerId}/videos`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load videos');
+                }
+                
+                const videos = await safeJsonParse(response);
+                
+                if (!videos || videos.length === 0) {
+                    document.getElementById('careerVideosContent').innerHTML = `
+                        <div style="text-align: center; padding: 60px 20px; color: #999;">
+                            <div style="font-size: 64px; margin-bottom: 16px;">📹</div>
+                            <h3>No videos found</h3>
+                            <p>No learning videos match the skills for this career</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let html = '<div style="display: grid; gap: 16px;">';
+                videos.forEach(video => {
+                    html += `
+                        <div style="display: flex; gap: 16px; padding: 16px; background: #f8f9fa; border-radius: 12px; border-left: 4px solid #667eea;">
+                            <img src="${video.thumbnailUrl}" alt="${video.videoTitle}" 
+                                 style="width: 160px; height: 90px; object-fit: cover; border-radius: 8px;">
+                            <div style="flex: 1;">
+                                <div style="display: flex; align-items: start; justify-content: space-between; gap: 12px;">
+                                    <div style="flex: 1;">
+                                        <h4 style="margin: 0 0 8px 0; color: #333;">${video.videoTitle}</h4>
+                                        <p style="margin: 0 0 8px 0; color: #666; font-size: 14px;">${video.videoDescription || 'No description'}</p>
+                                        <div style="display: flex; gap: 16px; font-size: 13px; color: #999;">
+                                            <span>🎯 ${video.skillName}</span>
+                                            <span>⏱️ ${video.durationMinutes} mins</span>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; gap: 8px; flex-direction: column;">
+                                        <a href="https://www.youtube.com/watch?v=${video.youtubeVideoId}" target="_blank" 
+                                           style="padding: 8px 16px; background: #667eea; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 600; white-space: nowrap; text-align: center;">
+                                            ▶️ Watch
+                                        </a>
+                                        <button onclick="editVideoFromCareer(${video.id})" 
+                                                style="padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;">
+                                            ✏️ Edit
+                                        </button>
+                                        <button onclick="deleteVideoFromCareer(${video.id}, '${video.videoTitle.replace(/'/g, "\\'")}', ${careerId}, '${careerName.replace(/'/g, "\\'")}')" 
+                                                style="padding: 8px 16px; background: #dc3545; color: white; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;">
+                                            🗑️ Delete
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                
+                document.getElementById('careerVideosContent').innerHTML = html;
+            } catch (error) {
+                console.error('Error loading career videos:', error);
+                document.getElementById('careerVideosContent').innerHTML = `
+                    <div style="text-align: center; padding: 60px 20px; color: #dc3545;">
+                        <h3>Error loading videos</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Video management from career modal
+        function editVideoFromCareer(videoId) {
+            // Close the career videos modal first
+            closeModal('careerVideosModal');
+            // Switch to videos tab
+            switchTab('videos');
+            // Open edit form for the video
+            setTimeout(() => {
+                showVideoForm(videoId);
+            }, 300);
+        }
+
+        async function deleteVideoFromCareer(videoId, videoTitle, careerId, careerName) {
+            if (!confirm(`Are you sure you want to delete "${videoTitle}"? This action cannot be undone.`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/learningvideos/${videoId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                if (response.ok) {
+                    alert('Video deleted successfully!');
+                    // Reload the videos for this career
+                    viewCareerVideos(careerId, careerName);
+                } else {
+                    const error = await response.json();
+                    alert(`Error: ${error.message || 'Failed to delete video'}`);
+                }
+            } catch (error) {
+                console.error('Error deleting video:', error);
+                alert('Failed to delete video. Check console for details.');
+            }
+        }
+
+        // Update transcript character count
+        document.addEventListener('DOMContentLoaded', () => {
+            const transcriptField = document.getElementById('videoTranscript');
+            if (transcriptField) {
+                transcriptField.addEventListener('input', (e) => {
+                    document.getElementById('transcriptLength').textContent = 
+                        `${e.target.value.length} characters`;
+                });
+            }
+        });
 
         async function deleteUser(userId, userName) {
             if (!confirm(`Are you sure you want to delete user "${userName}"? This action cannot be undone.`)) {
@@ -762,10 +2011,14 @@
                     loadUsers(currentPage, currentSearch);
                     loadStats();
                 } else {
-                    alert('Error deleting user');
+                    // Try to get error message if available
+                    const errorData = await safeJsonParse(response).catch(() => null);
+                    const errorMsg = errorData?.error || errorData?.message || 'Failed to delete user';
+                    alert(`Error: ${errorMsg}`);
                 }
             } catch (error) {
-                alert('Error deleting user');
+                console.error('Delete user error:', error);
+                alert(`Error deleting user: ${error.message}`);
             }
         }
 
@@ -827,6 +2080,13 @@
             
             event.target.classList.add('active');
             document.getElementById(tabName + 'Tab').classList.add('active');
+
+            // Load data when switching to specific tabs
+            if (tabName === 'videos') {
+                loadVideos();
+            } else if (tabName === 'categories') {
+                loadCategories();
+            }
         }
 
         async function exportUsers() {
@@ -846,11 +2106,68 @@
             }
         }
 
-        // Check for existing token on load
-        window.addEventListener('load', () => {
+        // Check backend connection and existing token on load
+        window.addEventListener('load', async () => {
+            // Test backend connection
+            try {
+                const testResponse = await fetch(`${API_URL}/auth/login`, {
+                    method: 'OPTIONS'
+                }).catch(() => null);
+                
+                if (!testResponse) {
+                    console.warn('Backend connection test failed - backend may not be running');
+                }
+            } catch (error) {
+                console.warn('Backend connectivity check failed:', error);
+            }
+
+            // Setup modal backdrop click to close
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closeModal(this.id);
+                    }
+                });
+            });
+
+            // ESC key to close modals
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.modal.active').forEach(modal => {
+                        closeModal(modal.id);
+                    });
+                }
+            });
+
+            // Check for existing token
             const token = localStorage.getItem('adminToken');
             if (token) {
                 authToken = token;
+                console.log('=== TOKEN RESTORED FROM STORAGE ===');
+                console.log('Token:', authToken.substring(0, 50) + '...');
+                
+                // Validate token before using
+                try {
+                    const payload = JSON.parse(atob(token.split('.')[1]));
+                    console.log('Token payload:', payload);
+                    const exp = payload.exp * 1000; // Convert to milliseconds
+                    const now = Date.now();
+                    
+                    if (exp < now) {
+                        console.error('Token expired!');
+                        localStorage.removeItem('adminToken');
+                        alert('Your session has expired. Please login again.');
+                        return;
+                    }
+                    
+                    console.log('Token valid until:', new Date(exp).toLocaleString());
+                } catch (e) {
+                    console.error('Token validation failed:', e);
+                    localStorage.removeItem('adminToken');
+                    alert('Invalid session. Please login again.');
+                    return;
+                }
+                
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('dashboardScreen').style.display = 'block';
                 loadDashboard();

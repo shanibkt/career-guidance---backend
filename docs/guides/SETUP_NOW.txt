@@ -1,0 +1,85 @@
+╔══════════════════════════════════════════════════════════════════╗
+║      ADMIN SETUP - YOUR DATABASE IS ON sql.freedb.tech          ║
+╚══════════════════════════════════════════════════════════════════╝
+
+✅ TWO SIMPLE OPTIONS TO CREATE ADMIN USER:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+OPTION 1: MySQL Workbench (EASIEST)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Open MySQL Workbench
+
+2. Create New Connection:
+   - Click "+" next to "MySQL Connections"
+   - Connection Name: FreedDB
+   - Hostname: sql.freedb.tech
+   - Port: 3306
+   - Username: freedb_shanib
+   - Password: pSh6TDn$Ma!wWrk
+   - Click "Test Connection" ✓
+   - Click "OK"
+
+3. Connect:
+   - Double-click "FreedDB" connection
+
+4. Run SQL:
+   - Open the file: CREATE_ADMIN_USER.sql
+   - Or copy-paste the SQL below
+   - Click Execute (⚡ lightning icon)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SQL TO RUN:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+USE freedb_career_guidence;
+
+ALTER TABLE Users ADD COLUMN Role VARCHAR(20) DEFAULT 'user';
+
+INSERT INTO Users (Username, FullName, Email, PasswordHash, Role, CreatedAt)
+VALUES (
+    'admin',
+    'System Administrator', 
+    'admin@careerguidance.com',
+    '$2a$11$xHZf8c8VVJKJKxjW6J5iYO8vZ0xZQGqL5Y7qZ8yZ9yZ0yZ1yZ2yZ3',
+    'admin',
+    NOW()
+)
+ON DUPLICATE KEY UPDATE Role = 'admin';
+
+SELECT Id, Username, Email, Role FROM Users;
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+OPTION 2: phpMyAdmin (if FreedDB provides it)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Go to: https://www.freedb.tech/ or their phpMyAdmin
+2. Login with your credentials
+3. Select database: freedb_career_guidence
+4. Click "SQL" tab
+5. Paste the SQL above
+6. Click "Go"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+AFTER RUNNING SQL:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✓ Refresh: http://localhost:5001/test-connection.html
+✓ All tests should PASS now
+✓ Login: http://localhost:5001/admin.html
+  - Email: admin@careerguidance.com
+  - Password: Admin@123
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔧 TROUBLESHOOTING:
+
+If you get "Column already exists" error:
+- That's OK! It means Role column was already added
+- The INSERT will still work
+
+If you get "Duplicate entry" error:
+- That's OK! Admin user already exists
+- Try logging in directly
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

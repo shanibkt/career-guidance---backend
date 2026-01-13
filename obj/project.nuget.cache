@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "QtheN9lgY0s=",
+  "dgSpecHash": "JTC2yROl7j8=",
   "success": true,
   "projectFilePath": "C:\\Users\\Dell\\Desktop\\Career guidence\\career-guidance---backend\\MyFirstApi.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\Dell\\.nuget\\packages\\anglesharp\\1.1.2\\anglesharp.1.1.2.nupkg.sha512",
     "C:\\Users\\Dell\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\Dell\\.nuget\\packages\\bouncycastle.cryptography\\2.5.1\\bouncycastle.cryptography.2.5.1.nupkg.sha512",
     "C:\\Users\\Dell\\.nuget\\packages\\google.protobuf\\3.30.0\\google.protobuf.3.30.0.nupkg.sha512",
@@ -47,6 +48,7 @@
     "C:\\Users\\Dell\\.nuget\\packages\\system.threading.tasks\\4.3.0\\system.threading.tasks.4.3.0.nupkg.sha512",
     "C:\\Users\\Dell\\.nuget\\packages\\system.threading.tasks.extensions\\4.5.4\\system.threading.tasks.extensions.4.5.4.nupkg.sha512",
     "C:\\Users\\Dell\\.nuget\\packages\\system.windows.extensions\\8.0.0\\system.windows.extensions.8.0.0.nupkg.sha512",
+    "C:\\Users\\Dell\\.nuget\\packages\\youtubeexplode\\6.4.4\\youtubeexplode.6.4.4.nupkg.sha512",
     "C:\\Users\\Dell\\.nuget\\packages\\zstdsharp.port\\0.8.5\\zstdsharp.port.0.8.5.nupkg.sha512"
   ],
   "logs": []

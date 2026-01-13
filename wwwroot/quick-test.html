@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Admin Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #667eea; }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover { opacity: 0.8; }
+        .result {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Quick Admin Test</h1>
+        
+        <p><strong>Backend:</strong> http://localhost:5001</p>
+        <p><strong>Database:</strong> freedb_career_guidence @ sql.freedb.tech</p>
+        
+        <div>
+            <button onclick="testBackend()">1. Test Backend</button>
+            <button onclick="testLogin()">2. Test Login</button>
+            <button onclick="testAdmin()">3. Test Admin API</button>
+            <button onclick="goToAdmin()">Open Admin Dashboard</button>
+        </div>
+        
+        <div id="output"></div>
+        
+        <hr>
+        
+        <h3>Setup Instructions:</h3>
+        <div class="info">
+<strong>If login fails, run this SQL on your database:</strong>
+
+USE freedb_career_guidence;
+
+ALTER TABLE Users ADD COLUMN IF NOT EXISTS Role VARCHAR(20) DEFAULT 'user';
+
+INSERT INTO Users (Username, FullName, Email, PasswordHash, Role, CreatedAt)
+VALUES ('admin', 'System Administrator', 'admin@careerguidance.com',
+'$2a$11$xHZf8c8VVJKJKxjW6J5iYO8vZ0xZQGqL5Y7qZ8yZ9yZ0yZ1yZ2yZ3', 
+'admin', NOW())
+ON DUPLICATE KEY UPDATE Role = 'admin';
+        </div>
+    </div>
+
+    <script>
+        const API = 'http://localhost:5001/api';
+        const output = document.getElementById('output');
+        let token = '';
+
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.textContent = message;
+            output.appendChild(div);
+            output.scrollTop = output.scrollHeight;
+        }
+
+        async function testBackend() {
+            output.innerHTML = '';
+            log('Testing backend connection...', 'info');
+            
+            try {
+                const res = await fetch('http://localhost:5001');
+                log(`✓ Backend is running!\nStatus: ${res.status}`, 'success');
+            } catch (error) {
+                log(`✗ Backend not reachable\nError: ${error.message}\n\nSolution: Run "dotnet run" in backend folder`, 'error');
+            }
+        }
+
+        async function testLogin() {
+            output.innerHTML = '';
+            log('Testing admin login...', 'info');
+            
+            try {
+                const res = await fetch(`${API}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'admin@careerguidance.com',
+                        password: 'Admin@123'
+                    })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    token = data.token;
+                    log(`✓ Login successful!\n\nUser: ${data.user.fullName}\nEmail: ${data.user.email}\nToken: ${token.substring(0, 50)}...`, 'success');
+                } else {
+                    const text = await res.text();
+                    log(`✗ Login failed (${res.status})\n\nResponse: ${text}\n\n⚠️ Admin user doesn't exist!\n\nRun the SQL from the instructions below.`, 'error');
+                }
+            } catch (error) {
+                log(`✗ Login request failed\nError: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAdmin() {
+            output.innerHTML = '';
+            
+            if (!token) {
+                log('⚠️ No token! Run "Test Login" first.', 'error');
+                return;
+            }
+            
+            log('Testing admin API...', 'info');
+            
+            try {
+                const res = await fetch(`${API}/admin/stats`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    log(`✓ Admin API working!\n\nTotal Users: ${data.totalUsers}\nActive Today: ${data.activeUsersToday}\nActive This Week: ${data.activeUsersWeek}\nTotal Videos: ${data.totalVideosWatched}\n\n✓ Everything is working!`, 'success');
+                } else {
+                    const text = await res.text();
+                    log(`✗ Admin API failed (${res.status})\n\nResponse: ${text}\n\nUser might not have admin role!`, 'error');
+                }
+            } catch (error) {
+                log(`✗ Admin API request failed\nError: ${error.message}`, 'error');
+            }
+        }
+
+        function goToAdmin() {
+            window.location.href = 'admin.html';
+        }
+
+        // Auto-test on load
+        window.onload = () => {
+            setTimeout(testBackend, 500);
+        };
+    </script>
+</body>
+</html>

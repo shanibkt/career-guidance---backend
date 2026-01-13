@@ -12,6 +12,7 @@
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.10" />
     <PackageReference Include="MySql.Data" Version="9.4.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
+    <PackageReference Include="YoutubeExplode" Version="6.4.4" />
   </ItemGroup>
 
 </Project>

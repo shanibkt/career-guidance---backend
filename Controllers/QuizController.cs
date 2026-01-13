@@ -6,6 +6,8 @@ using System.Text.Json;
 using System.Security.Claims;
 using MyFirstApi.Models;
 using MyFirstApi.Services;
+using YoutubeExplode;
+using YoutubeExplode.Videos.ClosedCaptions;
 
 namespace MyFirstApi.Controllers
 {
@@ -441,6 +443,488 @@ namespace MyFirstApi.Controllers
             {
                 _logger.LogError($"Error submitting quiz: {ex.Message}");
                 return StatusCode(500, new { error = "Failed to submit quiz", details = ex.Message });
+            }
+        }
+
+        // POST /api/quiz/generate-from-skill
+        [HttpPost("generate-from-skill")]
+        public async Task<IActionResult> GenerateQuizFromSkillName([FromBody] SkillQuizRequest request)
+        {
+            try
+            {
+                _logger.LogInformation($"Skill-based quiz generation called for skill: {request.SkillName}");
+                
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var userId = int.Parse(userIdClaim ?? "0");
+                if (userId == 0)
+                {
+                    return Unauthorized(new { error = "Invalid token" });
+                }
+
+                if (string.IsNullOrWhiteSpace(request.SkillName))
+                {
+                    return BadRequest(new { error = "Skill name is required" });
+                }
+
+                // Generate quiz using AI with timeout
+                _logger.LogInformation($"Calling AI to generate quiz for skill: {request.SkillName}");
+                
+                string aiResponse;
+                try
+                {
+                    using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(40));
+                    aiResponse = await _groqService.GenerateQuizFromSkillName(
+                        request.SkillName,
+                        request.VideoTitle ?? "General Topics"
+                    );
+                    
+                    if (string.IsNullOrWhiteSpace(aiResponse))
+                    {
+                        _logger.LogError("AI returned empty response for skill-based quiz");
+                        return StatusCode(500, new { error = "AI service error", details = "AI returned empty response" });
+                    }
+                }
+                catch (TaskCanceledException)
+                {
+                    _logger.LogWarning("AI timeout for skill-based quiz");
+                    return StatusCode(504, new { error = "AI service timeout", details = "Please try again" });
+                }
+
+                // Parse AI response
+                var cleanJson = aiResponse.Trim();
+                if (cleanJson.StartsWith("```json")) cleanJson = cleanJson.Substring(7);
+                if (cleanJson.StartsWith("```")) cleanJson = cleanJson.Substring(3);
+                if (cleanJson.EndsWith("```")) cleanJson = cleanJson.Substring(0, cleanJson.Length - 3);
+                cleanJson = cleanJson.Trim();
+
+                JsonElement questionsObj;
+                try
+                {
+                    questionsObj = JsonSerializer.Deserialize<JsonElement>(cleanJson);
+                }
+                catch (JsonException jsonEx)
+                {
+                    _logger.LogError($"Failed to parse AI response: {jsonEx.Message}");
+                    return StatusCode(500, new { error = "Invalid AI response", details = "AI returned malformed data" });
+                }
+
+                if (!questionsObj.TryGetProperty("questions", out var questionsArray))
+                {
+                    _logger.LogError("AI response missing 'questions' property");
+                    return StatusCode(500, new { error = "Invalid AI response" });
+                }
+
+                var questionsList = JsonSerializer.Deserialize<List<QuizQuestion>>(questionsArray.GetRawText());
+                if (questionsList == null || questionsList.Count != 10)
+                {
+                    _logger.LogWarning($"Expected 10 questions, got {questionsList?.Count ?? 0}");
+                    return StatusCode(500, new { error = "Invalid question count" });
+                }
+
+                // Generate quiz ID and save to database
+                var quizId = Guid.NewGuid().ToString();
+                using MySqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
+                conn.Open();
+
+                var questions = JsonSerializer.Serialize(questionsList);
+                
+                string insertQuery = @"
+                    INSERT INTO quiz_sessions (quiz_id, user_id, questions, total_questions) 
+                    VALUES (@quizId, @userId, @questions, @totalQuestions)";
+                
+                using MySqlCommand insertCmd = new(insertQuery, conn);
+                insertCmd.Parameters.AddWithValue("@quizId", quizId);
+                insertCmd.Parameters.AddWithValue("@userId", userId);
+                insertCmd.Parameters.AddWithValue("@questions", questions);
+                insertCmd.Parameters.AddWithValue("@totalQuestions", questionsList.Count);
+                
+                await insertCmd.ExecuteNonQueryAsync();
+
+                _logger.LogInformation($"Skill-based quiz generated successfully: {quizId}");
+                return Ok(new { quizId, questions = questionsList });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error generating skill-based quiz: {ex.Message}");
+                return StatusCode(500, new { error = "Quiz generation failed", details = ex.Message });
+            }
+        }
+
+        // POST /api/quiz/generate-from-transcript
+        [HttpPost("generate-from-transcript")]
+        public async Task<IActionResult> GenerateQuizFromTranscript([FromBody] TranscriptQuizRequest request)
+        {
+            try
+            {
+                _logger.LogInformation("Quiz generate-from-transcript endpoint called");
+                
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                _logger.LogInformation($"User ID from token: {userIdClaim ?? "NULL"}");
+                
+                var userId = int.Parse(userIdClaim ?? "0");
+                if (userId == 0)
+                {
+                    _logger.LogWarning("User ID is 0 or null - unauthorized");
+                    return Unauthorized(new { error = "Invalid token - user ID not found" });
+                }
+
+                // Validate request
+                if (string.IsNullOrWhiteSpace(request.Transcript))
+                {
+                    return BadRequest(new { error = "Transcript is required" });
+                }
+
+                if (string.IsNullOrWhiteSpace(request.SkillName))
+                {
+                    return BadRequest(new { error = "Skill name is required" });
+                }
+
+                _logger.LogInformation($"Generating quiz for skill: {request.SkillName}, video: {request.VideoTitle}");
+                _logger.LogInformation($"Transcript length: {request.Transcript.Length} characters");
+
+                // Generate questions using AI with transcript
+                _logger.LogInformation("Calling Groq API to generate transcript-based quiz questions...");
+                
+                string aiResponse;
+                try
+                {
+                    // Truncate transcript if too long (max 8000 characters to stay within token limits)
+                    var transcript = request.Transcript.Length > 8000 
+                        ? request.Transcript.Substring(0, 8000) + "... [truncated]"
+                        : request.Transcript;
+
+                    using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(40));
+                    aiResponse = await _groqService.GenerateQuizFromTranscript(
+                        transcript, 
+                        request.SkillName, 
+                        request.VideoTitle ?? "Video Tutorial"
+                    );
+                    _logger.LogInformation($"Got AI response ({aiResponse.Length} characters)");
+                    
+                    if (string.IsNullOrWhiteSpace(aiResponse))
+                    {
+                        _logger.LogError("AI returned empty response");
+                        return StatusCode(500, new { error = "AI service error", details = "AI returned empty response. Please try again." });
+                    }
+                }
+                catch (TaskCanceledException)
+                {
+                    _logger.LogWarning("Groq API timeout - AI took longer than 40 seconds");
+                    return StatusCode(504, new { error = "AI service timeout", details = "Quiz generation is taking longer than expected. Please try again in a moment." });
+                }
+                catch (Exception aiEx)
+                {
+                    _logger.LogError($"Groq API error: {aiEx.Message}");
+                    return StatusCode(500, new { error = "AI service error", details = $"AI service error: {aiEx.Message}. Please try again." });
+                }
+                
+                // Parse AI response
+                _logger.LogInformation("Parsing AI response...");
+                var cleanJson = aiResponse.Trim();
+                if (cleanJson.StartsWith("```json")) cleanJson = cleanJson.Substring(7);
+                if (cleanJson.StartsWith("```")) cleanJson = cleanJson.Substring(3);
+                if (cleanJson.EndsWith("```")) cleanJson = cleanJson.Substring(0, cleanJson.Length - 3);
+                cleanJson = cleanJson.Trim();
+
+                JsonElement questionsObj;
+                try
+                {
+                    questionsObj = JsonSerializer.Deserialize<JsonElement>(cleanJson);
+                }
+                catch (JsonException jsonEx)
+                {
+                    _logger.LogError($"Failed to parse AI response as JSON: {jsonEx.Message}");
+                    return StatusCode(500, new { error = "Invalid AI response", details = "AI returned malformed data. Please try again." });
+                }
+                
+                if (!questionsObj.TryGetProperty("questions", out var questionsArray))
+                {
+                    _logger.LogError("AI response missing 'questions' property");
+                    return StatusCode(500, new { error = "Invalid AI response", details = "AI response missing questions array. Please try again." });
+                }
+                
+                var questionsList = JsonSerializer.Deserialize<List<QuizQuestion>>(questionsArray.GetRawText());
+                
+                if (questionsList == null || questionsList.Count == 0)
+                {
+                    _logger.LogWarning($"AI generated {questionsList?.Count ?? 0} questions.");
+                    return StatusCode(500, new { error = "AI did not generate questions", 
+                        details = $"Got {questionsList?.Count ?? 0} questions. Please try again." });
+                }
+
+                var questions = questionsArray.GetRawText();
+                var quizId = Guid.NewGuid().ToString();
+
+                // Save quiz session
+                using MySqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
+                conn.Open();
+
+                string insertQuery = @"
+                    INSERT INTO quiz_sessions (quiz_id, user_id, questions, total_questions) 
+                    VALUES (@quizId, @userId, @questions, @totalQuestions)";
+                
+                using MySqlCommand insertCmd = new(insertQuery, conn);
+                insertCmd.Parameters.AddWithValue("@quizId", quizId);
+                insertCmd.Parameters.AddWithValue("@userId", userId);
+                insertCmd.Parameters.AddWithValue("@questions", questions);
+                insertCmd.Parameters.AddWithValue("@totalQuestions", questionsList.Count);
+                
+                insertCmd.ExecuteNonQuery();
+                _logger.LogInformation($"Quiz session created with quiz_id: {quizId}");
+
+                return Ok(new GenerateQuizResponse
+                {
+                    QuizId = quizId,
+                    Questions = questionsList
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error generating quiz from transcript: {ex.Message}");
+                _logger.LogError($"Stack trace: {ex.StackTrace}");
+                return StatusCode(500, new { error = "Failed to generate quiz", details = ex.Message });
+            }
+        }
+
+        // POST /api/quiz/generate-from-video
+        // This endpoint extracts captions from YouTube video and generates quiz
+        [HttpPost("generate-from-video")]
+        public async Task<IActionResult> GenerateQuizFromVideo([FromBody] VideoQuizRequest request)
+        {
+            try
+            {
+                _logger.LogInformation($"Generate quiz from video called - Video ID: {request.VideoId}");
+                
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var userId = int.Parse(userIdClaim ?? "0");
+                if (userId == 0)
+                {
+                    return Unauthorized(new { error = "Invalid token" });
+                }
+
+                if (string.IsNullOrWhiteSpace(request.VideoId))
+                {
+                    return BadRequest(new { error = "Video ID is required" });
+                }
+
+                if (string.IsNullOrWhiteSpace(request.SkillName))
+                {
+                    return BadRequest(new { error = "Skill name is required" });
+                }
+
+                _logger.LogInformation($"Fetching transcript from database for video: {request.VideoId}");
+
+                // Fetch transcript from database instead of trying to extract from YouTube
+                string? transcript = null;
+
+                try
+                {
+                    using MySqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
+                    conn.Open();
+
+                    string query = @"
+                        SELECT transcript 
+                        FROM learning_videos 
+                        WHERE youtube_video_id = @videoId 
+                        LIMIT 1";
+
+                    using MySqlCommand cmd = new(query, conn);
+                    cmd.Parameters.AddWithValue("@videoId", request.VideoId);
+
+                    var result = cmd.ExecuteScalar();
+                    if (result != null && result != DBNull.Value)
+                    {
+                        transcript = result.ToString();
+                        if (!string.IsNullOrWhiteSpace(transcript))
+                        {
+                            _logger.LogInformation($"✅ Transcript found in database: {transcript.Length} characters");
+                        }
+                        else
+                        {
+                            _logger.LogInformation("Transcript column exists but is empty");
+                        }
+                    }
+                    else
+                    {
+                        _logger.LogInformation("No transcript found in database for this video");
+                    }
+                }
+                catch (Exception dbEx)
+                {
+                    _logger.LogWarning($"Database query failed: {dbEx.Message}");
+                }
+
+                // If transcript extraction failed, fall back to skill-based quiz
+                if (string.IsNullOrWhiteSpace(transcript))
+                {
+                    _logger.LogInformation("No transcript available, generating skill-based quiz");
+                    
+                    string aiResponse;
+                    try
+                    {
+                        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(40));
+                        aiResponse = await _groqService.GenerateQuizFromSkillName(
+                            request.SkillName,
+                            request.VideoTitle ?? "General Topics"
+                        );
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        return StatusCode(504, new { error = "AI service timeout" });
+                    }
+
+                    if (string.IsNullOrWhiteSpace(aiResponse))
+                    {
+                        return StatusCode(500, new { error = "AI returned empty response" });
+                    }
+
+                    // Parse and return skill-based quiz
+                    var cleanJson = aiResponse.Trim();
+                    if (cleanJson.StartsWith("```json")) cleanJson = cleanJson.Substring(7);
+                    if (cleanJson.StartsWith("```")) cleanJson = cleanJson.Substring(3);
+                    if (cleanJson.EndsWith("```")) cleanJson = cleanJson.Substring(0, cleanJson.Length - 3);
+                    cleanJson = cleanJson.Trim();
+
+                    var questionsObj = JsonSerializer.Deserialize<JsonElement>(cleanJson);
+                    if (!questionsObj.TryGetProperty("questions", out var questionsArray))
+                    {
+                        return StatusCode(500, new { error = "Invalid AI response" });
+                    }
+
+                    var questionsList = JsonSerializer.Deserialize<List<QuizQuestion>>(questionsArray.GetRawText());
+                    if (questionsList == null || questionsList.Count == 0)
+                    {
+                        return StatusCode(500, new { error = "No questions generated" });
+                    }
+
+                    var questions = questionsArray.GetRawText();
+                    var quizId = Guid.NewGuid().ToString();
+
+                    using MySqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
+                    conn.Open();
+
+                    string insertQuery = @"
+                        INSERT INTO quiz_sessions (quiz_id, user_id, questions, total_questions) 
+                        VALUES (@quizId, @userId, @questions, @totalQuestions)";
+                    
+                    using MySqlCommand insertCmd = new(insertQuery, conn);
+                    insertCmd.Parameters.AddWithValue("@quizId", quizId);
+                    insertCmd.Parameters.AddWithValue("@userId", userId);
+                    insertCmd.Parameters.AddWithValue("@questions", questions);
+                    insertCmd.Parameters.AddWithValue("@totalQuestions", questionsList.Count);
+                    
+                    insertCmd.ExecuteNonQuery();
+
+                    return Ok(new { 
+                        quiz_id = quizId, 
+                        questions = questionsList,
+                        transcript_available = false,
+                        message = "Quiz generated from skill knowledge (captions unavailable)"
+                    });
+                }
+
+                // Generate quiz from transcript
+                _logger.LogInformation("Generating quiz from video transcript");
+                
+                // Smart chunking: Take samples from beginning, middle, and end
+                // Reduced to ~6k chars to fit within Groq API total payload limits (transcript + prompt)
+                const int maxChars = 6000;
+                string processedTranscript;
+                
+                if (transcript.Length <= maxChars)
+                {
+                    processedTranscript = transcript;
+                    _logger.LogInformation($"Using full transcript: {transcript.Length} characters");
+                }
+                else
+                {
+                    // Take 3 chunks: beginning (40%), middle (30%), end (30%)
+                    int chunkSize = maxChars / 3;
+                    int midStart = (transcript.Length / 2) - (chunkSize / 2);
+                    int endStart = transcript.Length - chunkSize;
+                    
+                    var beginningChunk = transcript.Substring(0, chunkSize);
+                    var middleChunk = transcript.Substring(midStart, chunkSize);
+                    var endChunk = transcript.Substring(endStart, chunkSize);
+                    
+                    processedTranscript = $"{beginningChunk}\n\n[... middle section ...]\n\n{middleChunk}\n\n[... final section ...]\n\n{endChunk}";
+                    _logger.LogInformation($"Transcript too long ({transcript.Length} chars). Using strategic samples: {processedTranscript.Length} chars");
+                }
+                
+                var truncatedTranscript = processedTranscript;
+                
+                string transcriptAiResponse;
+                try
+                {
+                    using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(40));
+                    transcriptAiResponse = await _groqService.GenerateQuizFromTranscript(
+                        truncatedTranscript,
+                        request.SkillName,
+                        request.VideoTitle ?? "Video Tutorial"
+                    );
+                }
+                catch (TaskCanceledException)
+                {
+                    return StatusCode(504, new { error = "AI service timeout" });
+                }
+
+                if (string.IsNullOrWhiteSpace(transcriptAiResponse))
+                {
+                    return StatusCode(500, new { error = "AI returned empty response" });
+                }
+
+                // Parse AI response
+                var cleanTranscriptJson = transcriptAiResponse.Trim();
+                if (cleanTranscriptJson.StartsWith("```json")) cleanTranscriptJson = cleanTranscriptJson.Substring(7);
+                if (cleanTranscriptJson.StartsWith("```")) cleanTranscriptJson = cleanTranscriptJson.Substring(3);
+                if (cleanTranscriptJson.EndsWith("```")) cleanTranscriptJson = cleanTranscriptJson.Substring(0, cleanTranscriptJson.Length - 3);
+                cleanTranscriptJson = cleanTranscriptJson.Trim();
+
+                var transcriptQuestionsObj = JsonSerializer.Deserialize<JsonElement>(cleanTranscriptJson);
+                if (!transcriptQuestionsObj.TryGetProperty("questions", out var transcriptQuestionsArray))
+                {
+                    return StatusCode(500, new { error = "Invalid AI response" });
+                }
+
+                var transcriptQuestionsList = JsonSerializer.Deserialize<List<QuizQuestion>>(transcriptQuestionsArray.GetRawText());
+                if (transcriptQuestionsList == null || transcriptQuestionsList.Count == 0)
+                {
+                    return StatusCode(500, new { error = "No questions generated" });
+                }
+
+                var transcriptQuestions = transcriptQuestionsArray.GetRawText();
+                var transcriptQuizId = Guid.NewGuid().ToString();
+
+                using MySqlConnection transcriptConn = new(_configuration.GetConnectionString("DefaultConnection"));
+                transcriptConn.Open();
+
+                string transcriptInsertQuery = @"
+                    INSERT INTO quiz_sessions (quiz_id, user_id, questions, total_questions) 
+                    VALUES (@quizId, @userId, @questions, @totalQuestions)";
+                
+                using MySqlCommand transcriptInsertCmd = new(transcriptInsertQuery, transcriptConn);
+                transcriptInsertCmd.Parameters.AddWithValue("@quizId", transcriptQuizId);
+                transcriptInsertCmd.Parameters.AddWithValue("@userId", userId);
+                transcriptInsertCmd.Parameters.AddWithValue("@questions", transcriptQuestions);
+                transcriptInsertCmd.Parameters.AddWithValue("@totalQuestions", transcriptQuestionsList.Count);
+                
+                transcriptInsertCmd.ExecuteNonQuery();
+
+                _logger.LogInformation($"✅ Generated video-based quiz: {transcriptQuizId}");
+
+                return Ok(new { 
+                    quiz_id = transcriptQuizId, 
+                    questions = transcriptQuestionsList,
+                    transcript_available = true,
+                    transcript_length = transcript.Length,
+                    message = "Quiz generated from video transcript"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error generating quiz from video: {ex.Message}");
+                _logger.LogError($"Stack trace: {ex.StackTrace}");
+                return StatusCode(500, new { error = "Failed to generate quiz", details = ex.Message });
             }
         }
     }

@@ -1,0 +1,125 @@
+## .NET Core
+bin/
+obj/
+publish/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+
+# Visual Studio cache/options
+.vs/
+.vscode/settings.json
+.vscode/tasks.json
+.vscode/launch.json
+
+# NuGet Packages
+*.nupkg
+*.snupkg
+packages/
+.nuget/
+
+# Test Results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+# User-specific files
+*.rsuser
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+# Mono Auto Generated Files
+mono_crash.*
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin
+$RECYCLE.BIN/
+
+# VS Code directories
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Rider
+.idea/
+*.sln.iml
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Environment files with secrets
+appsettings.Development.json
+appsettings.Production.json
+.env
+.env.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS Files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Backup files
+*.bak
+*.old
+*.backup
+*~
+
+# Temporary files
+*.tmp
+*.temp
+
+# Archives
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz
+
+# Node modules (if any)
+node_modules/
+
+# Documentation builds
+docs/_build/
+
+# Keep important config templates
+!appsettings.json
+!appsettings.Development.json.template
+
+# Keep folder structure
+!sql/migrations/.gitkeep
+!sql/seeds/.gitkeep
+!sql/procedures/.gitkeep
+!sql/admin/.gitkeep
+!scripts/admin/.gitkeep
+!scripts/deployment/.gitkeep
+!docs/guides/.gitkeep
+!docs/admin/.gitkeep
+!docs/deployment/.gitkeep
+!docs/implementation/.gitkeep

@@ -130,6 +130,39 @@ namespace MyFirstApi.Models
         public List<QuizAnswer> Answers { get; set; } = new();
     }
 
+    public class TranscriptQuizRequest
+    {
+        [JsonPropertyName("transcript")]
+        public string Transcript { get; set; } = string.Empty;
+
+        [JsonPropertyName("skill_name")]
+        public string SkillName { get; set; } = string.Empty;
+
+        [JsonPropertyName("video_title")]
+        public string? VideoTitle { get; set; }
+    }
+
+    public class SkillQuizRequest
+    {
+        [JsonPropertyName("skill_name")]
+        public string SkillName { get; set; } = string.Empty;
+
+        [JsonPropertyName("video_title")]
+        public string? VideoTitle { get; set; }
+    }
+
+    public class VideoQuizRequest
+    {
+        [JsonPropertyName("video_id")]
+        public string VideoId { get; set; } = string.Empty;
+
+        [JsonPropertyName("skill_name")]
+        public string SkillName { get; set; } = string.Empty;
+
+        [JsonPropertyName("video_title")]
+        public string? VideoTitle { get; set; }
+    }
+
     public class SubmitQuizResponse
     {
         [JsonPropertyName("quiz_id")]

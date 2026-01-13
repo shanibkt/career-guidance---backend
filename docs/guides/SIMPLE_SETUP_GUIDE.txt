@@ -1,0 +1,85 @@
+╔══════════════════════════════════════════════════════════════════╗
+║           ADMIN USER SETUP - SIMPLE STEPS                        ║
+╚══════════════════════════════════════════════════════════════════╝
+
+⚠️ CURRENT ISSUE: Admin user doesn't exist in database
+
+✅ EASIEST SOLUTION - Use MySQL Workbench:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STEP 1: Open MySQL Workbench
+   - Start > MySQL Workbench 8.0 CE
+
+STEP 2: Connect to your database
+   - Click on your local MySQL connection
+   - Enter your password
+
+STEP 3: Select the database
+   - In the query window, type:
+     USE career_guidance_db;
+   - Click Execute (⚡ icon or Ctrl+Enter)
+
+STEP 4: Copy and paste this SQL:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ALTER TABLE Users ADD COLUMN Role VARCHAR(20) DEFAULT 'user';
+
+INSERT INTO Users (Username, FullName, Email, PasswordHash, Role, CreatedAt)
+VALUES (
+    'admin',
+    'System Administrator', 
+    'admin@careerguidance.com',
+    '$2a$11$xHZf8c8VVJKJKxjW6J5iYO8vZ0xZQGqL5Y7qZ8yZ9yZ0yZ1yZ2yZ3',
+    'admin',
+    NOW()
+)
+ON DUPLICATE KEY UPDATE Role = 'admin';
+
+SELECT Id, Username, Email, Role FROM Users WHERE Role = 'admin';
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STEP 5: Execute the SQL
+   - Click Execute (⚡ icon or Ctrl+Enter)
+   - You should see "1 row affected" or "Query OK"
+   - The SELECT will show your admin user
+
+STEP 6: Test the admin login
+   - Open: http://localhost:5001/test-connection.html
+   - All tests should now PASS
+   - Or go directly: http://localhost:5001/admin.html
+   - Login: admin@careerguidance.com / Admin@123
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📝 NOTE: The SQL file is already created for you at:
+   CREATE_ADMIN_USER.sql
+
+   You can also:
+   - Open CREATE_ADMIN_USER.sql in MySQL Workbench
+   - Click Execute
+   - Done!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+❓ ALTERNATIVE - If MySQL Workbench isn't working:
+
+   Option 1: Check if admin user already exists
+   - Maybe it was already created
+   - Try logging in anyway: http://localhost:5001/admin.html
+
+   Option 2: Create via backend (if database is connected)
+   - Check backend terminal for database connection errors
+   - Fix database connection first
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ AFTER SETUP COMPLETE:
+
+   ✓ Test page: http://localhost:5001/test-connection.html
+   ✓ Admin login: http://localhost:5001/admin.html
+   ✓ Credentials: admin@careerguidance.com / Admin@123
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

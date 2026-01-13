@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Module - Connection Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
+        }
+        .status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status-ok {
+            background: #4caf50;
+            color: white;
+        }
+        .status-fail {
+            background: #f44336;
+            color: white;
+        }
+        .status-testing {
+            background: #ff9800;
+            color: white;
+        }
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-left: 4px solid #2196f3;
+            margin: 15px 0;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        pre {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Admin Module Connection Diagnostics</h1>
+        <p>This page will help diagnose connection issues with the admin module.</p>
+
+        <div class="info">
+            <strong>ℹ️ Current Configuration:</strong><br>
+            API URL: <code id="apiUrl">Loading...</code><br>
+            Admin Dashboard: <code id="dashUrl">Loading...</code><br>
+            Browser: <code id="browser">Loading...</code>
+        </div>
+
+        <button onclick="runAllTests()">🔄 Run All Tests</button>
+        <button onclick="location.href='admin.html'">📊 Go to Admin Dashboard</button>
+
+        <div class="test-section">
+            <h3>1. Backend Server Test <span id="status1" class="status status-testing">Testing...</span></h3>
+            <p>Checking if backend is running and reachable...</p>
+            <div id="result1"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. CORS Configuration Test <span id="status2" class="status status-testing">Testing...</span></h3>
+            <p>Checking if CORS is properly configured...</p>
+            <div id="result2"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. Auth Endpoint Test <span id="status3" class="status status-testing">Testing...</span></h3>
+            <p>Checking if authentication endpoint is accessible...</p>
+            <div id="result3"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>4. Admin Endpoints Test <span id="status4" class="status status-testing">Testing...</span></h3>
+            <p>Checking if admin endpoints are configured...</p>
+            <div id="result4"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📋 Test Results Summary</h3>
+            <div id="summary"></div>
+        </div>
+
+        <div class="info">
+            <strong>💡 Common Solutions:</strong><br>
+            • Make sure backend is running: <code>dotnet run</code><br>
+            • Check if port 5001 is in use: <code>netstat -ano | findstr :5001</code><br>
+            • Verify database connection in backend<br>
+            • Clear browser cache and localStorage<br>
+            • Check browser console for detailed errors (F12)
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5001/api';
+        const ADMIN_URL = 'http://localhost:5001/admin.html';
+
+        // Display configuration
+        document.getElementById('apiUrl').textContent = API_URL;
+        document.getElementById('dashUrl').textContent = ADMIN_URL;
+        document.getElementById('browser').textContent = navigator.userAgent.split(' ').slice(-2).join(' ');
+
+        async function runAllTests() {
+            console.log('Starting connection tests...');
+            
+            // Test 1: Backend Server
+            await testBackendServer();
+            
+            // Test 2: CORS
+            await testCORS();
+            
+            // Test 3: Auth Endpoint
+            await testAuthEndpoint();
+            
+            // Test 4: Admin Endpoints
+            await testAdminEndpoints();
+            
+            // Show summary
+            showSummary();
+        }
+
+        async function testBackendServer() {
+            const statusEl = document.getElementById('status1');
+            const resultEl = document.getElementById('result1');
+            
+            try {
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 5000);
+                
+                const response = await fetch(API_URL.replace('/api', ''), {
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeout);
+                
+                statusEl.className = 'status status-ok';
+                statusEl.textContent = '✓ PASS';
+                resultEl.innerHTML = `
+                    <div style="color: green;">✓ Backend server is running and reachable</div>
+                    <div>Status: ${response.status} ${response.statusText}</div>
+                `;
+            } catch (error) {
+                statusEl.className = 'status status-fail';
+                statusEl.textContent = '✗ FAIL';
+                resultEl.innerHTML = `
+                    <div class="error">
+                        <strong>✗ Cannot reach backend server</strong><br>
+                        Error: ${error.message}<br><br>
+                        <strong>Solutions:</strong><br>
+                        1. Start the backend: <code>cd career-guidance---backend && dotnet run</code><br>
+                        2. Check if backend is running on port 5001<br>
+                        3. Verify no firewall is blocking the connection
+                    </div>
+                `;
+            }
+        }
+
+        async function testCORS() {
+            const statusEl = document.getElementById('status2');
+            const resultEl = document.getElementById('result2');
+            
+            try {
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: 'test', password: 'test' })
+                });
+                
+                // If we get here without CORS error, CORS is working
+                statusEl.className = 'status status-ok';
+                statusEl.textContent = '✓ PASS';
+                resultEl.innerHTML = `
+                    <div style="color: green;">✓ CORS is properly configured</div>
+                    <div>Server allows cross-origin requests from this domain</div>
+                `;
+            } catch (error) {
+                if (error.message.includes('CORS') || error.message.includes('fetch')) {
+                    statusEl.className = 'status status-fail';
+                    statusEl.textContent = '✗ FAIL';
+                    resultEl.innerHTML = `
+                        <div class="error">
+                            <strong>✗ CORS configuration issue</strong><br>
+                            Error: ${error.message}<br><br>
+                            <strong>Solution:</strong><br>
+                            Check Program.cs has CORS configured with AllowAll policy
+                        </div>
+                    `;
+                } else {
+                    statusEl.className = 'status status-ok';
+                    statusEl.textContent = '✓ PASS';
+                    resultEl.innerHTML = `<div style="color: green;">✓ CORS appears to be working</div>`;
+                }
+            }
+        }
+
+        async function testAuthEndpoint() {
+            const statusEl = document.getElementById('status3');
+            const resultEl = document.getElementById('result3');
+            
+            try {
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        email: 'admin@careerguidance.com', 
+                        password: 'Admin@123' 
+                    })
+                });
+                
+                let data;
+                try {
+                    data = await response.json();
+                } catch (jsonError) {
+                    const text = await response.text();
+                    data = { message: text };
+                }
+                
+                if (response.ok && data.token) {
+                    statusEl.className = 'status status-ok';
+                    statusEl.textContent = '✓ PASS';
+                    resultEl.innerHTML = `
+                        <div style="color: green;">✓ Authentication endpoint is working</div>
+                        <div>Successfully obtained JWT token</div>
+                        <div>Token (first 50 chars): <code>${data.token.substring(0, 50)}...</code></div>
+                        <div>User: ${data.user.fullName} (${data.user.email})</div>
+                    `;
+                    
+                    const isInvalidCreds = response.status === 401 || 
+                                          (data.message && data.message.toLowerCase().includes('invalid'));
+                    
+                    if (isInvalidCreds) {
+                        resultEl.innerHTML = `
+                            <div class="error">
+                                <strong>✗ Admin user not found or invalid password</strong><br>
+                                Status: ${response.status} (Unauthorized)<br>
+                                Message: ${data.message || 'Invalid credentials'}<br><br>
+                                <strong>🔧 REQUIRED ACTION - Run Database Setup:</strong><br><br>
+                                <strong>Option 1 - PowerShell Script:</strong><br>
+                                <code>cd career-guidance---backend</code><br>
+                                <code>.\\setup-admin-db.ps1</code><br><br>
+                                <strong>Option 2 - Manual SQL:</strong><br>
+                                <code>Get-Content .\\sql\\admin_module_migration.sql | mysql -u root -p career_guidance_db</code><br><br>
+                                This will create the admin user with credentials:<br>
+                                Email: admin@careerguidance.com<br>
+                                Password: Admin@123
+                            </div>
+                        `;
+                    } else {
+                        resultEl.innerHTML = `
+                            <div class="error">
+                                <strong>✗ Authentication failed</strong><br>
+                                Status: ${response.status}<br>
+                                Message: ${data.message || 'Unknown error'}<br><br>
+                                <strong>Solutions:</strong><br>
+                                1. Check database connection<br>
+                                2. Verify backend configuration<br>
+                                3. Check backend logs for errors
+                            </div>
+                        `;
+                    }      Message: ${data.message || 'Unknown error'}<br><br>
+                            <strong>Solutions:</strong><br>
+                            1. Run database migration: <code>setup-admin-db.ps1</code><br>
+                            2. Check if admin user exists in database<br>
+                            3. Verify default credentials are correct
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                statusEl.className = 'status status-fail';
+                statusEl.textContent = '✗ FAIL';
+                resultEl.innerHTML = `
+                    <div class="error">
+                        <strong>✗ Cannot reach auth endpoint</strong><br>
+                        Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function testAdminEndpoints() {
+            const statusEl = document.getElementById('status4');
+            const resultEl = document.getElementById('result4');
+            
+            if (!window.testToken) {
+                statusEl.className = 'status status-fail';
+                statusEl.textContent = '⊘ SKIP';
+                resultEl.innerHTML = `<div>Skipped: No auth token from previous test</div>`;
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/admin/stats`, {
+                    headers: { 'Authorization': `Bearer ${window.testToken}` }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    statusEl.className = 'status status-ok';
+                    statusEl.textContent = '✓ PASS';
+                    resultEl.innerHTML = `
+                        <div style="color: green;">✓ Admin endpoints are accessible</div>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    statusEl.className = 'status status-fail';
+                    statusEl.textContent = '✗ FAIL';
+                    resultEl.innerHTML = `
+                        <div class="error">
+                            <strong>✗ Admin endpoint access denied</strong><br>
+                            Status: ${response.status}<br>
+                            Message: ${data.message || 'Forbidden'}<br><br>
+                            <strong>Solution:</strong><br>
+                            Ensure user has admin role in database:<br>
+                            <code>UPDATE Users SET Role = 'admin' WHERE Email = 'admin@careerguidance.com';</code>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                statusEl.className = 'status status-fail';
+                statusEl.textContent = '✗ FAIL';
+                resultEl.innerHTML = `
+                    <div class="error">
+                        <strong>✗ Cannot reach admin endpoint</strong><br>
+                        Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function showSummary() {
+            const summaryEl = document.getElementById('summary');
+            const statuses = ['status1', 'status2', 'status3', 'status4'];
+            const passed = statuses.filter(id => 
+                document.getElementById(id).textContent.includes('PASS')
+            ).length;
+            const total = statuses.length;
+            
+            if (passed === total) {
+                summaryEl.innerHTML = `
+                    <div style="color: green; font-size: 18px; font-weight: bold;">
+                        ✓ All tests passed! (${passed}/${total})<br>
+                        Your admin module is properly configured and ready to use.
+                    </div>
+                    <button onclick="location.href='admin.html'">Open Admin Dashboard →</button>
+                `;
+            } else {
+                summaryEl.innerHTML = `
+                    <div style="color: orange; font-size: 18px; font-weight: bold;">
+                        ⚠ ${passed}/${total} tests passed<br>
+                        Please fix the failed tests above.
+                    </div>
+                `;
+            }
+        }
+
+        // Run tests on page load
+        window.addEventListener('load', () => {
+            setTimeout(runAllTests, 500);
+        });
+    </script>
+</body>
+</html>

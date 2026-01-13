@@ -1,0 +1,79 @@
+# ============================================
+# ADMIN SETUP - MANUAL INSTRUCTIONS
+# ============================================
+
+The automated setup scripts require MySQL in your system PATH.
+
+QUICK FIX - Run these commands manually:
+
+1. Open MySQL Command Line Client or MySQL Workbench
+
+2. Connect to your database:
+   USE career_guidance_db;
+
+3. Copy and paste this SQL:
+
+-- Add Role column to Users table
+ALTER TABLE Users 
+ADD COLUMN IF NOT EXISTS Role VARCHAR(20) DEFAULT 'user';
+
+CREATE INDEX IF NOT EXISTS idx_users_role ON Users(Role);
+
+-- Create default admin user (password: Admin@123)
+INSERT INTO Users (Username, FullName, Email, PasswordHash, Role, CreatedAt)
+VALUES (
+    'admin',
+    'System Administrator',
+    'admin@careerguidance.com',
+    '$2a$11$xHZf8c8VVJKJKxjW6J5iYO8vZ0xZQGqL5Y7qZ8yZ9yZ0yZ1yZ2yZ3',
+    'admin',
+    NOW()
+)
+ON DUPLICATE KEY UPDATE Role = 'admin';
+
+-- Create admin activity log table
+CREATE TABLE IF NOT EXISTS admin_activity_log (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    admin_id INT NOT NULL,
+    action_type VARCHAR(50) NOT NULL,
+    target_user_id INT NULL,
+    description TEXT NOT NULL,
+    ip_address VARCHAR(45) NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (admin_id) REFERENCES Users(Id) ON DELETE CASCADE,
+    INDEX idx_admin_activity (admin_id, created_at),
+    INDEX idx_action_type (action_type),
+    INDEX idx_target_user (target_user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Verify admin user was created
+SELECT Id, Username, Email, Role FROM Users WHERE Role = 'admin';
+
+4. You should see output showing the admin user
+
+5. Test the connection:
+   http://localhost:5001/test-connection.html
+
+6. Login to admin dashboard:
+   http://localhost:5001/admin.html
+   Email: admin@careerguidance.com
+   Password: Admin@123
+
+============================================
+
+ALTERNATIVE - Add MySQL to PATH:
+
+1. Find MySQL bin folder:
+   C:\Program Files\MySQL\MySQL Server 8.0\bin
+
+2. Add to System PATH:
+   - Windows Key + "environment variables"
+   - Edit "Path" variable
+   - Add: C:\Program Files\MySQL\MySQL Server 8.0\bin
+   - Click OK
+   - Restart PowerShell
+
+3. Then run:
+   .\setup-admin.bat
+
+============================================

@@ -74,6 +74,88 @@ Return ONLY valid JSON. NO markdown formatting. NO explanations. JUST the JSON o
 
             return await CallGroqAPI(prompt, "You are a technical skills assessment expert. Generate 10 skill-based multiple-choice questions with correct answers and skill categories. Questions MUST be technical and specific to the user's skills.");
         }
+        public async Task<string> GenerateQuizFromSkillName(string skillName, string videoTitle)
+        {
+            var prompt = $@"
+Generate exactly 10 multiple-choice quiz questions about {skillName} related to the topic: {videoTitle}.
+
+The questions should:
+- Be relevant to {skillName} and the topic '{videoTitle}'
+- Cover fundamental concepts and practical applications
+- Be at an intermediate skill level
+- Have clear, unambiguous correct answers
+- Have 4 options each where only one is correct
+
+RETURN ONLY VALID JSON in this EXACT format (no markdown, no explanation):
+{{
+  ""questions"": [
+    {{
+      ""question"": ""What is..."",
+      ""type"": ""multiple_choice"",
+      ""skill_category"": ""{skillName}"",
+      ""correct_answer"": ""A"",
+      ""options"": [""A) First option"", ""B) Second option"", ""C) Third option"", ""D) Fourth option""]
+    }}
+  ]
+}}
+";
+
+            return await CallGroqAPI(prompt, "You are an expert quiz creator. Generate questions based on the provided skill and topic.", 0.7f);
+        }
+
+        public async Task<string> GenerateQuizFromTranscript(string videoTranscript, string skillName, string videoTitle)
+        {
+            var prompt = $@"You are an expert educator. Generate EXACTLY 10 multiple-choice questions based on the video content below.
+
+VIDEO TITLE: {videoTitle}
+SKILL: {skillName}
+
+VIDEO TRANSCRIPT:
+{videoTranscript}
+
+REQUIREMENTS:
+1. ALL 10 questions MUST be ""multiple_choice"" type
+2. Questions MUST be based on ACTUAL CONTENT from the video transcript
+3. Each question MUST test understanding of concepts explained in the video
+4. Each question MUST include the ""skill_category"" field set to ""{skillName}""
+5. Each question MUST include the ""correct_answer"" field (A, B, C, or D)
+6. Questions should range from basic recall to deeper understanding
+7. Options should include 1 correct answer and 3 plausible distractors
+
+EXAMPLE QUESTION FORMAT:
+{{
+  ""id"": 1,
+  ""question"": ""According to the video, what is the main purpose of [concept explained]?"",
+  ""type"": ""multiple_choice"",
+  ""skill_category"": ""{skillName}"",
+  ""correct_answer"": ""B"",
+  ""options"": [
+    ""A) [Wrong but plausible]"",
+    ""B) [Correct answer from video]"",
+    ""C) [Wrong but plausible]"",
+    ""D) [Wrong but plausible]""
+  ]
+}}
+
+CRITICAL - YOU MUST FOLLOW THIS EXACT JSON FORMAT:
+{{
+  ""questions"": [
+    {{""id"": 1, ""question"": ""[Question based on video content]"", ""type"": ""multiple_choice"", ""skill_category"": ""{skillName}"", ""correct_answer"": ""[A/B/C/D]"", ""options"": [""A) ..."", ""B) ..."", ""C) ..."", ""D) ...""]}},
+    {{""id"": 2, ""question"": ""[Question based on video content]"", ""type"": ""multiple_choice"", ""skill_category"": ""{skillName}"", ""correct_answer"": ""[A/B/C/D]"", ""options"": [""A) ..."", ""B) ..."", ""C) ..."", ""D) ...""]}},
+    ... continue for 10 questions total ...
+  ]
+}}
+
+IMPORTANT:
+- Base questions ONLY on the video transcript content
+- Reference specific examples or explanations from the video
+- Test comprehension, not just memorization
+- Ensure correct_answer matches one of the options (A, B, C, or D)
+
+Return ONLY valid JSON. NO markdown formatting. NO explanations. JUST the JSON object.";
+
+            return await CallGroqAPI(prompt, "You are an expert educator creating assessment questions based on video content. Generate 10 multiple-choice questions that test understanding of the video material.");
+        }
 
         public async Task<string> GenerateCareerRecommendations(string userProfile, string quizAnswers, string careersData)
         {
@@ -131,8 +213,8 @@ Return top 10 careers ranked by match percentage.";
             var json = JsonSerializer.Serialize(requestBody);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            // Set timeout for HTTP request (45 seconds)
-            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(45));
+            // Set timeout for HTTP request (35 seconds for better performance)
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(35));
             
             var response = await _httpClient.PostAsync("chat/completions", content, cts.Token);
             response.EnsureSuccessStatusCode();

@@ -62,8 +62,6 @@ C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Debug\net9.0\System.IdentityMo
 C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Debug\net9.0\MyFirstApi.staticwebassets.runtime.json
 C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\obj\Debug\net9.0\MyFirstApi.sourcelink.json
 C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\obj\Debug\net9.0\compressed\kgf2qu4yx0-lkupwntnmw.gz
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\publish\publish\publish\web.config
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\publish\publish\web.config
 C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\publish\web.config
 C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\appsettings.Development.json
 C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\appsettings.json
@@ -72,16 +70,6 @@ C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0
 C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\publish\MyFirstApi.deps.json
 C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\publish\MyFirstApi.runtimeconfig.json
 C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\publish\MyFirstApi.staticwebassets.endpoints.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\publish\publish\appsettings.Development.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\publish\publish\appsettings.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\publish\publish\MyFirstApi.deps.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\publish\publish\MyFirstApi.runtimeconfig.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\publish\publish\MyFirstApi.staticwebassets.endpoints.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\publish\publish\publish\appsettings.Development.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\publish\publish\publish\appsettings.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\publish\publish\publish\MyFirstApi.deps.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\publish\publish\publish\MyFirstApi.runtimeconfig.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\publish\publish\publish\MyFirstApi.staticwebassets.endpoints.json
 C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\MyFirstApi.staticwebassets.runtime.json
 C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\MyFirstApi.staticwebassets.endpoints.json
 C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\MyFirstApi.exe
@@ -133,7 +121,6 @@ C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Debug\net9.0
 C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Debug\net9.0\rjsmrazor.dswa.cache.json
 C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Debug\net9.0\rjsmcshtml.dswa.cache.json
 C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Debug\net9.0\scopedcss\bundle\MyFirstApi.styles.css
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Debug\net9.0\compressed\kgf2qu4yx0-lkupwntnmw.gz
 C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Debug\net9.0\staticwebassets.build.json
 C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Debug\net9.0\staticwebassets.build.json.cache
 C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Debug\net9.0\staticwebassets.development.json
@@ -144,15 +131,14 @@ C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Debug\net9.0
 C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Debug\net9.0\MyFirstApi.pdb
 C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Debug\net9.0\MyFirstApi.genruntimeconfig.cache
 C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Debug\net9.0\ref\MyFirstApi.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\publish\publish\publish\publish\web.config
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\publish\publish\publish\publish\appsettings.Development.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\publish\publish\publish\publish\appsettings.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\publish\publish\publish\publish\MyFirstApi.deps.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\publish\publish\publish\publish\MyFirstApi.runtimeconfig.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\publish\publish\publish\publish\MyFirstApi.staticwebassets.endpoints.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\publish\publish\publish\publish\publish\web.config
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\publish\publish\publish\publish\publish\appsettings.Development.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\publish\publish\publish\publish\publish\appsettings.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\publish\publish\publish\publish\publish\MyFirstApi.deps.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\publish\publish\publish\publish\publish\MyFirstApi.runtimeconfig.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\publish\publish\publish\publish\publish\MyFirstApi.staticwebassets.endpoints.json
+C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\publish\publish\web.config
+C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\publish\publish\appsettings.Development.json
+C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\publish\publish\appsettings.json
+C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\publish\publish\MyFirstApi.deps.json
+C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\publish\publish\MyFirstApi.runtimeconfig.json
+C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\publish\publish\MyFirstApi.staticwebassets.endpoints.json
+C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Debug\net9.0\compressed\qiuk6i7s56-kmgcxdv47v.gz
+C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Debug\net9.0\compressed\uo5sknfw8o-uuvjp3mp08.gz
+C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\AngleSharp.dll
+C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Debug\net9.0\YoutubeExplode.dll
+C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Debug\net9.0\compressed\kgf2qu4yx0-3iyjrpkzka.gz

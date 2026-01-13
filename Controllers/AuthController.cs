@@ -138,7 +138,7 @@ namespace MyFirstApi.Controllers
                 DateTime createdAt = DateTime.UtcNow;
 
                 // Read user data and CLOSE the reader before doing anything else
-                using (MySqlCommand cmd = new("SELECT Id, Username, FullName, Email, PasswordHash, CreatedAt, UpdatedAt FROM users WHERE Email = @email LIMIT 1", conn))
+                using (MySqlCommand cmd = new("SELECT Id, Username, FullName, Email, PasswordHash, Role, CreatedAt, UpdatedAt FROM users WHERE Email = @email LIMIT 1", conn))
                 {
                     cmd.Parameters.AddWithValue("@email", req.Email);
 
