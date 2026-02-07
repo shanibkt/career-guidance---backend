@@ -28,9 +28,7 @@ namespace MyFirstApi.Controllers
 
                 string query = @"
                     SELECT id, skill_name, video_title, video_description, 
-                           youtube_video_id, duration_minutes, thumbnail_url,
-                           CASE WHEN transcript IS NOT NULL AND LENGTH(TRIM(transcript)) > 0 
-                                THEN 1 ELSE 0 END as has_transcript
+                           youtube_video_id, duration_minutes, thumbnail_url
                     FROM learning_videos
                     ORDER BY skill_name";
 
@@ -52,8 +50,7 @@ namespace MyFirstApi.Controllers
                         durationMinutes = reader.GetInt32("duration_minutes"),
                         thumbnailUrl = reader.IsDBNull(reader.GetOrdinal("thumbnail_url"))
                             ? $"https://img.youtube.com/vi/{reader.GetString("youtube_video_id")}/maxresdefault.jpg"
-                            : reader.GetString("thumbnail_url"),
-                        hasTranscript = reader.GetInt32("has_transcript") == 1
+                            : reader.GetString("thumbnail_url")
                     });
                 }
 
@@ -200,7 +197,7 @@ namespace MyFirstApi.Controllers
         // PUT /api/learningvideos/{id}/transcript
         // Admin endpoint to update video transcript
         [HttpPut("{id}/transcript")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         public IActionResult UpdateVideoTranscript(int id, [FromBody] TranscriptUpdateRequest request)
         {
             try
@@ -304,7 +301,7 @@ namespace MyFirstApi.Controllers
         // POST /api/learningvideos
         // Create new learning video (Admin only)
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         public IActionResult CreateVideo([FromBody] VideoCreateRequest request)
         {
             try
@@ -333,10 +330,10 @@ namespace MyFirstApi.Controllers
                 string insertQuery = @"
                     INSERT INTO learning_videos (
                         skill_name, video_title, video_description, youtube_video_id, 
-                        duration_minutes, thumbnail_url, transcript
+                        duration_minutes, thumbnail_url
                     ) VALUES (
                         @skillName, @videoTitle, @videoDescription, @youtubeVideoId,
-                        @durationMinutes, @thumbnailUrl, @transcript
+                        @durationMinutes, @thumbnailUrl
                     )";
 
                 using MySqlCommand insertCmd = new(insertQuery, conn);
@@ -346,7 +343,6 @@ namespace MyFirstApi.Controllers
                 insertCmd.Parameters.AddWithValue("@youtubeVideoId", request.YoutubeVideoId);
                 insertCmd.Parameters.AddWithValue("@durationMinutes", request.DurationMinutes);
                 insertCmd.Parameters.AddWithValue("@thumbnailUrl", request.ThumbnailUrl ?? (object)DBNull.Value);
-                insertCmd.Parameters.AddWithValue("@transcript", request.Transcript ?? (object)DBNull.Value);
 
                 int rowsAffected = insertCmd.ExecuteNonQuery();
 
@@ -373,7 +369,7 @@ namespace MyFirstApi.Controllers
         // PUT /api/learningvideos/{id}
         // Update learning video (Admin only)
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         public IActionResult UpdateVideo(int id, [FromBody] VideoUpdateRequest request)
         {
             try
@@ -407,7 +403,6 @@ namespace MyFirstApi.Controllers
                         youtube_video_id = @youtubeVideoId,
                         duration_minutes = @durationMinutes,
                         thumbnail_url = @thumbnailUrl,
-                        transcript = @transcript,
                         updated_at = CURRENT_TIMESTAMP
                     WHERE id = @id";
 
@@ -419,7 +414,6 @@ namespace MyFirstApi.Controllers
                 updateCmd.Parameters.AddWithValue("@youtubeVideoId", request.YoutubeVideoId);
                 updateCmd.Parameters.AddWithValue("@durationMinutes", request.DurationMinutes);
                 updateCmd.Parameters.AddWithValue("@thumbnailUrl", request.ThumbnailUrl ?? (object)DBNull.Value);
-                updateCmd.Parameters.AddWithValue("@transcript", request.Transcript ?? (object)DBNull.Value);
 
                 int rowsAffected = updateCmd.ExecuteNonQuery();
 
@@ -444,7 +438,7 @@ namespace MyFirstApi.Controllers
         // DELETE /api/learningvideos/{id}
         // Delete learning video (Admin only)
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         public IActionResult DeleteVideo(int id)
         {
             try

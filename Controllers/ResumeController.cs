@@ -59,6 +59,10 @@ namespace MyFirstApi.Controllers
                             skills = @skills,
                             experiences = @experiences,
                             education = @education,
+                            certifications = @certifications,
+                            projects = @projects,
+                            languages = @languages,
+                            achievements = @achievements,
                             updated_at = NOW()
                         WHERE id = @resumeId";
 
@@ -74,6 +78,10 @@ namespace MyFirstApi.Controllers
                     updateCmd.Parameters.AddWithValue("@skills", JsonSerializer.Serialize(request.Skills ?? new List<string>()));
                     updateCmd.Parameters.AddWithValue("@experiences", JsonSerializer.Serialize(request.Experiences ?? new List<Experience>()));
                     updateCmd.Parameters.AddWithValue("@education", JsonSerializer.Serialize(request.Education ?? new List<Education>()));
+                    updateCmd.Parameters.AddWithValue("@certifications", JsonSerializer.Serialize(request.Certifications ?? new List<Certification>()));
+                    updateCmd.Parameters.AddWithValue("@projects", JsonSerializer.Serialize(request.Projects ?? new List<Project>()));
+                    updateCmd.Parameters.AddWithValue("@languages", JsonSerializer.Serialize(request.Languages ?? new List<Language>()));
+                    updateCmd.Parameters.AddWithValue("@achievements", JsonSerializer.Serialize(request.Achievements ?? new List<Achievement>()));
                     updateCmd.ExecuteNonQuery();
                 }
                 else
@@ -82,9 +90,9 @@ namespace MyFirstApi.Controllers
                     string insertQuery = @"
                         INSERT INTO user_resumes 
                         (user_id, full_name, job_title, email, phone, location, linkedin, 
-                         professional_summary, skills, experiences, education)
+                         professional_summary, skills, experiences, education, certifications, projects, languages, achievements)
                         VALUES (@userId, @fullName, @jobTitle, @email, @phone, @location, @linkedin,
-                                @summary, @skills, @experiences, @education)";
+                                @summary, @skills, @experiences, @education, @certifications, @projects, @languages, @achievements)";
 
                     using MySqlCommand insertCmd = new(insertQuery, conn);
                     insertCmd.Parameters.AddWithValue("@userId", userId);
@@ -98,6 +106,10 @@ namespace MyFirstApi.Controllers
                     insertCmd.Parameters.AddWithValue("@skills", JsonSerializer.Serialize(request.Skills ?? new List<string>()));
                     insertCmd.Parameters.AddWithValue("@experiences", JsonSerializer.Serialize(request.Experiences ?? new List<Experience>()));
                     insertCmd.Parameters.AddWithValue("@education", JsonSerializer.Serialize(request.Education ?? new List<Education>()));
+                    insertCmd.Parameters.AddWithValue("@certifications", JsonSerializer.Serialize(request.Certifications ?? new List<Certification>()));
+                    insertCmd.Parameters.AddWithValue("@projects", JsonSerializer.Serialize(request.Projects ?? new List<Project>()));
+                    insertCmd.Parameters.AddWithValue("@languages", JsonSerializer.Serialize(request.Languages ?? new List<Language>()));
+                    insertCmd.Parameters.AddWithValue("@achievements", JsonSerializer.Serialize(request.Achievements ?? new List<Achievement>()));
                     insertCmd.ExecuteNonQuery();
 
                     resumeId = (int)insertCmd.LastInsertedId;
@@ -126,7 +138,9 @@ namespace MyFirstApi.Controllers
 
                 string query = @"
                     SELECT id, full_name, job_title, email, phone, location, linkedin,
-                           professional_summary, skills, experiences, education, created_at, updated_at
+                           professional_summary, skills, experiences, education,
+                           certifications, projects, languages, achievements,
+                           created_at, updated_at
                     FROM user_resumes
                     WHERE user_id = @userId";
 
@@ -139,6 +153,10 @@ namespace MyFirstApi.Controllers
                     var skillsJson = reader.GetString("skills");
                     var experiencesJson = reader.GetString("experiences");
                     var educationJson = reader.GetString("education");
+                    var certificationsJson = reader.IsDBNull(reader.GetOrdinal("certifications")) ? "[]" : reader.GetString("certifications");
+                    var projectsJson = reader.IsDBNull(reader.GetOrdinal("projects")) ? "[]" : reader.GetString("projects");
+                    var languagesJson = reader.IsDBNull(reader.GetOrdinal("languages")) ? "[]" : reader.GetString("languages");
+                    var achievementsJson = reader.IsDBNull(reader.GetOrdinal("achievements")) ? "[]" : reader.GetString("achievements");
 
                     var result = new
                     {
@@ -153,6 +171,10 @@ namespace MyFirstApi.Controllers
                         skills = JsonSerializer.Deserialize<List<string>>(skillsJson),
                         experiences = JsonSerializer.Deserialize<List<Experience>>(experiencesJson),
                         education = JsonSerializer.Deserialize<List<Education>>(educationJson),
+                        certifications = JsonSerializer.Deserialize<List<Certification>>(certificationsJson),
+                        projects = JsonSerializer.Deserialize<List<Project>>(projectsJson),
+                        languages = JsonSerializer.Deserialize<List<Language>>(languagesJson),
+                        achievements = JsonSerializer.Deserialize<List<Achievement>>(achievementsJson),
                         createdAt = reader.GetDateTime("created_at"),
                         updatedAt = reader.GetDateTime("updated_at")
                     };
@@ -286,6 +308,10 @@ namespace MyFirstApi.Controllers
         public List<string>? Skills { get; set; }
         public List<Experience>? Experiences { get; set; }
         public List<Education>? Education { get; set; }
+        public List<Certification>? Certifications { get; set; }
+        public List<Project>? Projects { get; set; }
+        public List<Language>? Languages { get; set; }
+        public List<Achievement>? Achievements { get; set; }
     }
 
     public class Experience
@@ -301,5 +327,34 @@ namespace MyFirstApi.Controllers
         public string Degree { get; set; } = "";
         public string Institution { get; set; } = "";
         public string Year { get; set; } = "";
+    }
+
+    public class Certification
+    {
+        public string Name { get; set; } = "";
+        public string Issuer { get; set; } = "";
+        public string Date { get; set; } = "";
+        public string CredentialId { get; set; } = "";
+    }
+
+    public class Project
+    {
+        public string Name { get; set; } = "";
+        public string Description { get; set; } = "";
+        public string Technologies { get; set; } = "";
+        public string Link { get; set; } = "";
+    }
+
+    public class Language
+    {
+        public string Name { get; set; } = "";
+        public string Proficiency { get; set; } = "";
+    }
+
+    public class Achievement
+    {
+        public string Title { get; set; } = "";
+        public string Description { get; set; } = "";
+        public string Date { get; set; } = "";
     }
 }

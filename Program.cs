@@ -91,6 +91,8 @@ var app = builder.Build();
     app.UseSwagger();
     app.UseSwaggerUI();
 
+app.UseRouting();
+
 // Enable CORS
 app.UseCors("AllowAll");
 

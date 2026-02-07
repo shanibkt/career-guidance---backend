@@ -113,7 +113,7 @@ namespace MyFirstApi.Controllers
                         u.FullName,
                         u.Email,
                         u.CreatedAt
-                    FROM users u
+                    FROM Users u
                     WHERE 1=1 {searchCondition}
                     ORDER BY {orderByColumn} {orderDirection}
                     LIMIT @PageSize OFFSET @Offset";
@@ -152,7 +152,7 @@ namespace MyFirstApi.Controllers
                 // Now get total count (DataReader is closed, this is safe now)
                 var countQuery = $@"
                     SELECT COUNT(DISTINCT u.Id)
-                    FROM users u
+                    FROM Users u
                     WHERE 1=1 {searchCondition}";
 
                 using var countCmd = new MySqlCommand(countQuery, connection);
@@ -202,7 +202,7 @@ namespace MyFirstApi.Controllers
                 try
                 {
                     userQuery = @"SELECT Id, Username, FullName, Email, Role, CreatedAt, UpdatedAt 
-                                 FROM users WHERE Id = @UserId";
+                                 FROM Users WHERE Id = @UserId";
                     using var userCmd = new MySqlCommand(userQuery, connection);
                     userCmd.Parameters.AddWithValue("@UserId", userId);
 
@@ -228,7 +228,7 @@ namespace MyFirstApi.Controllers
                 {
                     // Role column doesn't exist, query without it
                     userQuery = @"SELECT Id, Username, FullName, Email, CreatedAt, UpdatedAt 
-                                 FROM users WHERE Id = @UserId";
+                                 FROM Users WHERE Id = @UserId";
                     using var userCmd = new MySqlCommand(userQuery, connection);
                     userCmd.Parameters.AddWithValue("@UserId", userId);
 
@@ -270,14 +270,14 @@ namespace MyFirstApi.Controllers
                     }
                     catch (MySqlException ex) when (ex.Message.Contains("doesn't exist"))
                     {
-                        // Try lowercase userprofiles
+                        // Try lowercase UserProfiles
                         profileReader?.Close();
                         profileCmd?.Dispose();
                         
                         profileQuery = @"SELECT Id, UserId, PhoneNumber, Age, Gender, EducationLevel, 
                                         FieldOfStudy, Skills, ProfileImagePath, 
                                         CreatedAt, UpdatedAt 
-                                        FROM userprofiles WHERE UserId = @UserId";
+                                        FROM UserProfiles WHERE UserId = @UserId";
                         profileCmd = new MySqlCommand(profileQuery, connection);
                         profileCmd.Parameters.AddWithValue("@UserId", userId);
                         profileReader = (MySqlDataReader)await profileCmd.ExecuteReaderAsync();
@@ -488,73 +488,88 @@ namespace MyFirstApi.Controllers
                 var stats = new SystemStats();
 
                 // Total users
-                using (var cmd = new MySqlCommand("SELECT COUNT(*) FROM users", connection))
+                using (var cmd = new MySqlCommand("SELECT COUNT(*) FROM Users", connection))
                 {
                     stats.TotalUsers = Convert.ToInt32(await cmd.ExecuteScalarAsync());
                 }
 
                 // Active users today
-                var todayQuery = @"
-                    SELECT COUNT(DISTINCT user_id) 
-                    FROM video_watch_history 
-                    WHERE DATE(last_watched) = CURDATE()";
-                using (var cmd = new MySqlCommand(todayQuery, connection))
+                try
                 {
+                    var todayQuery = @"
+                        SELECT COUNT(DISTINCT user_id) 
+                        FROM video_watch_history 
+                        WHERE DATE(last_watched) = CURDATE()";
+                    using var cmd = new MySqlCommand(todayQuery, connection);
                     stats.ActiveUsersToday = Convert.ToInt32(await cmd.ExecuteScalarAsync());
                 }
+                catch { stats.ActiveUsersToday = 0; }
 
                 // Active users this week
-                var weekQuery = @"
-                    SELECT COUNT(DISTINCT user_id) 
-                    FROM video_watch_history 
-                    WHERE last_watched >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)";
-                using (var cmd = new MySqlCommand(weekQuery, connection))
+                try
                 {
+                    var weekQuery = @"
+                        SELECT COUNT(DISTINCT user_id) 
+                        FROM video_watch_history 
+                        WHERE last_watched >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)";
+                    using var cmd = new MySqlCommand(weekQuery, connection);
                     stats.ActiveUsersWeek = Convert.ToInt32(await cmd.ExecuteScalarAsync());
                 }
+                catch { stats.ActiveUsersWeek = 0; }
 
                 // Total careers selected
-                using (var cmd = new MySqlCommand("SELECT COUNT(*) FROM user_career_progress WHERE is_active = TRUE", connection))
+                try
                 {
+                    using var cmd = new MySqlCommand("SELECT COUNT(*) FROM user_career_progress WHERE is_active = TRUE", connection);
                     stats.TotalCareersSelected = Convert.ToInt32(await cmd.ExecuteScalarAsync());
                 }
+                catch { stats.TotalCareersSelected = 0; }
 
                 // Total videos watched
-                using (var cmd = new MySqlCommand("SELECT COUNT(*) FROM video_watch_history", connection))
+                try
                 {
+                    using var cmd = new MySqlCommand("SELECT COUNT(*) FROM video_watch_history", connection);
                     stats.TotalVideosWatched = Convert.ToInt32(await cmd.ExecuteScalarAsync());
                 }
+                catch { stats.TotalVideosWatched = 0; }
 
                 // Total resumes
-                using (var cmd = new MySqlCommand("SELECT COUNT(*) FROM user_resumes", connection))
+                try
                 {
+                    using var cmd = new MySqlCommand("SELECT COUNT(*) FROM user_resumes", connection);
                     stats.TotalResumes = Convert.ToInt32(await cmd.ExecuteScalarAsync());
                 }
+                catch { stats.TotalResumes = 0; }
 
                 // Total chat sessions
-                using (var cmd = new MySqlCommand("SELECT COUNT(*) FROM chat_history", connection))
+                try
                 {
+                    using var cmd = new MySqlCommand("SELECT COUNT(*) FROM chat_sessions", connection);
                     stats.TotalChatSessions = Convert.ToInt32(await cmd.ExecuteScalarAsync());
                 }
+                catch { stats.TotalChatSessions = 0; }
 
                 // Average progress
-                using (var cmd = new MySqlCommand("SELECT AVG(overall_progress) FROM user_career_progress WHERE is_active = TRUE", connection))
+                try
                 {
+                    using var cmd = new MySqlCommand("SELECT AVG(overall_progress) FROM user_career_progress WHERE is_active = TRUE", connection);
                     var result = await cmd.ExecuteScalarAsync();
                     stats.AverageProgress = result != DBNull.Value ? Convert.ToDouble(result) : 0;
                 }
+                catch { stats.AverageProgress = 0; }
 
                 // Popular careers
-                var popularQuery = @"
-                    SELECT career_name, COUNT(*) as count 
-                    FROM user_career_progress 
-                    WHERE is_active = TRUE 
-                    GROUP BY career_name 
-                    ORDER BY count DESC 
-                    LIMIT 10";
-                using (var cmd = new MySqlCommand(popularQuery, connection))
-                using (var reader = await cmd.ExecuteReaderAsync())
+                try
                 {
+                    var popularQuery = @"
+                        SELECT career_name, COUNT(*) as count 
+                        FROM user_career_progress 
+                        WHERE is_active = TRUE 
+                        GROUP BY career_name 
+                        ORDER BY count DESC 
+                        LIMIT 10";
+                    using var cmd = new MySqlCommand(popularQuery, connection);
+                    using var reader = await cmd.ExecuteReaderAsync();
                     while (await reader.ReadAsync())
                     {
                         stats.PopularCareers.Add(new
@@ -564,22 +579,24 @@ namespace MyFirstApi.Controllers
                         });
                     }
                 }
+                catch { /* Table may not exist */ }
 
                 // Recent activities
-                var activityQuery = @"
-                    SELECT 
-                        u.Username,
-                        u.FullName,
-                        'Video Watched' as activity_type,
-                        vwh.video_title as activity_detail,
-                        vwh.last_watched as activity_time
-                    FROM video_watch_history vwh
-                    JOIN users u ON vwh.user_id = u.Id
-                    ORDER BY vwh.last_watched DESC
-                    LIMIT 20";
-                using (var cmd = new MySqlCommand(activityQuery, connection))
-                using (var reader = await cmd.ExecuteReaderAsync())
+                try
                 {
+                    var activityQuery = @"
+                        SELECT 
+                            u.Username,
+                            u.FullName,
+                            'Video Watched' as activity_type,
+                            vwh.video_title as activity_detail,
+                            vwh.last_watched as activity_time
+                        FROM video_watch_history vwh
+                        JOIN Users u ON vwh.user_id = u.Id
+                        ORDER BY vwh.last_watched DESC
+                        LIMIT 20";
+                    using var cmd = new MySqlCommand(activityQuery, connection);
+                    using var reader = await cmd.ExecuteReaderAsync();
                     while (await reader.ReadAsync())
                     {
                         stats.RecentActivities.Add(new
@@ -592,6 +609,7 @@ namespace MyFirstApi.Controllers
                         });
                     }
                 }
+                catch { /* Table may not exist */ }
 
                 return Ok(stats);
             }
@@ -615,7 +633,7 @@ namespace MyFirstApi.Controllers
                 await connection.OpenAsync();
 
                 // Delete user (cascades to all related tables)
-                var query = "DELETE FROM users WHERE Id = @UserId";
+                var query = "DELETE FROM Users WHERE Id = @UserId";
                 using var cmd = new MySqlCommand(query, connection);
                 cmd.Parameters.AddWithValue("@UserId", userId);
                 await cmd.ExecuteNonQueryAsync();
@@ -641,7 +659,7 @@ namespace MyFirstApi.Controllers
                 using var connection = new MySqlConnection(connectionString);
                 await connection.OpenAsync();
 
-                var query = "UPDATE users SET Role = @Role WHERE Id = @UserId";
+                var query = "UPDATE Users SET Role = @Role WHERE Id = @UserId";
                 using var cmd = new MySqlCommand(query, connection);
                 cmd.Parameters.AddWithValue("@Role", request.Role);
                 cmd.Parameters.AddWithValue("@UserId", userId);
@@ -679,7 +697,7 @@ namespace MyFirstApi.Controllers
                         ucp.career_name, ucp.overall_progress,
                         COUNT(DISTINCT vwh.video_id) as videos_watched,
                         SUM(CASE WHEN vwh.is_completed THEN 1 ELSE 0 END) as completed_videos
-                    FROM users u
+                    FROM Users u
                     LEFT JOIN user_career_progress ucp ON u.Id = ucp.user_id AND ucp.is_active = TRUE
                     LEFT JOIN video_watch_history vwh ON u.Id = vwh.user_id
                     GROUP BY u.Id, u.Username, u.FullName, u.Email, u.CreatedAt, ucp.career_name, ucp.overall_progress";
@@ -713,6 +731,130 @@ namespace MyFirstApi.Controllers
             }
         }
 
+        // Get all user resumes
+        [HttpGet("resumes")]
+        public async Task<IActionResult> GetAllResumes(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 20,
+            [FromQuery] string? search = null)
+        {
+            try
+            {
+                if (!IsAdmin())
+                    return Forbid();
+
+                var connectionString = _configuration.GetConnectionString("DefaultConnection");
+                using var connection = new MySqlConnection(connectionString);
+                await connection.OpenAsync();
+
+                var offset = (page - 1) * pageSize;
+                var searchCondition = string.IsNullOrEmpty(search)
+                    ? ""
+                    : "AND (u.FullName LIKE @Search OR u.Email LIKE @Search OR r.job_title LIKE @Search)";
+
+                // Get total count
+                var countQuery = $@"
+                    SELECT COUNT(*) 
+                    FROM user_resumes r
+                    JOIN Users u ON r.user_id = u.Id
+                    WHERE 1=1 {searchCondition}";
+
+                using var countCmd = new MySqlCommand(countQuery, connection);
+                if (!string.IsNullOrEmpty(search))
+                    countCmd.Parameters.AddWithValue("@Search", $"%{search}%");
+                var totalCount = Convert.ToInt32(await countCmd.ExecuteScalarAsync());
+
+                // Get resumes
+                var query = $@"
+                    SELECT 
+                        r.id, r.user_id, r.full_name, r.job_title, r.email, r.phone,
+                        r.location, r.linkedin, r.professional_summary,
+                        r.skills, r.experiences, r.education,
+                        r.certifications, r.projects, r.languages, r.achievements,
+                        r.created_at, r.updated_at,
+                        u.Username, u.Email as UserEmail
+                    FROM user_resumes r
+                    JOIN Users u ON r.user_id = u.Id
+                    WHERE 1=1 {searchCondition}
+                    ORDER BY r.updated_at DESC
+                    LIMIT @PageSize OFFSET @Offset";
+
+                using var cmd = new MySqlCommand(query, connection);
+                cmd.Parameters.AddWithValue("@PageSize", pageSize);
+                cmd.Parameters.AddWithValue("@Offset", offset);
+                if (!string.IsNullOrEmpty(search))
+                    cmd.Parameters.AddWithValue("@Search", $"%{search}%");
+
+                using var reader = await cmd.ExecuteReaderAsync();
+                var resumes = new List<object>();
+
+                while (await reader.ReadAsync())
+                {
+                    var idIdx = reader.GetOrdinal("id");
+                    var userIdIdx = reader.GetOrdinal("user_id");
+                    var fullNameIdx = reader.GetOrdinal("full_name");
+                    var jobTitleIdx = reader.GetOrdinal("job_title");
+                    var emailIdx = reader.GetOrdinal("email");
+                    var phoneIdx = reader.GetOrdinal("phone");
+                    var locationIdx = reader.GetOrdinal("location");
+                    var linkedinIdx = reader.GetOrdinal("linkedin");
+                    var summaryIdx = reader.GetOrdinal("professional_summary");
+                    var skillsIdx = reader.GetOrdinal("skills");
+                    var experiencesIdx = reader.GetOrdinal("experiences");
+                    var educationIdx = reader.GetOrdinal("education");
+                    var certificationsIdx = reader.GetOrdinal("certifications");
+                    var projectsIdx = reader.GetOrdinal("projects");
+                    var languagesIdx = reader.GetOrdinal("languages");
+                    var achievementsIdx = reader.GetOrdinal("achievements");
+                    var createdAtIdx = reader.GetOrdinal("created_at");
+                    var updatedAtIdx = reader.GetOrdinal("updated_at");
+                    var usernameIdx = reader.GetOrdinal("Username");
+                    var userEmailIdx = reader.GetOrdinal("UserEmail");
+
+                    resumes.Add(new
+                    {
+                        id = reader.GetInt32(idIdx),
+                        userId = reader.GetInt32(userIdIdx),
+                        fullName = reader.IsDBNull(fullNameIdx) ? "" : reader.GetString(fullNameIdx),
+                        jobTitle = reader.IsDBNull(jobTitleIdx) ? "" : reader.GetString(jobTitleIdx),
+                        email = reader.IsDBNull(emailIdx) ? "" : reader.GetString(emailIdx),
+                        phone = reader.IsDBNull(phoneIdx) ? "" : reader.GetString(phoneIdx),
+                        location = reader.IsDBNull(locationIdx) ? "" : reader.GetString(locationIdx),
+                        linkedin = reader.IsDBNull(linkedinIdx) ? "" : reader.GetString(linkedinIdx),
+                        professionalSummary = reader.IsDBNull(summaryIdx) ? "" : reader.GetString(summaryIdx),
+                        skills = reader.IsDBNull(skillsIdx) ? null : JsonSerializer.Deserialize<object>(reader.GetString(skillsIdx)),
+                        experiences = reader.IsDBNull(experiencesIdx) ? null : JsonSerializer.Deserialize<object>(reader.GetString(experiencesIdx)),
+                        education = reader.IsDBNull(educationIdx) ? null : JsonSerializer.Deserialize<object>(reader.GetString(educationIdx)),
+                        certifications = reader.IsDBNull(certificationsIdx) ? null : JsonSerializer.Deserialize<object>(reader.GetString(certificationsIdx)),
+                        projects = reader.IsDBNull(projectsIdx) ? null : JsonSerializer.Deserialize<object>(reader.GetString(projectsIdx)),
+                        languages = reader.IsDBNull(languagesIdx) ? null : JsonSerializer.Deserialize<object>(reader.GetString(languagesIdx)),
+                        achievements = reader.IsDBNull(achievementsIdx) ? null : JsonSerializer.Deserialize<object>(reader.GetString(achievementsIdx)),
+                        createdAt = reader.GetDateTime(createdAtIdx),
+                        updatedAt = reader.GetDateTime(updatedAtIdx),
+                        username = reader.GetString(usernameIdx),
+                        userEmail = reader.GetString(userEmailIdx)
+                    });
+                }
+
+                return Ok(new
+                {
+                    resumes,
+                    pagination = new
+                    {
+                        currentPage = page,
+                        pageSize,
+                        totalCount,
+                        totalPages = (int)Math.Ceiling((double)totalCount / pageSize)
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting resumes: {ex.Message}");
+                return StatusCode(500, new { message = "Error fetching resumes", error = ex.Message });
+            }
+        }
+
         // Get user growth analytics
         [HttpGet("analytics/growth")]
         public async Task<IActionResult> GetUserGrowth([FromQuery] int days = 30)
@@ -728,7 +870,7 @@ namespace MyFirstApi.Controllers
 
                 var query = @"
                     SELECT DATE(CreatedAt) as date, COUNT(*) as count
-                    FROM users
+                    FROM Users
                     WHERE CreatedAt >= DATE_SUB(CURDATE(), INTERVAL @Days DAY)
                     GROUP BY DATE(CreatedAt)
                     ORDER BY date ASC";
@@ -869,7 +1011,7 @@ namespace MyFirstApi.Controllers
                 await connection.OpenAsync();
 
                 var insertQuery = @"
-                    INSERT INTO careers (career_name, description, required_education, average_salary, growth_outlook, key_skills)
+                    INSERT INTO careers (name, description, required_education, average_salary, growth_outlook, key_skills)
                     VALUES (@name, @description, @education, @salary, @outlook, @skills)";
 
                 using var cmd = new MySqlCommand(insertQuery, connection);
@@ -907,7 +1049,7 @@ namespace MyFirstApi.Controllers
 
                 var updateQuery = @"
                     UPDATE careers 
-                    SET career_name = @name, 
+                    SET name = @name, 
                         description = @description, 
                         required_education = @education, 
                         average_salary = @salary, 

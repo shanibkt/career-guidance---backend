@@ -54,8 +54,8 @@ namespace MyFirstApi.Controllers
                     SELECT u.FullName, u.Email, 
                            p.PhoneNumber, p.Age, p.Gender, p.EducationLevel, 
                            p.FieldOfStudy, p.Skills
-                    FROM users u
-                    LEFT JOIN userprofiles p ON u.Id = p.UserId
+                    FROM Users u
+                    LEFT JOIN UserProfiles p ON u.Id = p.UserId
                     WHERE u.Id = @userId";
 
                 using MySqlCommand cmd = new(query, conn);
@@ -179,8 +179,8 @@ namespace MyFirstApi.Controllers
                 // Save quiz session
                 _logger.LogInformation("Step 6: Saving quiz session to database...");
                 string insertQuery = @"
-                    INSERT INTO quiz_sessions (quiz_id, user_id, questions, total_questions) 
-                    VALUES (@quizId, @userId, @questions, @totalQuestions)";
+                    INSERT INTO quiz_sessions (quiz_id, user_id, questions, total_questions, completed) 
+                    VALUES (@quizId, @userId, @questions, @totalQuestions, FALSE)";
                 
                 using MySqlCommand insertCmd = new(insertQuery, conn);
                 insertCmd.Parameters.AddWithValue("@quizId", quizId);
@@ -322,7 +322,7 @@ namespace MyFirstApi.Controllers
 
                 // Load careers and calculate matches
                 _logger.LogInformation("🎯 Loading careers for matching...");
-                string careersQuery = "SELECT id, career_name, required_skills, skill_weights, min_score_percentage, salary_range FROM careers";
+                string careersQuery = "SELECT id, name, key_skills, average_salary FROM careers";
                 using MySqlCommand careersCmd = new(careersQuery, conn);
                 using var careersReader = careersCmd.ExecuteReader();
 
@@ -333,25 +333,21 @@ namespace MyFirstApi.Controllers
                     try
                     {
                         var careerId = careersReader.GetInt32("id");
-                        var careerName = careersReader.IsDBNull(careersReader.GetOrdinal("career_name")) 
+                        var careerName = careersReader.IsDBNull(careersReader.GetOrdinal("name")) 
                             ? "Unknown" 
-                            : careersReader.GetString("career_name");
+                            : careersReader.GetString("name");
                         
-                        if (careersReader.IsDBNull(careersReader.GetOrdinal("required_skills")))
+                        if (careersReader.IsDBNull(careersReader.GetOrdinal("key_skills")))
                         {
-                            _logger.LogWarning($"Career {careerId} has null required_skills, skipping");
+                            _logger.LogWarning($"Career {careerId} has null key_skills, skipping");
                             continue;
                         }
                         
-                        var requiredSkillsJson = careersReader.GetString("required_skills");
-                        var skillWeightsJson = careersReader.IsDBNull(careersReader.GetOrdinal("skill_weights"))
-                            ? "{}"
-                            : careersReader.GetString("skill_weights");
-                        var minScorePercentage = careersReader.IsDBNull(careersReader.GetOrdinal("min_score_percentage"))
-                            ? 0m
-                            : careersReader.GetDecimal("min_score_percentage");
-                        var salaryRange = careersReader.IsDBNull(careersReader.GetOrdinal("salary_range")) 
-                            ? null : careersReader.GetString("salary_range");
+                        var requiredSkillsJson = careersReader.GetString("key_skills");
+                        var skillWeightsJson = "{}";
+                        var minScorePercentage = 0m;
+                        var salaryRange = careersReader.IsDBNull(careersReader.GetOrdinal("average_salary")) 
+                            ? null : careersReader.GetString("average_salary");
 
                         // Parse required skills and weights
                         var requiredSkills = JsonSerializer.Deserialize<List<string>>(requiredSkillsJson) ?? new List<string>();
@@ -413,10 +409,8 @@ namespace MyFirstApi.Controllers
                 string updateQuery = @"
                     UPDATE quiz_sessions 
                     SET answers = @answers, 
-                        skill_scores = @skillScores,
-                        total_score = @totalScore,
+                        score = @totalScore,
                         total_questions = @totalQuestions,
-                        percentage = @percentage,
                         completed = TRUE, 
                         completed_at = NOW() 
                     WHERE quiz_id = @quizId";
@@ -424,10 +418,8 @@ namespace MyFirstApi.Controllers
                 using MySqlCommand updateCmd = new(updateQuery, conn);
                 updateCmd.Parameters.AddWithValue("@quizId", request.QuizId);
                 updateCmd.Parameters.AddWithValue("@answers", JsonSerializer.Serialize(request.Answers));
-                updateCmd.Parameters.AddWithValue("@skillScores", JsonSerializer.Serialize(skillBreakdown));
                 updateCmd.Parameters.AddWithValue("@totalScore", totalCorrect);
                 updateCmd.Parameters.AddWithValue("@totalQuestions", totalQuestions);
-                updateCmd.Parameters.AddWithValue("@percentage", overallPercentage);
                 updateCmd.ExecuteNonQuery();
 
                 return Ok(new SubmitQuizResponse

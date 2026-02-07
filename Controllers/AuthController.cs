@@ -36,7 +36,7 @@ namespace MyFirstApi.Controllers
                 conn.Open();
 
                 // Check if user already exists
-                using (MySqlCommand checkCmd = new("SELECT Id FROM users WHERE Email = @email LIMIT 1", conn))
+                using (MySqlCommand checkCmd = new("SELECT Id FROM Users WHERE Email = @email LIMIT 1", conn))
                 {
                     checkCmd.Parameters.AddWithValue("@email", req.Email);
                     using var reader = checkCmd.ExecuteReader();
@@ -48,7 +48,7 @@ namespace MyFirstApi.Controllers
 
                 string hashed = BCrypt.Net.BCrypt.HashPassword(req.Password);
 
-                using MySqlCommand cmd = new("INSERT INTO users (Username, FullName, Email, PasswordHash) VALUES (@username, @fullName, @email, @passwordHash); SELECT LAST_INSERT_ID();", conn);
+                using MySqlCommand cmd = new("INSERT INTO Users (Username, FullName, Email, PasswordHash) VALUES (@username, @fullName, @email, @passwordHash); SELECT LAST_INSERT_ID();", conn);
                 cmd.Parameters.AddWithValue("@username", req.Username);
                 cmd.Parameters.AddWithValue("@fullName", req.FullName);
                 cmd.Parameters.AddWithValue("@email", req.Email);
@@ -138,7 +138,7 @@ namespace MyFirstApi.Controllers
                 DateTime createdAt = DateTime.UtcNow;
 
                 // Read user data and CLOSE the reader before doing anything else
-                using (MySqlCommand cmd = new("SELECT Id, Username, FullName, Email, PasswordHash, Role, CreatedAt, UpdatedAt FROM users WHERE Email = @email LIMIT 1", conn))
+                using (MySqlCommand cmd = new("SELECT Id, Username, FullName, Email, PasswordHash, Role, CreatedAt, UpdatedAt FROM Users WHERE Email = @email LIMIT 1", conn))
                 {
                     cmd.Parameters.AddWithValue("@email", req.Email);
 
@@ -177,8 +177,17 @@ namespace MyFirstApi.Controllers
                     catch { /* CreatedAt might not exist or have different type */ }
                 } // DataReader is closed here
 
-                // Now verify password
-                bool ok = BCrypt.Net.BCrypt.Verify(req.Password, hash);
+                // Now verify password with error handling
+                bool ok = false;
+                try
+                {
+                    ok = BCrypt.Net.BCrypt.Verify(req.Password, hash);
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, $"Password verification error: {ex.Message}");
+                }
+                
                 if (!ok) return Unauthorized("Invalid credentials.");
 
                 var resp = new UserResponse 

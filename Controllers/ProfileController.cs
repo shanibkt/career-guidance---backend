@@ -275,7 +275,7 @@ namespace MyFirstApi.Controllers
 
                 // Update only the profile image path
                 string updateQuery = @"
-                    UPDATE userprofiles 
+                    UPDATE UserProfiles 
                     SET ProfileImagePath = @path, UpdatedAt = CURRENT_TIMESTAMP 
                     WHERE UserId = @userId";
                 

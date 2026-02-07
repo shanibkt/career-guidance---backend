@@ -44,7 +44,7 @@ public class ChatHistoryController : ControllerBase
             using var connection = new MySqlConnection(_configuration.GetConnectionString("DefaultConnection"));
             await connection.OpenAsync();
 
-            var checkQuery = "SELECT Id, Title, CreatedAt, UpdatedAt FROM chatsessions WHERE SessionId = @SessionId AND UserId = @UserId LIMIT 1";
+            var checkQuery = "SELECT Id, Title, CreatedAt, UpdatedAt FROM chat_sessions WHERE SessionId = @SessionId AND UserId = @UserId LIMIT 1";
             using var checkCmd = new MySqlCommand(checkQuery, connection);
             checkCmd.Parameters.AddWithValue("@SessionId", request.SessionId);
             checkCmd.Parameters.AddWithValue("@UserId", userId);
@@ -59,7 +59,7 @@ public class ChatHistoryController : ControllerBase
                 await reader.CloseAsync();
 
                 var updateQuery = @"
-                    UPDATE chatsessions 
+                    UPDATE chat_sessions 
                     SET Title = @Title, LastMessage = @LastMessage, UpdatedAt = NOW() 
                     WHERE SessionId = @SessionId AND UserId = @UserId";
                 
@@ -84,7 +84,7 @@ public class ChatHistoryController : ControllerBase
                 await reader.CloseAsync();
 
                 var insertQuery = @"
-                    INSERT INTO chatsessions (UserId, SessionId, Title, LastMessage, CreatedAt, UpdatedAt) 
+                    INSERT INTO chat_sessions (UserId, SessionId, Title, LastMessage, CreatedAt, UpdatedAt) 
                     VALUES (@UserId, @SessionId, @Title, @LastMessage, NOW(), NOW())";
                 
                 using var insertCmd = new MySqlCommand(insertQuery, connection);
@@ -125,7 +125,7 @@ public class ChatHistoryController : ControllerBase
             await connection.OpenAsync();
 
             // Verify session belongs to user
-            var verifyQuery = "SELECT Id FROM chatsessions WHERE SessionId = @SessionId AND UserId = @UserId LIMIT 1";
+            var verifyQuery = "SELECT Id FROM chat_sessions WHERE SessionId = @SessionId AND UserId = @UserId LIMIT 1";
             using var verifyCmd = new MySqlCommand(verifyQuery, connection);
             verifyCmd.Parameters.AddWithValue("@SessionId", request.SessionId);
             verifyCmd.Parameters.AddWithValue("@UserId", userId);
@@ -141,7 +141,7 @@ public class ChatHistoryController : ControllerBase
             var timestamp = request.Timestamp ?? DateTime.UtcNow;
 
             var insertQuery = @"
-                INSERT INTO chatmessages (SessionId, Role, Message, Timestamp) 
+                INSERT INTO chat_messages (SessionId, Role, Message, Timestamp) 
                 VALUES (@SessionId, @Role, @Message, @Timestamp);
                 SELECT LAST_INSERT_ID();";
             
@@ -159,7 +159,7 @@ public class ChatHistoryController : ControllerBase
                 : request.Message;
 
             var updateQuery = @"
-                UPDATE chatsessions 
+                UPDATE chat_sessions 
                 SET LastMessage = @LastMessage, UpdatedAt = NOW() 
                 WHERE SessionId = @SessionId";
             
@@ -205,8 +205,8 @@ public class ChatHistoryController : ControllerBase
                     cs.LastMessage,
                     cs.CreatedAt,
                     cs.UpdatedAt,
-                    (SELECT COUNT(*) FROM chatmessages WHERE SessionId = cs.SessionId) as MessageCount
-                FROM chatsessions cs
+                    (SELECT COUNT(*) FROM chat_messages WHERE SessionId = cs.SessionId) as MessageCount
+                FROM chat_sessions cs
                 WHERE cs.UserId = @UserId AND (cs.IsDeleted = 0 OR cs.IsDeleted IS NULL)
                 ORDER BY cs.UpdatedAt DESC";
 
@@ -255,7 +255,7 @@ public class ChatHistoryController : ControllerBase
             await connection.OpenAsync();
 
             // Verify session belongs to user
-            var verifyQuery = "SELECT Id FROM chatsessions WHERE SessionId = @SessionId AND UserId = @UserId LIMIT 1";
+            var verifyQuery = "SELECT Id FROM chat_sessions WHERE SessionId = @SessionId AND UserId = @UserId LIMIT 1";
             using var verifyCmd = new MySqlCommand(verifyQuery, connection);
             verifyCmd.Parameters.AddWithValue("@SessionId", sessionId);
             verifyCmd.Parameters.AddWithValue("@UserId", userId);
@@ -269,7 +269,7 @@ public class ChatHistoryController : ControllerBase
             // Get messages
             var query = @"
                 SELECT Id, Message, Role, Timestamp 
-                FROM chatmessages 
+                FROM chat_messages 
                 WHERE SessionId = @SessionId 
                 ORDER BY Timestamp ASC";
 
@@ -314,7 +314,7 @@ public class ChatHistoryController : ControllerBase
             await connection.OpenAsync();
 
             // Verify session belongs to user
-            var verifyQuery = "SELECT Id FROM chatsessions WHERE SessionId = @SessionId AND UserId = @UserId LIMIT 1";
+            var verifyQuery = "SELECT Id FROM chat_sessions WHERE SessionId = @SessionId AND UserId = @UserId LIMIT 1";
             using var verifyCmd = new MySqlCommand(verifyQuery, connection);
             verifyCmd.Parameters.AddWithValue("@SessionId", sessionId);
             verifyCmd.Parameters.AddWithValue("@UserId", userId);
@@ -326,7 +326,7 @@ public class ChatHistoryController : ControllerBase
             }
 
             // Soft delete
-            var deleteQuery = "UPDATE chatsessions SET IsDeleted = 1 WHERE SessionId = @SessionId";
+            var deleteQuery = "UPDATE chat_sessions SET IsDeleted = 1 WHERE SessionId = @SessionId";
             using var deleteCmd = new MySqlCommand(deleteQuery, connection);
             deleteCmd.Parameters.AddWithValue("@SessionId", sessionId);
             await deleteCmd.ExecuteNonQueryAsync();
@@ -355,7 +355,7 @@ public class ChatHistoryController : ControllerBase
             await connection.OpenAsync();
 
             // Get all session IDs
-            var getSessionsQuery = "SELECT SessionId FROM chatsessions WHERE UserId = @UserId";
+            var getSessionsQuery = "SELECT SessionId FROM chat_sessions WHERE UserId = @UserId";
             using var getCmd = new MySqlCommand(getSessionsQuery, connection);
             getCmd.Parameters.AddWithValue("@UserId", userId);
 
@@ -379,12 +379,12 @@ public class ChatHistoryController : ControllerBase
             }
 
             // Delete messages
-            var deleteMessagesQuery = $"DELETE FROM chatmessages WHERE SessionId IN ('{string.Join("','", sessionIds)}')";
+            var deleteMessagesQuery = $"DELETE FROM chat_messages WHERE SessionId IN ('{string.Join("','", sessionIds)}')";
             using var deleteMessagesCmd = new MySqlCommand(deleteMessagesQuery, connection);
             var deletedMessages = await deleteMessagesCmd.ExecuteNonQueryAsync();
 
             // Delete sessions
-            var deleteSessionsQuery = "DELETE FROM chatsessions WHERE UserId = @UserId";
+            var deleteSessionsQuery = "DELETE FROM chat_sessions WHERE UserId = @UserId";
             using var deleteSessionsCmd = new MySqlCommand(deleteSessionsQuery, connection);
             deleteSessionsCmd.Parameters.AddWithValue("@UserId", userId);
             var deletedSessions = await deleteSessionsCmd.ExecuteNonQueryAsync();
@@ -430,8 +430,8 @@ public class ChatHistoryController : ControllerBase
                     cm.Role,
                     cm.Timestamp,
                     cs.Title
-                FROM chatmessages cm
-                INNER JOIN chatsessions cs ON cm.SessionId = cs.SessionId
+                FROM chat_messages cm
+                INNER JOIN chat_sessions cs ON cm.SessionId = cs.SessionId
                 WHERE cs.UserId = @UserId 
                     AND cm.Message LIKE @Query
                     AND (cs.IsDeleted = 0 OR cs.IsDeleted IS NULL)
@@ -484,11 +484,11 @@ public class ChatHistoryController : ControllerBase
             var statsQuery = @"
                 SELECT 
                     COUNT(DISTINCT cs.SessionId) as TotalSessions,
-                    (SELECT COUNT(*) FROM chatmessages cm 
-                     INNER JOIN chatsessions s ON cm.SessionId = s.SessionId 
+                    (SELECT COUNT(*) FROM chat_messages cm 
+                     INNER JOIN chat_sessions s ON cm.SessionId = s.SessionId 
                      WHERE s.UserId = @UserId) as TotalMessages,
                     MIN(cs.CreatedAt) as FirstChatDate
-                FROM chatsessions cs
+                FROM chat_sessions cs
                 WHERE cs.UserId = @UserId AND (cs.IsDeleted = 0 OR cs.IsDeleted IS NULL)";
 
             using var cmd = new MySqlCommand(statsQuery, connection);

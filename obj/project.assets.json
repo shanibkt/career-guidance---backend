@@ -2446,19 +2446,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Dell\\.nuget\\packages\\": {}
+    "C:\\Users\\shani\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "c:\\Users\\Dell\\Desktop\\Career guidence\\career-guidance---backend\\MyFirstApi.csproj",
+      "projectUniqueName": "C:\\Users\\shani\\OneDrive\\Desktop\\career-guidance\\career-guidance---backend\\MyFirstApi.csproj",
       "projectName": "MyFirstApi",
-      "projectPath": "c:\\Users\\Dell\\Desktop\\Career guidence\\career-guidance---backend\\MyFirstApi.csproj",
-      "packagesPath": "C:\\Users\\Dell\\.nuget\\packages\\",
-      "outputPath": "c:\\Users\\Dell\\Desktop\\Career guidence\\career-guidance---backend\\obj\\",
+      "projectPath": "C:\\Users\\shani\\OneDrive\\Desktop\\career-guidance\\career-guidance---backend\\MyFirstApi.csproj",
+      "packagesPath": "C:\\Users\\shani\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\shani\\OneDrive\\Desktop\\career-guidance\\career-guidance---backend\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\Dell\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\shani\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
@@ -2482,7 +2482,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.300"
+      "SdkAnalysisLevel": "10.0.100"
     },
     "frameworks": {
       "net9.0": {
@@ -2532,7 +2532,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.306/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.102/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

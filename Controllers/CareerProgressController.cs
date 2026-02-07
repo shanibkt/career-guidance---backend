@@ -53,7 +53,7 @@ namespace MyFirstApi.Controllers
                 insertCmd.ExecuteNonQuery();
 
                 // Update user profile with career path
-                string updateProfileQuery = "UPDATE userprofiles SET career_path = @careerName WHERE UserId = @userId";
+                string updateProfileQuery = "UPDATE UserProfiles SET career_path = @careerName WHERE UserId = @userId";
                 using (MySqlCommand updateCmd = new(updateProfileQuery, conn))
                 {
                     updateCmd.Parameters.AddWithValue("@careerName", request.CareerName);

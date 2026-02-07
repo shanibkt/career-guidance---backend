@@ -14,6 +14,37 @@ namespace MyFirstApi.Controllers
             _configuration = configuration;
         }
 
+        // GET /api/setup/db-test
+        [HttpGet("db-test")]
+        public IActionResult DbTest()
+        {
+            try
+            {
+                var connString = _configuration.GetConnectionString("DefaultConnection") ?? string.Empty;
+                using var conn = new MySqlConnection(connString);
+                conn.Open();
+
+                using var cmd = new MySqlCommand("SELECT 1", conn);
+                var result = cmd.ExecuteScalar();
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Database connection successful",
+                    result
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Database connection failed",
+                    error = ex.Message
+                });
+            }
+        }
+
         // GET /api/setup/create-refresh-tokens-table
         [HttpGet("create-refresh-tokens-table")]
         public IActionResult CreateRefreshTokensTable()
@@ -79,14 +110,17 @@ namespace MyFirstApi.Controllers
                 using var conn = new MySqlConnection(_configuration.GetConnectionString("DefaultConnection"));
                 await conn.OpenAsync();
 
-                // Create ChatSessions table
+                // Create chat_sessions table
                 string createSessionsTableSql = @"
-                    CREATE TABLE IF NOT EXISTS ChatSessions (
+                    CREATE TABLE IF NOT EXISTS chat_sessions (
                         Id INT PRIMARY KEY AUTO_INCREMENT,
                         UserId INT NOT NULL,
                         SessionId VARCHAR(36) NOT NULL UNIQUE,
+                        Title VARCHAR(255) NOT NULL DEFAULT 'New Conversation',
+                        LastMessage TEXT NULL,
                         CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-                        FOREIGN KEY (UserId) REFERENCES users(id) ON DELETE CASCADE,
+                        UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                        IsDeleted TINYINT(1) DEFAULT 0,
                         INDEX idx_user_sessions (UserId, CreatedAt),
                         INDEX idx_session_id (SessionId)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
@@ -96,15 +130,14 @@ namespace MyFirstApi.Controllers
                     await cmd.ExecuteNonQueryAsync();
                 }
 
-                // Create ChatMessages table
+                // Create chat_messages table
                 string createMessagesTableSql = @"
-                    CREATE TABLE IF NOT EXISTS ChatMessages (
+                    CREATE TABLE IF NOT EXISTS chat_messages (
                         Id INT PRIMARY KEY AUTO_INCREMENT,
                         SessionId VARCHAR(36) NOT NULL,
                         Role VARCHAR(20) NOT NULL,
                         Message TEXT NOT NULL,
                         Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-                        FOREIGN KEY (SessionId) REFERENCES ChatSessions(SessionId) ON DELETE CASCADE,
                         INDEX idx_session_messages (SessionId, Timestamp),
                         INDEX idx_timestamp (Timestamp)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
@@ -117,8 +150,8 @@ namespace MyFirstApi.Controllers
                 return Ok(new
                 {
                     success = true,
-                    message = "Chat tables (ChatSessions and ChatMessages) created successfully!",
-                    tables = new[] { "ChatSessions", "ChatMessages" }
+                    message = "Chat tables (chat_sessions and chat_messages) created successfully!",
+                    tables = new[] { "chat_sessions", "chat_messages" }
                 });
             }
             catch (Exception ex)
@@ -319,7 +352,7 @@ namespace MyFirstApi.Controllers
 
                 // 2. Delete existing admin user if any
                 using (var deleteCmd = new MySqlCommand(
-                    "DELETE FROM users WHERE Email = 'admin@careerguidance.com'", conn))
+                    "DELETE FROM Users WHERE Email = 'admin@careerguidance.com'", conn))
                 {
                     int deleted = deleteCmd.ExecuteNonQuery();
                     if (deleted > 0)
@@ -330,7 +363,7 @@ namespace MyFirstApi.Controllers
                 var passwordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123");
                 
                 using (var insertCmd = new MySqlCommand(@"
-                    INSERT INTO users (Username, FullName, Email, PasswordHash, Role, CreatedAt)
+                    INSERT INTO Users (Username, FullName, Email, PasswordHash, Role, CreatedAt)
                     VALUES (@username, @fullName, @email, @passwordHash, @role, NOW())", conn))
                 {
                     insertCmd.Parameters.AddWithValue("@username", "admin");
@@ -370,7 +403,7 @@ namespace MyFirstApi.Controllers
 
                 // 5. Verify admin user
                 using (var verifyCmd = new MySqlCommand(
-                    "SELECT Id, Username, Email, Role, CreatedAt FROM users WHERE Email = 'admin@careerguidance.com'", conn))
+                    "SELECT Id, Username, Email, Role, CreatedAt FROM Users WHERE Email = 'admin@careerguidance.com'", conn))
                 {
                     using var reader = verifyCmd.ExecuteReader();
                     
@@ -503,6 +536,274 @@ namespace MyFirstApi.Controllers
                     message = "Error populating careers",
                     error = ex.Message,
                     stackTrace = ex.StackTrace
+                });
+            }
+        }
+
+        // GET /api/setup/create-UserProfiles-table
+        [HttpGet("create-UserProfiles-table")]
+        public IActionResult CreateUserProfilesTable()
+        {
+            try
+            {
+                using var conn = new MySqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+                conn.Open();
+
+                string createTableSql = @"
+                    CREATE TABLE IF NOT EXISTS UserProfiles (
+                        Id INT PRIMARY KEY AUTO_INCREMENT,
+                        UserId INT NOT NULL UNIQUE,
+                        PhoneNumber VARCHAR(20),
+                        Age INT,
+                        Gender VARCHAR(20),
+                        EducationLevel VARCHAR(100),
+                        FieldOfStudy VARCHAR(200),
+                        Skills JSON,
+                        AreasOfInterest TEXT,
+                        ProfileImagePath VARCHAR(500),
+                        CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                        INDEX idx_profile_userid (UserId)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+
+                using var cmd = new MySqlCommand(createTableSql, conn);
+                cmd.ExecuteNonQuery();
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "UserProfiles table created successfully!"
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Error creating UserProfiles table",
+                    error = ex.Message
+                });
+            }
+        }
+
+        // GET /api/setup/fix-quiz-sessions-table
+        [HttpGet("fix-quiz-sessions-table")]
+        public IActionResult FixQuizSessionsTable()
+        {
+            try
+            {
+                using var conn = new MySqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+                conn.Open();
+
+                var results = new List<string>();
+
+                // Add quiz_id column
+                try
+                {
+                    using var addQuizIdCmd = new MySqlCommand(
+                        "ALTER TABLE quiz_sessions ADD COLUMN quiz_id VARCHAR(36) UNIQUE AFTER id", conn);
+                    addQuizIdCmd.ExecuteNonQuery();
+                    results.Add("✅ Added quiz_id column");
+                }
+                catch (MySqlException ex)
+                {
+                    if (ex.Message.Contains("Duplicate column"))
+                        results.Add("⚠️ quiz_id column already exists");
+                    else
+                        results.Add($"⚠️ quiz_id: {ex.Message}");
+                }
+
+                // Add total_questions column
+                try
+                {
+                    using var addTotalCmd = new MySqlCommand(
+                        "ALTER TABLE quiz_sessions ADD COLUMN total_questions INT DEFAULT 0 AFTER questions", conn);
+                    addTotalCmd.ExecuteNonQuery();
+                    results.Add("✅ Added total_questions column");
+                }
+                catch (MySqlException ex)
+                {
+                    if (ex.Message.Contains("Duplicate column"))
+                        results.Add("⚠️ total_questions column already exists");
+                    else
+                        results.Add($"⚠️ total_questions: {ex.Message}");
+                }
+
+                // Add score column
+                try
+                {
+                    using var addScoreCmd = new MySqlCommand(
+                        "ALTER TABLE quiz_sessions ADD COLUMN score INT DEFAULT 0 AFTER answers", conn);
+                    addScoreCmd.ExecuteNonQuery();
+                    results.Add("✅ Added score column");
+                }
+                catch (MySqlException ex)
+                {
+                    if (ex.Message.Contains("Duplicate column"))
+                        results.Add("⚠️ score column already exists");
+                    else
+                        results.Add($"⚠️ score: {ex.Message}");
+                }
+
+                // Add index on quiz_id
+                try
+                {
+                    using var addIndexCmd = new MySqlCommand(
+                        "CREATE INDEX idx_quiz_id ON quiz_sessions(quiz_id)", conn);
+                    addIndexCmd.ExecuteNonQuery();
+                    results.Add("✅ Added index on quiz_id");
+                }
+                catch (MySqlException ex)
+                {
+                    if (ex.Message.Contains("Duplicate key name") || ex.Message.Contains("already exists"))
+                        results.Add("⚠️ Index already exists");
+                    else
+                        results.Add($"⚠️ Index: {ex.Message}");
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "quiz_sessions table updated!",
+                    results
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Error updating quiz_sessions table",
+                    error = ex.Message
+                });
+            }
+        }
+
+        // GET /api/setup/add-resume-columns
+        [HttpGet("add-resume-columns")]
+        public IActionResult AddResumeColumns()
+        {
+            try
+            {
+                using MySqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
+                conn.Open();
+
+                var results = new List<string>();
+
+                // First, create the user_resumes table if it doesn't exist
+                try
+                {
+                    string createTableSql = @"
+                        CREATE TABLE IF NOT EXISTS user_resumes (
+                            id INT AUTO_INCREMENT PRIMARY KEY,
+                            user_id INT NOT NULL,
+                            full_name VARCHAR(255) NOT NULL DEFAULT '',
+                            job_title VARCHAR(255) NOT NULL DEFAULT '',
+                            email VARCHAR(255) NOT NULL DEFAULT '',
+                            phone VARCHAR(50) NOT NULL DEFAULT '',
+                            location VARCHAR(255) NOT NULL DEFAULT '',
+                            linkedin VARCHAR(500) NOT NULL DEFAULT '',
+                            professional_summary TEXT,
+                            skills JSON,
+                            experiences JSON,
+                            education JSON,
+                            certifications JSON DEFAULT NULL,
+                            projects JSON DEFAULT NULL,
+                            languages JSON DEFAULT NULL,
+                            achievements JSON DEFAULT NULL,
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                            UNIQUE KEY unique_user_resume (user_id),
+                            FOREIGN KEY (user_id) REFERENCES Users(Id) ON DELETE CASCADE,
+                            INDEX idx_user_id (user_id)
+                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+                    using var createCmd = new MySqlCommand(createTableSql, conn);
+                    createCmd.ExecuteNonQuery();
+                    results.Add("✅ user_resumes table created/verified");
+                }
+                catch (MySqlException ex)
+                {
+                    results.Add($"⚠️ Table creation: {ex.Message}");
+                }
+
+                // Add certifications column
+                try
+                {
+                    using var cmd = new MySqlCommand(
+                        "ALTER TABLE user_resumes ADD COLUMN certifications JSON DEFAULT NULL", conn);
+                    cmd.ExecuteNonQuery();
+                    results.Add("✅ Added certifications column");
+                }
+                catch (MySqlException ex)
+                {
+                    if (ex.Message.Contains("Duplicate column"))
+                        results.Add("⚠️ certifications column already exists");
+                    else
+                        results.Add($"⚠️ certifications: {ex.Message}");
+                }
+
+                // Add projects column
+                try
+                {
+                    using var cmd = new MySqlCommand(
+                        "ALTER TABLE user_resumes ADD COLUMN projects JSON DEFAULT NULL", conn);
+                    cmd.ExecuteNonQuery();
+                    results.Add("✅ Added projects column");
+                }
+                catch (MySqlException ex)
+                {
+                    if (ex.Message.Contains("Duplicate column"))
+                        results.Add("⚠️ projects column already exists");
+                    else
+                        results.Add($"⚠️ projects: {ex.Message}");
+                }
+
+                // Add languages column
+                try
+                {
+                    using var cmd = new MySqlCommand(
+                        "ALTER TABLE user_resumes ADD COLUMN languages JSON DEFAULT NULL", conn);
+                    cmd.ExecuteNonQuery();
+                    results.Add("✅ Added languages column");
+                }
+                catch (MySqlException ex)
+                {
+                    if (ex.Message.Contains("Duplicate column"))
+                        results.Add("⚠️ languages column already exists");
+                    else
+                        results.Add($"⚠️ languages: {ex.Message}");
+                }
+
+                // Add achievements column
+                try
+                {
+                    using var cmd = new MySqlCommand(
+                        "ALTER TABLE user_resumes ADD COLUMN achievements JSON DEFAULT NULL", conn);
+                    cmd.ExecuteNonQuery();
+                    results.Add("✅ Added achievements column");
+                }
+                catch (MySqlException ex)
+                {
+                    if (ex.Message.Contains("Duplicate column"))
+                        results.Add("⚠️ achievements column already exists");
+                    else
+                        results.Add($"⚠️ achievements: {ex.Message}");
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Resume table columns updated!",
+                    results
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Error updating resume table",
+                    error = ex.Message
                 });
             }
         }

@@ -52,7 +52,7 @@ namespace MyFirstApi.Controllers
                 string profileQuery = @"
                     SELECT u.FullName, p.EducationLevel, p.FieldOfStudy, p.Skills, p.career_path
                     FROM users u
-                    LEFT JOIN userprofiles p ON u.Id = p.UserId
+                    LEFT JOIN UserProfiles p ON u.Id = p.UserId
                     WHERE u.Id = @userId";
 
                 using MySqlCommand profileCmd = new(profileQuery, conn);
@@ -72,7 +72,7 @@ namespace MyFirstApi.Controllers
                 profileReader.Close();
 
                 // Get all careers
-                string careersQuery = "SELECT id, career_name, description, required_education, key_skills FROM careers";
+                string careersQuery = "SELECT id, name, description, required_education, key_skills FROM careers";
                 using MySqlCommand careersCmd = new(careersQuery, conn);
                 using var careersReader = careersCmd.ExecuteReader();
 
@@ -82,7 +82,7 @@ namespace MyFirstApi.Controllers
                     careers.Add(new
                     {
                         id = careersReader.GetInt32("id"),
-                        career_name = careersReader.GetString("career_name"),
+                        career_name = careersReader.GetString("name"),
                         description = careersReader.IsDBNull(careersReader.GetOrdinal("description")) ? "" : careersReader.GetString("description"),
                         required_education = careersReader.IsDBNull(careersReader.GetOrdinal("required_education")) ? "" : careersReader.GetString("required_education"),
                         key_skills = careersReader.IsDBNull(careersReader.GetOrdinal("key_skills")) ? "[]" : careersReader.GetString("key_skills")
@@ -230,9 +230,9 @@ namespace MyFirstApi.Controllers
                 conn.Open();
 
                 string query = @"
-                    SELECT id, career_name, description, key_skills
+                    SELECT id, name, description, key_skills
                     FROM careers
-                    ORDER BY career_name";
+                    ORDER BY name";
 
                 using MySqlCommand cmd = new(query, conn);
                 using var reader = cmd.ExecuteReader();
@@ -247,7 +247,7 @@ namespace MyFirstApi.Controllers
                     careers.Add(new
                     {
                         id = reader.GetInt32("id"),
-                        name = reader.GetString("career_name"),
+                        name = reader.GetString("name"),
                         description = reader.IsDBNull(reader.GetOrdinal("description")) 
                             ? "" 
                             : reader.GetString("description"),

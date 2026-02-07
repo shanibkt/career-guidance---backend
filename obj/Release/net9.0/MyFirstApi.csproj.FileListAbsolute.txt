@@ -1,133 +1,93 @@
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\appsettings.Development.json
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\appsettings.json
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\MyFirstApi.staticwebassets.runtime.json
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\MyFirstApi.staticwebassets.endpoints.json
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\MyFirstApi.exe
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\MyFirstApi.deps.json
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\MyFirstApi.runtimeconfig.json
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\MyFirstApi.dll
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\MyFirstApi.pdb
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\BCrypt.Net-Next.dll
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\BouncyCastle.Cryptography.dll
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\Google.Protobuf.dll
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\K4os.Compression.LZ4.dll
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\K4os.Compression.LZ4.Streams.dll
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\K4os.Hash.xxHash.dll
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\Microsoft.AspNetCore.OpenApi.dll
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\Microsoft.IdentityModel.Abstractions.dll
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\Microsoft.IdentityModel.JsonWebTokens.dll
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\Microsoft.IdentityModel.Logging.dll
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\Microsoft.IdentityModel.Protocols.dll
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\Microsoft.IdentityModel.Tokens.dll
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\Microsoft.OpenApi.dll
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\MySql.Data.dll
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\Swashbuckle.AspNetCore.Swagger.dll
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\Swashbuckle.AspNetCore.SwaggerGen.dll
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\Swashbuckle.AspNetCore.SwaggerUI.dll
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\System.Configuration.ConfigurationManager.dll
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\System.IdentityModel.Tokens.Jwt.dll
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\System.Security.Cryptography.ProtectedData.dll
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\System.Security.Permissions.dll
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\System.Windows.Extensions.dll
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\ZstdSharp.dll
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\runtimes\win-x64\native\comerr64.dll
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\runtimes\win-x64\native\gssapi64.dll
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\runtimes\win-x64\native\k5sprt64.dll
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\runtimes\win-x64\native\krb5_64.dll
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\runtimes\win-x64\native\krbcc64.dll
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\bin\Release\net9.0\runtimes\win\lib\net8.0\System.Windows.Extensions.dll
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\obj\Release\net9.0\MyFirstApi.csproj.AssemblyReference.cache
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\obj\Release\net9.0\rpswa.dswa.cache.json
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\obj\Release\net9.0\MyFirstApi.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\obj\Release\net9.0\MyFirstApi.AssemblyInfoInputs.cache
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\obj\Release\net9.0\MyFirstApi.AssemblyInfo.cs
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\obj\Release\net9.0\MyFirstApi.csproj.CoreCompileInputs.cache
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\obj\Release\net9.0\MyFirstApi.MvcApplicationPartsAssemblyInfo.cs
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\obj\Release\net9.0\MyFirstApi.MvcApplicationPartsAssemblyInfo.cache
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\obj\Release\net9.0\MyFirstApi.sourcelink.json
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\obj\Release\net9.0\rjimswa.dswa.cache.json
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\obj\Release\net9.0\rjsmrazor.dswa.cache.json
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\obj\Release\net9.0\rjsmcshtml.dswa.cache.json
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\obj\Release\net9.0\scopedcss\bundle\MyFirstApi.styles.css
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\obj\Release\net9.0\staticwebassets.build.json
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\obj\Release\net9.0\staticwebassets.build.json.cache
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\obj\Release\net9.0\staticwebassets.development.json
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\obj\Release\net9.0\staticwebassets.build.endpoints.json
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\obj\Release\net9.0\MyFirstApi.csproj.Up2Date
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\obj\Release\net9.0\MyFirstApi.dll
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\obj\Release\net9.0\refint\MyFirstApi.dll
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\obj\Release\net9.0\MyFirstApi.pdb
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\obj\Release\net9.0\MyFirstApi.genruntimeconfig.cache
-C:\Users\Dell\Desktop\dotnet\learn\MyFirstApi\obj\Release\net9.0\ref\MyFirstApi.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\appsettings.Development.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\appsettings.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\MyFirstApi.staticwebassets.runtime.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\MyFirstApi.staticwebassets.endpoints.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\MyFirstApi.exe
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\MyFirstApi.deps.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\MyFirstApi.runtimeconfig.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\MyFirstApi.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\MyFirstApi.pdb
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\BCrypt.Net-Next.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\BouncyCastle.Cryptography.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\Google.Protobuf.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\K4os.Compression.LZ4.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\K4os.Compression.LZ4.Streams.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\K4os.Hash.xxHash.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\Microsoft.AspNetCore.OpenApi.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\Microsoft.IdentityModel.Abstractions.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\Microsoft.IdentityModel.JsonWebTokens.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\Microsoft.IdentityModel.Logging.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\Microsoft.IdentityModel.Protocols.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\Microsoft.IdentityModel.Tokens.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\Microsoft.OpenApi.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\MySql.Data.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\Swashbuckle.AspNetCore.Swagger.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\Swashbuckle.AspNetCore.SwaggerGen.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\Swashbuckle.AspNetCore.SwaggerUI.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\System.Configuration.ConfigurationManager.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\System.IdentityModel.Tokens.Jwt.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\System.Security.Cryptography.ProtectedData.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\System.Security.Permissions.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\System.Windows.Extensions.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\ZstdSharp.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\runtimes\win-x64\native\comerr64.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\runtimes\win-x64\native\gssapi64.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\runtimes\win-x64\native\k5sprt64.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\runtimes\win-x64\native\krb5_64.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\runtimes\win-x64\native\krbcc64.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\runtimes\win\lib\net8.0\System.Windows.Extensions.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Release\net9.0\MyFirstApi.csproj.AssemblyReference.cache
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Release\net9.0\rpswa.dswa.cache.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Release\net9.0\MyFirstApi.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Release\net9.0\MyFirstApi.AssemblyInfoInputs.cache
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Release\net9.0\MyFirstApi.AssemblyInfo.cs
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Release\net9.0\MyFirstApi.csproj.CoreCompileInputs.cache
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Release\net9.0\MyFirstApi.MvcApplicationPartsAssemblyInfo.cs
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Release\net9.0\MyFirstApi.MvcApplicationPartsAssemblyInfo.cache
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Release\net9.0\MyFirstApi.sourcelink.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Release\net9.0\rjimswa.dswa.cache.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Release\net9.0\rjsmrazor.dswa.cache.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Release\net9.0\rjsmcshtml.dswa.cache.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Release\net9.0\scopedcss\bundle\MyFirstApi.styles.css
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Release\net9.0\compressed\kgf2qu4yx0-lkupwntnmw.gz
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Release\net9.0\staticwebassets.build.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Release\net9.0\staticwebassets.build.json.cache
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Release\net9.0\staticwebassets.development.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Release\net9.0\staticwebassets.build.endpoints.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Release\net9.0\MyFirstApi.csproj.Up2Date
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Release\net9.0\MyFirstApi.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Release\net9.0\refint\MyFirstApi.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Release\net9.0\MyFirstApi.pdb
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Release\net9.0\MyFirstApi.genruntimeconfig.cache
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\obj\Release\net9.0\ref\MyFirstApi.dll
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\publish\web.config
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\publish\appsettings.Development.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\publish\appsettings.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\publish\MyFirstApi.deps.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\publish\MyFirstApi.runtimeconfig.json
-C:\Users\Dell\Desktop\Career guidence\career-guidance---backend\bin\Release\net9.0\publish\MyFirstApi.staticwebassets.endpoints.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\publish\publish\web.config
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\publish\web.config
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\appsettings.Development.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\appsettings.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\publish\appsettings.Development.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\publish\appsettings.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\publish\MyFirstApi.deps.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\publish\MyFirstApi.runtimeconfig.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\publish\MyFirstApi.staticwebassets.endpoints.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\publish\publish\appsettings.Development.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\publish\publish\appsettings.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\publish\publish\MyFirstApi.deps.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\publish\publish\MyFirstApi.runtimeconfig.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\publish\publish\MyFirstApi.staticwebassets.endpoints.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\MyFirstApi.staticwebassets.runtime.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\MyFirstApi.staticwebassets.endpoints.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\MyFirstApi.exe
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\MyFirstApi.deps.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\MyFirstApi.runtimeconfig.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\MyFirstApi.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\MyFirstApi.pdb
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\AngleSharp.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\BCrypt.Net-Next.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\BouncyCastle.Cryptography.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\Google.Protobuf.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\K4os.Compression.LZ4.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\K4os.Compression.LZ4.Streams.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\K4os.Hash.xxHash.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\Microsoft.AspNetCore.OpenApi.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\Microsoft.IdentityModel.Abstractions.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\Microsoft.IdentityModel.Logging.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\Microsoft.IdentityModel.Protocols.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\Microsoft.IdentityModel.Tokens.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\Microsoft.OpenApi.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\MySql.Data.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\Swashbuckle.AspNetCore.Swagger.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\System.Configuration.ConfigurationManager.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\System.Security.Cryptography.ProtectedData.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\System.Security.Permissions.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\System.Windows.Extensions.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\YoutubeExplode.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\ZstdSharp.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\runtimes\win-x64\native\comerr64.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\runtimes\win-x64\native\gssapi64.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\runtimes\win-x64\native\k5sprt64.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\runtimes\win-x64\native\krb5_64.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\runtimes\win-x64\native\krbcc64.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\runtimes\win\lib\net8.0\System.Windows.Extensions.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\obj\Release\net9.0\MyFirstApi.csproj.AssemblyReference.cache
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\obj\Release\net9.0\rpswa.dswa.cache.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\obj\Release\net9.0\MyFirstApi.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\obj\Release\net9.0\MyFirstApi.AssemblyInfoInputs.cache
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\obj\Release\net9.0\MyFirstApi.AssemblyInfo.cs
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\obj\Release\net9.0\MyFirstApi.csproj.CoreCompileInputs.cache
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\obj\Release\net9.0\MyFirstApi.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\obj\Release\net9.0\MyFirstApi.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\obj\Release\net9.0\MyFirstApi.sourcelink.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\obj\Release\net9.0\rjimswa.dswa.cache.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\obj\Release\net9.0\rjsmrazor.dswa.cache.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\obj\Release\net9.0\rjsmcshtml.dswa.cache.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\obj\Release\net9.0\scopedcss\bundle\MyFirstApi.styles.css
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\obj\Release\net9.0\compressed\bk95ww2poo-{0}-0sx3rquyvy-0sx3rquyvy.gz
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\obj\Release\net9.0\compressed\q7191kpm97-{0}-uuvjp3mp08-uuvjp3mp08.gz
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\obj\Release\net9.0\compressed\nxy2d0hwmr-{0}-kmgcxdv47v-kmgcxdv47v.gz
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\obj\Release\net9.0\staticwebassets.build.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\obj\Release\net9.0\staticwebassets.build.json.cache
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\obj\Release\net9.0\staticwebassets.development.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\obj\Release\net9.0\staticwebassets.build.endpoints.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\obj\Release\net9.0\swae.build.ex.cache
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\obj\Release\net9.0\MyFirstApi.csproj.Up2Date
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\obj\Release\net9.0\MyFirstApi.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\obj\Release\net9.0\refint\MyFirstApi.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\obj\Release\net9.0\MyFirstApi.pdb
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\obj\Release\net9.0\MyFirstApi.genruntimeconfig.cache
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\obj\Release\net9.0\ref\MyFirstApi.dll
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\publish\publish\publish\web.config
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\publish\publish\publish\appsettings.Development.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\publish\publish\publish\appsettings.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\publish\publish\publish\MyFirstApi.deps.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\publish\publish\publish\MyFirstApi.runtimeconfig.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\publish\publish\publish\MyFirstApi.staticwebassets.endpoints.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\publish\publish\publish\publish\web.config
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\publish\publish\publish\publish\appsettings.Development.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\publish\publish\publish\publish\appsettings.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\publish\publish\publish\publish\MyFirstApi.deps.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\publish\publish\publish\publish\MyFirstApi.runtimeconfig.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Release\net9.0\publish\publish\publish\publish\MyFirstApi.staticwebassets.endpoints.json

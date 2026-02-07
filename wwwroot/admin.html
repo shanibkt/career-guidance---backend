@@ -4,7 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Career Guidance - Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg-primary: #0f0f1a;
+            --bg-secondary: #1a1a2e;
+            --bg-tertiary: #242438;
+            --bg-card: #1e1e32;
+            --bg-hover: #2a2a42;
+            --accent-primary: #6366f1;
+            --accent-secondary: #8b5cf6;
+            --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+            --accent-glow: rgba(99, 102, 241, 0.3);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: #2d2d44;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -13,117 +34,191 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f8f9fa;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             min-height: 100vh;
+            line-height: 1.6;
         }
 
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-primary);
+        }
+
+        /* Login Screen */
         .login-container {
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             padding: 20px;
+            background: var(--bg-primary);
+            background-image: 
+                radial-gradient(ellipse at top left, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at bottom right, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
         }
 
         .login-box {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            background: var(--bg-card);
+            border-radius: 24px;
+            padding: 48px;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5),
+                        0 0 40px rgba(99, 102, 241, 0.1);
             width: 100%;
-            max-width: 400px;
+            max-width: 420px;
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--accent-gradient);
         }
 
         .login-box h1 {
-            color: #667eea;
-            margin-bottom: 10px;
+            font-size: 32px;
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
             text-align: center;
         }
 
         .login-box p {
-            color: #666;
-            margin-bottom: 30px;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
             text-align: center;
+            font-size: 15px;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .form-group label {
             display: block;
-            color: #333;
-            margin-bottom: 8px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
             font-weight: 500;
+            font-size: 14px;
         }
 
         .form-group input {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: border-color 0.3s;
+            padding: 14px 18px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 15px;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        .form-group input::placeholder {
+            color: var(--text-muted);
         }
 
         .form-group input:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 4px var(--accent-glow);
         }
 
         .btn-login {
             width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 16px;
+            background: var(--accent-gradient);
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-login::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
         }
 
         .btn-login:hover {
             transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
         }
 
-        .btn-login:active {
-            transform: translateY(0);
+        .btn-login:hover::before {
+            left: 100%;
         }
 
         .error-message {
-            background: #fee;
-            color: #c33;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+            padding: 14px;
+            border-radius: 12px;
+            margin-bottom: 24px;
             display: none;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            font-size: 14px;
         }
 
         /* Dashboard Styles */
         .dashboard {
             display: none;
-            background: #f5f5f5;
+            background: var(--bg-primary);
             min-height: 100vh;
         }
 
         .navbar {
-            background: white;
+            background: var(--bg-secondary);
             padding: 16px 32px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: sticky;
             top: 0;
             z-index: 100;
+            backdrop-filter: blur(12px);
         }
 
         .navbar h2 {
-            color: #1a1a1a;
             font-size: 24px;
             font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .navbar .user-info {
@@ -136,81 +231,79 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 8px 16px;
-            background: #f8f9fa;
+            padding: 10px 18px;
+            background: var(--bg-tertiary);
             border-radius: 50px;
+            border: 1px solid var(--border-color);
             cursor: pointer;
             transition: all 0.2s;
         }
 
         .user-profile:hover {
-            background: #e9ecef;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 20px var(--accent-glow);
         }
 
         .user-avatar {
-            width: 36px;
-            height: 36px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--accent-gradient);
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 600;
-            font-size: 14px;
+            font-weight: 700;
+            font-size: 15px;
         }
 
         .user-name {
             font-weight: 500;
-            color: #1a1a1a;
+            color: var(--text-primary);
             font-size: 14px;
         }
 
         .btn-logout {
-            padding: 8px 20px;
-            background: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 8px;
+            padding: 10px 22px;
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 10px;
             cursor: pointer;
-            font-weight: 500;
+            font-weight: 600;
             transition: all 0.2s;
             font-size: 14px;
         }
 
         .btn-logout:hover {
-            background: #c82333;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+            background: var(--danger);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1500px;
             margin: 0 auto;
-            padding: 30px 20px;
+            padding: 32px 24px;
         }
 
+        /* Stats Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
         }
 
         .stat-card {
-            background: white;
-            padding: 24px;
-            border-radius: 16px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-            border: 1px solid #e9ecef;
-            transition: all 0.3s;
+            background: var(--bg-card);
+            padding: 28px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
         }
 
         .stat-card::before {
@@ -218,242 +311,309 @@
             position: absolute;
             top: 0;
             left: 0;
-            width: 4px;
-            height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 100%;
+            height: 3px;
+            background: var(--accent-gradient);
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--accent-primary);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3),
+                        0 0 30px var(--accent-glow);
+        }
+
+        .stat-card:hover::after {
+            opacity: 1;
         }
 
         .stat-card h3 {
-            color: #6c757d;
+            color: var(--text-secondary);
             font-size: 13px;
-            font-weight: 500;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 12px;
+            letter-spacing: 1px;
+            margin-bottom: 14px;
         }
 
         .stat-card .number {
-            font-size: 36px;
-            font-weight: 700;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-size: 42px;
+            font-weight: 800;
+            background: var(--accent-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
+        /* Tabs */
         .tabs {
             display: flex;
             gap: 8px;
-            margin-bottom: 24px;
-            background: white;
-            padding: 8px;
+            margin-bottom: 28px;
+            background: var(--bg-card);
+            padding: 10px;
             border-radius: 16px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-            border: 1px solid #e9ecef;
+            border: 1px solid var(--border-color);
             overflow-x: auto;
         }
 
         .tab {
-            padding: 12px 20px;
+            padding: 14px 24px;
             background: transparent;
             border: none;
             border-radius: 12px;
             cursor: pointer;
             font-weight: 500;
-            color: #6c757d;
-            transition: all 0.2s;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
             font-size: 14px;
             white-space: nowrap;
         }
 
         .tab:hover {
-            background: #f8f9fa;
-            color: #495057;
+            background: var(--bg-hover);
+            color: var(--text-primary);
         }
 
         .tab.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--accent-gradient);
             color: white;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
         }
 
         .tab-content {
             display: none;
+            animation: fadeIn 0.3s ease;
         }
 
         .tab-content.active {
             display: block;
         }
 
+        /* Cards */
         .card {
-            background: white;
-            border-radius: 16px;
-            padding: 28px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-            border: 1px solid #e9ecef;
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 32px;
+            border: 1px solid var(--border-color);
         }
 
+        /* Search Bar */
         .search-bar {
             display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
+            gap: 14px;
+            margin-bottom: 28px;
             flex-wrap: wrap;
         }
 
         .search-bar input {
             flex: 1;
-            min-width: 200px;
-            padding: 12px 16px;
-            border: 2px solid #e9ecef;
+            min-width: 240px;
+            padding: 14px 20px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
             border-radius: 12px;
             font-size: 14px;
+            color: var(--text-primary);
             transition: all 0.2s;
+        }
+
+        .search-bar input::placeholder {
+            color: var(--text-muted);
         }
 
         .search-bar input:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 4px var(--accent-glow);
         }
 
         .search-bar button {
-            padding: 12px 24px;
-            background: #667eea;
+            padding: 14px 28px;
+            background: var(--accent-gradient);
             color: white;
             border: none;
             border-radius: 12px;
             cursor: pointer;
-            font-weight: 500;
+            font-weight: 600;
             font-size: 14px;
             transition: all 0.2s;
         }
 
         .search-bar button:hover {
-            background: #5568d3;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
         }
 
+        /* Table */
         table {
             width: 100%;
             border-collapse: collapse;
         }
 
         table th {
-            background: #f8f9fa;
-            padding: 14px 16px;
+            background: var(--bg-tertiary);
+            padding: 16px 18px;
             text-align: left;
             font-weight: 600;
-            color: #495057;
-            font-size: 13px;
+            color: var(--text-secondary);
+            font-size: 12px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-bottom: 2px solid #e9ecef;
+            letter-spacing: 1px;
+            border-bottom: 2px solid var(--border-color);
         }
 
         table td {
-            padding: 14px 16px;
-            border-bottom: 1px solid #f1f3f5;
-            color: #212529;
+            padding: 18px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-primary);
             font-size: 14px;
         }
 
+        table tr {
+            transition: all 0.2s;
+        }
+
         table tr:hover {
-            background: #f8f9fa;
-            transition: background 0.2s;
+            background: var(--bg-hover);
         }
 
         table tr:last-child td {
             border-bottom: none;
         }
 
+        /* Badges */
         .badge {
             display: inline-block;
-            padding: 4px 12px;
-            border-radius: 12px;
+            padding: 6px 14px;
+            border-radius: 20px;
             font-size: 12px;
-            font-weight: 500;
+            font-weight: 600;
         }
 
         .badge-success {
-            background: #e8f5e9;
-            color: #2e7d32;
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
         }
 
         .badge-warning {
-            background: #fff3e0;
-            color: #ef6c00;
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.3);
         }
 
         .badge-danger {
-            background: #ffebee;
-            color: #c62828;
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
         }
 
+        /* Buttons */
         .btn-view {
-            padding: 8px 16px;
-            background: #667eea;
+            padding: 10px 20px;
+            background: var(--accent-gradient);
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
             font-size: 13px;
-            font-weight: 500;
+            font-weight: 600;
             transition: all 0.2s;
         }
 
         .btn-view:hover {
-            background: #5568d3;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
         }
 
         .btn-delete {
-            padding: 8px 16px;
-            background: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 8px;
+            padding: 10px 20px;
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 10px;
             cursor: pointer;
             font-size: 13px;
-            font-weight: 500;
-            margin-left: 8px;
+            font-weight: 600;
+            margin-left: 10px;
             transition: all 0.2s;
         }
 
         .btn-delete:hover {
-            background: #c82333;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+            background: var(--danger);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
         }
 
+        /* Loading */
         .loading {
             text-align: center;
-            padding: 40px;
-            color: #666;
+            padding: 60px;
+            color: var(--text-secondary);
         }
 
+        .loading::after {
+            content: '';
+            display: block;
+            width: 40px;
+            height: 40px;
+            margin: 20px auto 0;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Pagination */
         .pagination {
             display: flex;
             justify-content: center;
             gap: 10px;
-            margin-top: 20px;
+            margin-top: 28px;
         }
 
         .pagination button {
-            padding: 8px 16px;
-            background: white;
-            border: 2px solid #e0e0e0;
-            border-radius: 6px;
+            padding: 10px 18px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
             cursor: pointer;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .pagination button:hover {
+            border-color: var(--accent-primary);
+            color: var(--text-primary);
         }
 
         .pagination button.active {
-            background: #667eea;
+            background: var(--accent-gradient);
             color: white;
-            border-color: #667eea;
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
         }
 
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -461,8 +621,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(4px);
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
             z-index: 1000;
             justify-content: center;
             align-items: center;
@@ -479,20 +639,22 @@
         }
 
         .modal-content {
-            background: white;
-            border-radius: 20px;
-            padding: 32px;
-            max-width: 800px;
+            background: var(--bg-card);
+            border-radius: 24px;
+            padding: 36px;
+            max-width: 900px;
             max-height: 90vh;
             overflow-y: auto;
-            width: 90%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            animation: slideUp 0.3s;
+            width: 94%;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6),
+                        0 0 60px var(--accent-glow);
+            animation: slideUp 0.3s ease;
         }
 
         @keyframes slideUp {
             from {
-                transform: translateY(20px);
+                transform: translateY(30px);
                 opacity: 0;
             }
             to {
@@ -501,49 +663,34 @@
             }
         }
 
-        .modal-content::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .modal-content::-webkit-scrollbar-track {
-            background: #f1f3f5;
-            border-radius: 10px;
-        }
-
-        .modal-content::-webkit-scrollbar-thumb {
-            background: #ced4da;
-            border-radius: 10px;
-        }
-
-        .modal-content::-webkit-scrollbar-thumb:hover {
-            background: #adb5bd;
-        }
-
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 24px;
-            padding-bottom: 16px;
-            border-bottom: 2px solid #f1f3f5;
+            margin-bottom: 28px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .modal-header h2 {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 700;
-            color: #1a1a1a;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             margin: 0;
         }
 
         .modal-close {
-            background: #f8f9fa;
-            border: none;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            font-size: 20px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            font-size: 22px;
             cursor: pointer;
-            color: #495057;
+            color: var(--text-secondary);
             transition: all 0.2s;
             display: flex;
             align-items: center;
@@ -551,9 +698,96 @@
         }
 
         .modal-close:hover {
-            background: #e9ecef;
-            color: #212529;
+            background: var(--danger);
+            border-color: var(--danger);
+            color: white;
             transform: rotate(90deg);
+        }
+
+        /* Additional utility styles for modal content */
+        .modal-content h3 {
+            color: var(--accent-primary);
+        }
+
+        .modal-content h4 {
+            color: var(--text-primary) !important;
+        }
+
+        .modal-content p {
+            color: var(--text-secondary);
+        }
+
+        .modal-content a {
+            color: var(--accent-primary);
+        }
+
+        .modal-content a:hover {
+            color: var(--accent-secondary);
+        }
+
+        .modal-content ul {
+            color: var(--text-secondary);
+        }
+
+        /* Form styles for video modal */
+        #videoForm .form-group input,
+        #videoForm .form-group textarea,
+        #videoForm .form-group select {
+            width: 100%;
+            padding: 14px 18px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 15px;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        #videoForm .form-group input:focus,
+        #videoForm .form-group textarea:focus,
+        #videoForm .form-group select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 4px var(--accent-glow);
+        }
+
+        #videoForm .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 14px 18px;
+                flex-direction: column;
+                gap: 14px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs {
+                padding: 8px;
+            }
+
+            .tab {
+                padding: 12px 16px;
+                font-size: 13px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .search-bar {
+                flex-direction: column;
+            }
+
+            .search-bar input {
+                min-width: 100%;
+            }
         }
     </style>
 </head>
@@ -580,7 +814,7 @@
                 <button type="submit" class="btn-login">Sign In</button>
             </form>
             
-            <p style="margin-top: 20px; font-size: 12px; color: #999;">
+            <p style="margin-top: 20px; font-size: 12px; color: #64748b;">
                 Default: admin@careerguidance.com / Admin@123
             </p>
         </div>
@@ -635,6 +869,7 @@
                 <button class="tab" onclick="switchTab('categories')">📁 Categories</button>
                 <button class="tab" onclick="switchTab('activities')">📈 Activities</button>
                 <button class="tab" onclick="switchTab('careers')">💼 Careers</button>
+                <button class="tab" onclick="switchTab('resumes')">📄 Resumes</button>
                 <button class="tab" onclick="switchTab('export')">📥 Export</button>
             </div>
 
@@ -706,6 +941,23 @@
                 </div>
             </div>
 
+            <!-- Resumes Tab -->
+            <div class="tab-content" id="resumesTab">
+                <div class="card">
+                    <div class="search-bar">
+                        <input type="text" id="resumeSearchInput" placeholder="Search resumes by name or email...">
+                        <button onclick="searchResumes()">🔍 Search</button>
+                        <button onclick="loadResumes()">🔄 Refresh</button>
+                    </div>
+
+                    <div id="resumesTableContainer">
+                        <div class="loading">Loading resumes...</div>
+                    </div>
+
+                    <div class="pagination" id="resumePagination"></div>
+                </div>
+            </div>
+
             <!-- Export Tab -->
             <div class="tab-content" id="exportTab">
                 <div class="card">
@@ -766,7 +1018,7 @@
                 <div class="form-group">
                     <label>Transcript <a href="https://www.downloadyoutubesubtitles.com/" target="_blank" style="font-size: 12px;">(Download subtitles)</a></label>
                     <textarea id="videoTranscript" rows="10" placeholder="Paste full subtitle/transcript content here..." style="font-family: monospace; font-size: 12px;"></textarea>
-                    <small id="transcriptLength" style="color: #666;">0 characters</small>
+                    <small id="transcriptLength" style="color: #94a3b8;">0 characters</small>
                 </div>
                 <div style="display: flex; gap: 10px; margin-top: 20px;">
                     <button type="submit" class="btn-login">💾 Save Video</button>
@@ -833,7 +1085,7 @@
                 <div class="form-group">
                     <label>Key Skills (comma-separated)</label>
                     <input type="text" id="careerSkills" placeholder="e.g., Programming, Problem Solving, Teamwork">
-                    <small style="color: #999; font-size: 12px;">Enter skills separated by commas</small>
+                    <small style="color: #64748b; font-size: 12px;">Enter skills separated by commas</small>
                 </div>
                 <div style="display: flex; gap: 10px; margin-top: 20px;">
                     <button type="submit" class="btn-login">💾 Save Career</button>
@@ -1195,7 +1447,7 @@
 
                 let html = `
                     <div style="display: grid; gap: 24px;">
-                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 24px; border-radius: 16px; color: white;">
+                        <div style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 24px; border-radius: 16px; color: white;">
                             <h3 style="color: white; margin-bottom: 16px; font-size: 18px;">👤 Basic Information</h3>
                             <div style="display: grid; gap: 12px;">
                                 <div><strong>Username:</strong> ${user.username}</div>
@@ -1207,65 +1459,65 @@
                         </div>
 
                         ${user.profile ? `
-                            <div style="background: #f8f9fa; padding: 24px; border-radius: 16px; border-left: 4px solid #667eea;">
-                                <h3 style="margin-bottom: 16px; color: #1a1a1a; font-size: 18px;">📋 Profile Information</h3>
+                            <div style="background: #242438; padding: 24px; border-radius: 16px; border-left: 4px solid #6366f1;">
+                                <h3 style="margin-bottom: 16px; color: #f1f5f9; font-size: 18px;">📋 Profile Information</h3>
                                 ${user.profile.profileImagePath ? `
                                     <div style="margin-bottom: 20px; text-align: center;">
                                         <img src="http://localhost:5001${user.profile.profileImagePath}" 
                                              alt="Profile" 
-                                             style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #667eea; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" 
+                                             style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #6366f1; box-shadow: 0 4px 12px rgba(0,0,0,0.3);" 
                                              onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                        <div style="display: none; width: 120px; height: 120px; border-radius: 50%; background: #e9ecef; align-items: center; justify-content: center; margin: 0 auto; color: #6c757d;">No Image</div>
+                                        <div style="display: none; width: 120px; height: 120px; border-radius: 50%; background: #1a1a2e; align-items: center; justify-content: center; margin: 0 auto; color: #64748b;">No Image</div>
                                     </div>
                                 ` : ''}
-                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
-                                    ${user.profile.phoneNumber ? `<div><strong>📞 Phone:</strong> ${user.profile.phoneNumber}</div>` : ''}
-                                    ${user.profile.age ? `<div><strong>🎂 Age:</strong> ${user.profile.age}</div>` : ''}
-                                    ${user.profile.gender ? `<div><strong>⚧ Gender:</strong> ${user.profile.gender}</div>` : ''}
-                                    ${user.profile.educationLevel ? `<div><strong>🎓 Education:</strong> ${user.profile.educationLevel}</div>` : ''}
-                                    ${user.profile.fieldOfStudy ? `<div><strong>📚 Field:</strong> ${user.profile.fieldOfStudy}</div>` : ''}
-                                    ${user.profile.skills ? `<div style="grid-column: 1 / -1;"><strong>💡 Skills:</strong> ${user.profile.skills}</div>` : ''}
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; color: #94a3b8;">
+                                    ${user.profile.phoneNumber ? `<div><strong style="color: #f1f5f9;">📞 Phone:</strong> ${user.profile.phoneNumber}</div>` : ''}
+                                    ${user.profile.age ? `<div><strong style="color: #f1f5f9;">🎂 Age:</strong> ${user.profile.age}</div>` : ''}
+                                    ${user.profile.gender ? `<div><strong style="color: #f1f5f9;">⚧ Gender:</strong> ${user.profile.gender}</div>` : ''}
+                                    ${user.profile.educationLevel ? `<div><strong style="color: #f1f5f9;">🎓 Education:</strong> ${user.profile.educationLevel}</div>` : ''}
+                                    ${user.profile.fieldOfStudy ? `<div><strong style="color: #f1f5f9;">📚 Field:</strong> ${user.profile.fieldOfStudy}</div>` : ''}
+                                    ${user.profile.skills ? `<div style="grid-column: 1 / -1;"><strong style="color: #f1f5f9;">💡 Skills:</strong> ${user.profile.skills}</div>` : ''}
                                 </div>
                             </div>
-                        ` : '<div style="background: #f8f9fa; padding: 24px; border-radius: 16px; text-align: center; color: #6c757d;"><p>No profile information available</p></div>'}
+                        ` : '<div style="background: #242438; padding: 24px; border-radius: 16px; text-align: center; color: #64748b;"><p>No profile information available</p></div>'}
 
                         ${user.career ? `
-                            <div style="background: #e8f5e9; padding: 24px; border-radius: 16px; border-left: 4px solid #4caf50;">
-                                <h3 style="margin-bottom: 16px; color: #2e7d32; font-size: 18px;">💼 Career Progress</h3>
-                                <div style="display: grid; gap: 12px;">
-                                    <div><strong>Selected Career:</strong> ${user.career.careerName}</div>
+                            <div style="background: rgba(16, 185, 129, 0.1); padding: 24px; border-radius: 16px; border-left: 4px solid #10b981;">
+                                <h3 style="margin-bottom: 16px; color: #10b981; font-size: 18px;">💼 Career Progress</h3>
+                                <div style="display: grid; gap: 12px; color: #94a3b8;">
+                                    <div><strong style="color: #f1f5f9;">Selected Career:</strong> ${user.career.careerName}</div>
                                     <div>
-                                        <strong>Overall Progress:</strong> 
-                                        <div style="background: #fff; border-radius: 8px; height: 24px; overflow: hidden; margin-top: 8px; position: relative;">
-                                            <div style="width: ${user.career.overallProgress}%; height: 100%; background: linear-gradient(90deg, #4caf50, #8bc34a); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 12px;">
+                                        <strong style="color: #f1f5f9;">Overall Progress:</strong> 
+                                        <div style="background: #1a1a2e; border-radius: 8px; height: 24px; overflow: hidden; margin-top: 8px; position: relative;">
+                                            <div style="width: ${user.career.overallProgress}%; height: 100%; background: linear-gradient(90deg, #10b981, #34d399); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 12px;">
                                                 ${user.career.overallProgress.toFixed(1)}%
                                             </div>
                                         </div>
                                     </div>
-                                    <div><strong>Courses:</strong> ${user.career.completedCourses}/${user.career.totalCourses} completed</div>
+                                    <div><strong style="color: #f1f5f9;">Courses:</strong> ${user.career.completedCourses}/${user.career.totalCourses} completed</div>
                                 </div>
                             </div>
                         ` : ''}
 
                         ${user.videoProgress && user.videoProgress.length > 0 ? `
-                            <div style="background: #fff3e0; padding: 24px; border-radius: 16px; border-left: 4px solid #ff9800;">
-                                <h3 style="margin-bottom: 16px; color: #e65100; font-size: 18px;">🎥 Video Progress (Last 10)</h3>
+                            <div style="background: rgba(245, 158, 11, 0.1); padding: 24px; border-radius: 16px; border-left: 4px solid #f59e0b;">
+                                <h3 style="margin-bottom: 16px; color: #f59e0b; font-size: 18px;">🎥 Video Progress (Last 10)</h3>
                                 <div style="overflow-x: auto;">
                                     <table style="width: 100%; border-collapse: separate; border-spacing: 0 8px;">
                                         <thead>
-                                            <tr style="background: rgba(255,152,0,0.1);">
-                                                <th style="padding: 12px; text-align: left; font-size: 13px;">Video</th>
-                                                <th style="padding: 12px; text-align: left; font-size: 13px;">Skill</th>
-                                                <th style="padding: 12px; text-align: left; font-size: 13px;">Progress</th>
+                                            <tr style="background: rgba(245,158,11,0.15);">
+                                                <th style="padding: 12px; text-align: left; font-size: 13px; color: #f1f5f9;">Video</th>
+                                                <th style="padding: 12px; text-align: left; font-size: 13px; color: #f1f5f9;">Skill</th>
+                                                <th style="padding: 12px; text-align: left; font-size: 13px; color: #f1f5f9;">Progress</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             ${user.videoProgress.slice(0, 10).map(video => `
-                                                <tr style="background: white;">
-                                                    <td style="padding: 12px; font-size: 13px;">${video.videoTitle}</td>
-                                                    <td style="padding: 12px; font-size: 13px;">${video.skillName}</td>
+                                                <tr style="background: #1a1a2e;">
+                                                    <td style="padding: 12px; font-size: 13px; color: #94a3b8;">${video.videoTitle}</td>
+                                                    <td style="padding: 12px; font-size: 13px; color: #94a3b8;">${video.skillName}</td>
                                                     <td style="padding: 12px; font-size: 13px;">
-                                                        <span style="background: #4caf50; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                                                        <span style="background: #10b981; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">
                                                             ${video.watchPercentage.toFixed(1)}%
                                                         </span>
                                                     </td>
@@ -1278,10 +1530,10 @@
                         ` : ''}
 
                         ${user.resume ? `
-                            <div style="background: #e3f2fd; padding: 24px; border-radius: 16px; border-left: 4px solid #2196f3;">
-                                <h3 style="margin-bottom: 16px; color: #1565c0; font-size: 18px;">📄 Resume</h3>
-                                <div><strong>Job Title:</strong> ${user.resume.jobTitle}</div>
-                                <div style="margin-top: 8px;"><strong>Last Updated:</strong> ${new Date(user.resume.updatedAt).toLocaleDateString()}</div>
+                            <div style="background: rgba(59, 130, 246, 0.1); padding: 24px; border-radius: 16px; border-left: 4px solid #3b82f6;">
+                                <h3 style="margin-bottom: 16px; color: #3b82f6; font-size: 18px;">📄 Resume</h3>
+                                <div style="color: #94a3b8;"><strong style="color: #f1f5f9;">Job Title:</strong> ${user.resume.jobTitle}</div>
+                                <div style="margin-top: 8px; color: #94a3b8;"><strong style="color: #f1f5f9;">Last Updated:</strong> ${new Date(user.resume.updatedAt).toLocaleDateString()}</div>
                             </div>
                         ` : ''}
                     </div>
@@ -1602,25 +1854,25 @@
                     container.innerHTML = `
                         <div style="text-align: center; padding: 60px 20px;">
                             <div style="font-size: 64px; margin-bottom: 16px;">📋</div>
-                            <h3 style="color: #666; margin-bottom: 12px;">No careers found</h3>
-                            <p style="color: #999; margin-bottom: 24px;">The careers table needs to be populated</p>
+                            <h3 style="color: #94a3b8; margin-bottom: 12px;">No careers found</h3>
+                            <p style="color: #64748b; margin-bottom: 24px;">The careers table needs to be populated</p>
                             <button onclick="window.open('${API_URL.replace('/api', '')}/api/setup/populate-careers', '_blank')" 
-                                    style="padding: 12px 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;">
+                                    style="padding: 12px 24px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;">
                                 📦 Setup Careers Data
                             </button>
-                            <p style="color: #999; margin-top: 12px; font-size: 12px;">After clicking, refresh this page</p>
+                            <p style="color: #64748b; margin-top: 12px; font-size: 12px;">After clicking, refresh this page</p>
                         </div>
                     `;
                     return;
                 }
 
                 let html = `
-                    <div style="margin-bottom: 24px; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px; color: white; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="margin-bottom: 24px; padding: 20px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 16px; color: white; display: flex; justify-content: space-between; align-items: center;">
                         <div>
                             <h3 style="margin: 0; font-size: 20px;">💼 Career Suggestions</h3>
                             <p style="margin: 8px 0 0 0; opacity: 0.9;">Manage career paths and their learning videos</p>
                         </div>
-                        <button onclick="showCareerForm()" style="padding: 10px 20px; background: white; color: #667eea; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                        <button onclick="showCareerForm()" style="padding: 10px 20px; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; backdrop-filter: blur(4px);">
                             ➕ Add New Career
                         </button>
                     </div>
@@ -1629,16 +1881,16 @@
 
                 careers.forEach((career, index) => {
                     const colors = [
-                        { bg: '#e3f2fd', border: '#2196f3', text: '#1565c0', icon: '💻' },
-                        { bg: '#f3e5f5', border: '#9c27b0', text: '#6a1b9a', icon: '📊' },
-                        { bg: '#e8f5e9', border: '#4caf50', text: '#2e7d32', icon: '🎨' },
-                        { bg: '#fff3e0', border: '#ff9800', text: '#e65100', icon: '🚀' },
-                        { bg: '#fce4ec', border: '#e91e63', text: '#c2185b', icon: '🔧' },
-                        { bg: '#e0f2f1', border: '#009688', text: '#00695c', icon: '🔐' },
-                        { bg: '#fce4ec', border: '#e91e63', text: '#ad1457', icon: '📈' },
-                        { bg: '#fff9c4', border: '#fbc02d', text: '#f57f17', icon: '💰' },
-                        { bg: '#e8eaf6', border: '#3f51b5', text: '#283593', icon: '⚙️' },
-                        { bg: '#e1f5fe', border: '#03a9f4', text: '#01579b', icon: '📚' }
+                        { bg: 'rgba(59, 130, 246, 0.1)', border: '#3b82f6', text: '#3b82f6', icon: '💻' },
+                        { bg: 'rgba(139, 92, 246, 0.1)', border: '#8b5cf6', text: '#8b5cf6', icon: '📊' },
+                        { bg: 'rgba(16, 185, 129, 0.1)', border: '#10b981', text: '#10b981', icon: '🎨' },
+                        { bg: 'rgba(245, 158, 11, 0.1)', border: '#f59e0b', text: '#f59e0b', icon: '🚀' },
+                        { bg: 'rgba(236, 72, 153, 0.1)', border: '#ec4899', text: '#ec4899', icon: '🔧' },
+                        { bg: 'rgba(20, 184, 166, 0.1)', border: '#14b8a6', text: '#14b8a6', icon: '🔐' },
+                        { bg: 'rgba(236, 72, 153, 0.1)', border: '#ec4899', text: '#ec4899', icon: '📈' },
+                        { bg: 'rgba(234, 179, 8, 0.1)', border: '#eab308', text: '#eab308', icon: '💰' },
+                        { bg: 'rgba(99, 102, 241, 0.1)', border: '#6366f1', text: '#6366f1', icon: '⚙️' },
+                        { bg: 'rgba(6, 182, 212, 0.1)', border: '#06b6d4', text: '#06b6d4', icon: '📚' }
                     ];
                     const color = colors[index % colors.length];
                     
@@ -1889,7 +2141,7 @@
                 
                 if (!videos || videos.length === 0) {
                     document.getElementById('careerVideosContent').innerHTML = `
-                        <div style="text-align: center; padding: 60px 20px; color: #999;">
+                        <div style="text-align: center; padding: 60px 20px; color: #64748b;">
                             <div style="font-size: 64px; margin-bottom: 16px;">📹</div>
                             <h3>No videos found</h3>
                             <p>No learning videos match the skills for this career</p>
@@ -1901,30 +2153,30 @@
                 let html = '<div style="display: grid; gap: 16px;">';
                 videos.forEach(video => {
                     html += `
-                        <div style="display: flex; gap: 16px; padding: 16px; background: #f8f9fa; border-radius: 12px; border-left: 4px solid #667eea;">
+                        <div style="display: flex; gap: 16px; padding: 16px; background: #242438; border-radius: 12px; border-left: 4px solid #6366f1;">
                             <img src="${video.thumbnailUrl}" alt="${video.videoTitle}" 
                                  style="width: 160px; height: 90px; object-fit: cover; border-radius: 8px;">
                             <div style="flex: 1;">
                                 <div style="display: flex; align-items: start; justify-content: space-between; gap: 12px;">
                                     <div style="flex: 1;">
-                                        <h4 style="margin: 0 0 8px 0; color: #333;">${video.videoTitle}</h4>
-                                        <p style="margin: 0 0 8px 0; color: #666; font-size: 14px;">${video.videoDescription || 'No description'}</p>
-                                        <div style="display: flex; gap: 16px; font-size: 13px; color: #999;">
+                                        <h4 style="margin: 0 0 8px 0; color: #f1f5f9;">${video.videoTitle}</h4>
+                                        <p style="margin: 0 0 8px 0; color: #94a3b8; font-size: 14px;">${video.videoDescription || 'No description'}</p>
+                                        <div style="display: flex; gap: 16px; font-size: 13px; color: #64748b;">
                                             <span>🎯 ${video.skillName}</span>
                                             <span>⏱️ ${video.durationMinutes} mins</span>
                                         </div>
                                     </div>
                                     <div style="display: flex; gap: 8px; flex-direction: column;">
                                         <a href="https://www.youtube.com/watch?v=${video.youtubeVideoId}" target="_blank" 
-                                           style="padding: 8px 16px; background: #667eea; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 600; white-space: nowrap; text-align: center;">
+                                           style="padding: 8px 16px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 600; white-space: nowrap; text-align: center;">
                                             ▶️ Watch
                                         </a>
                                         <button onclick="editVideoFromCareer(${video.id})" 
-                                                style="padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;">
+                                                style="padding: 8px 16px; background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;">
                                             ✏️ Edit
                                         </button>
                                         <button onclick="deleteVideoFromCareer(${video.id}, '${video.videoTitle.replace(/'/g, "\\'")}', ${careerId}, '${careerName.replace(/'/g, "\\'")}')" 
-                                                style="padding: 8px 16px; background: #dc3545; color: white; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;">
+                                                style="padding: 8px 16px; background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;">
                                             🗑️ Delete
                                         </button>
                                     </div>
@@ -2061,8 +2313,8 @@
                         <td><strong>${career.careerName}</strong></td>
                         <td>${career.count}</td>
                         <td>
-                            <div style="background: #e0e0e0; border-radius: 10px; height: 20px; width: 200px;">
-                                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                            <div style="background: #242438; border-radius: 10px; height: 20px; width: 200px;">
+                                <div style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); 
                                            height: 100%; width: ${percentage}%; border-radius: 10px;"></div>
                             </div>
                         </td>
@@ -2086,7 +2338,235 @@
                 loadVideos();
             } else if (tabName === 'categories') {
                 loadCategories();
+            } else if (tabName === 'resumes') {
+                loadResumes();
             }
+        }
+
+        // Resume management
+        let currentResumePage = 1;
+        const resumePageSize = 10;
+
+        async function loadResumes(page = 1) {
+            currentResumePage = page;
+            try {
+                const search = document.getElementById('resumeSearchInput')?.value || '';
+                const response = await fetch(`${API_URL}/admin/resumes?page=${page}&pageSize=${resumePageSize}&search=${encodeURIComponent(search)}`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (!response.ok) throw new Error('Failed to load resumes');
+
+                const data = await response.json();
+                displayResumes(data.resumes, data.pagination);
+            } catch (error) {
+                console.error('Error loading resumes:', error);
+                document.getElementById('resumesTableContainer').innerHTML = `<div class="error-message">Error loading resumes: ${error.message}</div>`;
+            }
+        }
+
+        function displayResumes(resumes, pagination) {
+            const container = document.getElementById('resumesTableContainer');
+            
+            if (!resumes || resumes.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #64748b; padding: 40px;">No resumes found</p>';
+                document.getElementById('resumePagination').innerHTML = '';
+                return;
+            }
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Name</th>
+                            <th>Job Title</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Skills</th>
+                            <th>Updated</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            resumes.forEach(resume => {
+                const skills = resume.skills ? resume.skills.slice(0, 3).join(', ') + (resume.skills.length > 3 ? '...' : '') : 'N/A';
+                const updatedAt = new Date(resume.updatedAt).toLocaleDateString();
+                
+                html += `
+                    <tr>
+                        <td><strong>${resume.username}</strong><br><small>${resume.userEmail}</small></td>
+                        <td>${resume.fullName || 'N/A'}</td>
+                        <td>${resume.jobTitle || 'N/A'}</td>
+                        <td>${resume.email || 'N/A'}</td>
+                        <td>${resume.phone || 'N/A'}</td>
+                        <td>${skills}</td>
+                        <td>${updatedAt}</td>
+                        <td>
+                            <button onclick="viewResumeDetails(${resume.id})" title="View Details">👁️</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+
+            // Render pagination
+            renderResumePagination(pagination);
+        }
+
+        function renderResumePagination(pagination) {
+            const container = document.getElementById('resumePagination');
+            if (!pagination || pagination.totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+            
+            if (pagination.currentPage > 1) {
+                html += `<button onclick="loadResumes(${pagination.currentPage - 1})">← Prev</button>`;
+            }
+
+            for (let i = 1; i <= pagination.totalPages; i++) {
+                if (i === pagination.currentPage) {
+                    html += `<button class="active">${i}</button>`;
+                } else {
+                    html += `<button onclick="loadResumes(${i})">${i}</button>`;
+                }
+            }
+
+            if (pagination.currentPage < pagination.totalPages) {
+                html += `<button onclick="loadResumes(${pagination.currentPage + 1})">Next →</button>`;
+            }
+
+            container.innerHTML = html;
+        }
+
+        function searchResumes() {
+            loadResumes(1);
+        }
+
+        async function viewResumeDetails(resumeId) {
+            // Find the resume in the current list or fetch it
+            try {
+                const search = document.getElementById('resumeSearchInput')?.value || '';
+                const response = await fetch(`${API_URL}/admin/resumes?page=1&pageSize=100&search=${encodeURIComponent(search)}`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (!response.ok) throw new Error('Failed to load resume');
+
+                const data = await response.json();
+                const resume = data.resumes.find(r => r.id === resumeId);
+                
+                if (!resume) {
+                    alert('Resume not found');
+                    return;
+                }
+
+                showResumeModal(resume);
+            } catch (error) {
+                alert('Error loading resume details: ' + error.message);
+            }
+        }
+
+        function showResumeModal(resume) {
+            const content = document.getElementById('userDetailContent');
+            
+            const experiencesHtml = resume.experiences ? resume.experiences.map(e => 
+                `<li><strong>${e.role || e.Role}</strong> at ${e.company || e.Company} (${e.period || e.Period})</li>`
+            ).join('') : '<li>No experiences listed</li>';
+
+            const educationHtml = resume.education ? resume.education.map(e => 
+                `<li><strong>${e.degree || e.Degree}</strong> - ${e.institution || e.Institution} (${e.year || e.Year})</li>`
+            ).join('') : '<li>No education listed</li>';
+
+            const certificationsHtml = resume.certifications ? resume.certifications.map(c => 
+                `<li><strong>${c.name || c.Name}</strong> - ${c.issuer || c.Issuer} ${c.date || c.Date ? '(' + (c.date || c.Date) + ')' : ''}</li>`
+            ).join('') : '<li>No certifications listed</li>';
+
+            const projectsHtml = resume.projects ? resume.projects.map(p => 
+                `<li><strong>${p.name || p.Name}</strong>: ${p.description || p.Description} ${p.link || p.Link ? '<br><a href="' + (p.link || p.Link) + '" target="_blank">View →</a>' : ''}</li>`
+            ).join('') : '<li>No projects listed</li>';
+
+            const languagesHtml = resume.languages ? resume.languages.map(l => 
+                `<li>${l.name || l.Name} - ${l.proficiency || l.Proficiency}</li>`
+            ).join('') : '<li>No languages listed</li>';
+
+            const achievementsHtml = resume.achievements ? resume.achievements.map(a => 
+                `<li><strong>${a.title || a.Title}</strong>: ${a.description || a.Description}</li>`
+            ).join('') : '<li>No achievements listed</li>';
+
+            content.innerHTML = `
+                <div style="padding: 20px;">
+                    <h3 style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 20px; font-size: 24px;">📄 ${resume.fullName || 'Untitled Resume'}</h3>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                        <div>
+                            <p style="color: #94a3b8;"><strong style="color: #f1f5f9;">Job Title:</strong> ${resume.jobTitle || 'N/A'}</p>
+                            <p style="color: #94a3b8;"><strong style="color: #f1f5f9;">Email:</strong> ${resume.email || 'N/A'}</p>
+                            <p style="color: #94a3b8;"><strong style="color: #f1f5f9;">Phone:</strong> ${resume.phone || 'N/A'}</p>
+                        </div>
+                        <div>
+                            <p style="color: #94a3b8;"><strong style="color: #f1f5f9;">Location:</strong> ${resume.location || 'N/A'}</p>
+                            <p style="color: #94a3b8;"><strong style="color: #f1f5f9;">LinkedIn:</strong> ${resume.linkedin ? '<a href="' + resume.linkedin + '" target="_blank" style="color: #6366f1;">' + resume.linkedin + '</a>' : 'N/A'}</p>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 18px; padding: 16px; background: #242438; border-radius: 12px; border: 1px solid #2d2d44;">
+                        <h4 style="color: #f1f5f9; margin-bottom: 10px;">📝 Professional Summary</h4>
+                        <p style="color: #94a3b8;">${resume.professionalSummary || 'No summary provided'}</p>
+                    </div>
+
+                    <div style="margin-bottom: 18px; padding: 16px; background: #242438; border-radius: 12px; border: 1px solid #2d2d44;">
+                        <h4 style="color: #f1f5f9; margin-bottom: 10px;">💡 Skills</h4>
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                            ${resume.skills ? resume.skills.map(s => '<span style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500;">' + s + '</span>').join('') : '<span style="color: #64748b;">No skills listed</span>'}
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 18px; padding: 16px; background: #242438; border-radius: 12px; border: 1px solid #2d2d44;">
+                        <h4 style="color: #f1f5f9; margin-bottom: 10px;">💼 Experience</h4>
+                        <ul style="color: #94a3b8; padding-left: 20px;">${experiencesHtml}</ul>
+                    </div>
+
+                    <div style="margin-bottom: 18px; padding: 16px; background: #242438; border-radius: 12px; border: 1px solid #2d2d44;">
+                        <h4 style="color: #f1f5f9; margin-bottom: 10px;">🎓 Education</h4>
+                        <ul style="color: #94a3b8; padding-left: 20px;">${educationHtml}</ul>
+                    </div>
+
+                    <div style="margin-bottom: 18px; padding: 16px; background: #242438; border-radius: 12px; border: 1px solid #2d2d44;">
+                        <h4 style="color: #f1f5f9; margin-bottom: 10px;">🏆 Certifications</h4>
+                        <ul style="color: #94a3b8; padding-left: 20px;">${certificationsHtml}</ul>
+                    </div>
+
+                    <div style="margin-bottom: 18px; padding: 16px; background: #242438; border-radius: 12px; border: 1px solid #2d2d44;">
+                        <h4 style="color: #f1f5f9; margin-bottom: 10px;">🚀 Projects</h4>
+                        <ul style="color: #94a3b8; padding-left: 20px;">${projectsHtml}</ul>
+                    </div>
+
+                    <div style="margin-bottom: 18px; padding: 16px; background: #242438; border-radius: 12px; border: 1px solid #2d2d44;">
+                        <h4 style="color: #f1f5f9; margin-bottom: 10px;">🌍 Languages</h4>
+                        <ul style="color: #94a3b8; padding-left: 20px;">${languagesHtml}</ul>
+                    </div>
+
+                    <div style="margin-bottom: 18px; padding: 16px; background: #242438; border-radius: 12px; border: 1px solid #2d2d44;">
+                        <h4 style="color: #f1f5f9; margin-bottom: 10px;">🏅 Achievements</h4>
+                        <ul style="color: #94a3b8; padding-left: 20px;">${achievementsHtml}</ul>
+                    </div>
+
+                    <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #2d2d44; color: #64748b; font-size: 12px;">
+                        <p><strong style="color: #94a3b8;">User:</strong> ${resume.username} (${resume.userEmail})</p>
+                        <p><strong style="color: #94a3b8;">Last Updated:</strong> ${new Date(resume.updatedAt).toLocaleString()}</p>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('userModal').style.display = 'flex';
         }
 
         async function exportUsers() {
