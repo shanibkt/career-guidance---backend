@@ -138,13 +138,15 @@ namespace MyFirstApi.Services
             await conn.OpenAsync();
 
             var sql = @"SELECT ja.*, hn.title as notification_title, hn.position,
-                        u.FullName as student_name, u.Email as student_email,
-                        ucp.career_name as student_career
-                        FROM job_applications ja
-                        JOIN hiring_notifications hn ON ja.hiring_notification_id = hn.id
-                        JOIN Users u ON ja.user_id = u.Id
-                        LEFT JOIN user_career_progress ucp ON ja.user_id = ucp.user_id AND ucp.is_active = TRUE
-                        WHERE ja.company_id = @cid";
+                u.FullName as student_name, u.Email as student_email,
+                ucp.career_name as student_career,
+                c.name as company_name
+                FROM job_applications ja
+                JOIN hiring_notifications hn ON ja.hiring_notification_id = hn.id
+                JOIN Users u ON ja.user_id = u.Id
+                JOIN companies c ON ja.company_id = c.id
+                LEFT JOIN user_career_progress ucp ON ja.user_id = ucp.user_id AND ucp.is_active = TRUE
+                WHERE ja.company_id = @cid";
 
             if (notificationId.HasValue)
             {
