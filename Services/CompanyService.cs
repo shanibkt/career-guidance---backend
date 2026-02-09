@@ -1,4 +1,4 @@
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using MyFirstApi.Models;
 using System.Text.Json;
 

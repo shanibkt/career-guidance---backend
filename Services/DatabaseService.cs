@@ -1,4 +1,4 @@
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using System.Data;
 
 namespace MyFirstApi.Services
@@ -23,6 +23,7 @@ namespace MyFirstApi.Services
         /// </summary>
         public MySqlConnection GetConnection()
         {
+            // Now using the global override from Program.cs
             return new MySqlConnection(_configuration.GetConnectionString("DefaultConnection"));
         }
 
