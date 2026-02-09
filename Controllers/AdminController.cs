@@ -1189,5 +1189,183 @@ namespace MyFirstApi.Controllers
             public string? GrowthOutlook { get; set; }
             public string? KeySkills { get; set; }
         }
+
+        // ==========================================
+        // Company Management (Admin)
+        // ==========================================
+
+        /// <summary>
+        /// Get all companies (admin only)
+        /// </summary>
+        [HttpGet("companies")]
+        public async Task<IActionResult> GetAllCompanies([FromQuery] string? status = null)
+        {
+            try
+            {
+                if (!IsAdmin())
+                    return StatusCode(403, new { message = "Admin access required" });
+
+                using var conn = new MySqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+                await conn.OpenAsync();
+
+                var sql = "SELECT * FROM companies";
+                if (status == "pending") sql += " WHERE is_approved = FALSE";
+                else if (status == "approved") sql += " WHERE is_approved = TRUE";
+                sql += " ORDER BY created_at DESC";
+
+                using var cmd = new MySqlCommand(sql, conn);
+                using var reader = (MySqlDataReader)await cmd.ExecuteReaderAsync();
+
+                var companies = new List<object>();
+                while (await reader.ReadAsync())
+                {
+                    companies.Add(new
+                    {
+                        id = reader.GetInt32("id"),
+                        name = reader.GetString("name"),
+                        description = reader.IsDBNull(reader.GetOrdinal("description")) ? null : reader.GetString("description"),
+                        industry = reader.IsDBNull(reader.GetOrdinal("industry")) ? null : reader.GetString("industry"),
+                        logoUrl = reader.IsDBNull(reader.GetOrdinal("logo_url")) ? null : reader.GetString("logo_url"),
+                        website = reader.IsDBNull(reader.GetOrdinal("website")) ? null : reader.GetString("website"),
+                        location = reader.IsDBNull(reader.GetOrdinal("location")) ? null : reader.GetString("location"),
+                        contactEmail = reader.IsDBNull(reader.GetOrdinal("contact_email")) ? null : reader.GetString("contact_email"),
+                        isApproved = reader.GetBoolean("is_approved"),
+                        createdAt = reader.GetDateTime("created_at")
+                    });
+                }
+
+                return Ok(companies);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching companies: {ex.Message}");
+                return StatusCode(500, new { message = "Error fetching companies", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Approve a company (admin only)
+        /// </summary>
+        [HttpPut("companies/{id}/approve")]
+        public async Task<IActionResult> ApproveCompany(int id)
+        {
+            try
+            {
+                if (!IsAdmin())
+                    return StatusCode(403, new { message = "Admin access required" });
+
+                using var conn = new MySqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+                await conn.OpenAsync();
+
+                var sql = "UPDATE companies SET is_approved = TRUE WHERE id = @id";
+                using var cmd = new MySqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@id", id);
+                var rows = await cmd.ExecuteNonQueryAsync();
+
+                return rows > 0
+                    ? Ok(new { message = "Company approved successfully" })
+                    : NotFound(new { message = "Company not found" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error approving company: {ex.Message}");
+                return StatusCode(500, new { message = "Error approving company", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Reject/revoke a company (admin only)
+        /// </summary>
+        [HttpPut("companies/{id}/reject")]
+        public async Task<IActionResult> RejectCompany(int id)
+        {
+            try
+            {
+                if (!IsAdmin())
+                    return StatusCode(403, new { message = "Admin access required" });
+
+                using var conn = new MySqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+                await conn.OpenAsync();
+
+                var sql = "UPDATE companies SET is_approved = FALSE WHERE id = @id";
+                using var cmd = new MySqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@id", id);
+                var rows = await cmd.ExecuteNonQueryAsync();
+
+                return rows > 0
+                    ? Ok(new { message = "Company rejected" })
+                    : NotFound(new { message = "Company not found" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error rejecting company: {ex.Message}");
+                return StatusCode(500, new { message = "Error rejecting company", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get company detail with posting stats (admin only)
+        /// </summary>
+        [HttpGet("companies/{id}")]
+        public async Task<IActionResult> GetCompanyDetail(int id)
+        {
+            try
+            {
+                if (!IsAdmin())
+                    return StatusCode(403, new { message = "Admin access required" });
+
+                using var conn = new MySqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+                await conn.OpenAsync();
+
+                // Company info
+                var sql = "SELECT * FROM companies WHERE id = @id";
+                using var cmd = new MySqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@id", id);
+                using var reader = (MySqlDataReader)await cmd.ExecuteReaderAsync();
+
+                if (!await reader.ReadAsync())
+                    return NotFound(new { message = "Company not found" });
+
+                var company = new
+                {
+                    id = reader.GetInt32("id"),
+                    name = reader.GetString("name"),
+                    description = reader.IsDBNull(reader.GetOrdinal("description")) ? null : reader.GetString("description"),
+                    industry = reader.IsDBNull(reader.GetOrdinal("industry")) ? null : reader.GetString("industry"),
+                    website = reader.IsDBNull(reader.GetOrdinal("website")) ? null : reader.GetString("website"),
+                    location = reader.IsDBNull(reader.GetOrdinal("location")) ? null : reader.GetString("location"),
+                    contactEmail = reader.IsDBNull(reader.GetOrdinal("contact_email")) ? null : reader.GetString("contact_email"),
+                    isApproved = reader.GetBoolean("is_approved"),
+                    createdAt = reader.GetDateTime("created_at")
+                };
+                reader.Close();
+
+                // Posting stats
+                var statsSql = @"SELECT 
+                    (SELECT COUNT(*) FROM hiring_notifications WHERE company_id = @cid) as total_postings,
+                    (SELECT COUNT(*) FROM hiring_notifications WHERE company_id = @cid AND is_active = TRUE) as active_postings,
+                    (SELECT COUNT(*) FROM job_applications WHERE company_id = @cid) as total_applications";
+                using var cmd2 = new MySqlCommand(statsSql, conn);
+                cmd2.Parameters.AddWithValue("@cid", id);
+                using var reader2 = await cmd2.ExecuteReaderAsync();
+                await reader2.ReadAsync();
+
+                return Ok(new
+                {
+                    company,
+                    stats = new
+                    {
+                        totalPostings = Convert.ToInt32(reader2["total_postings"]),
+                        activePostings = Convert.ToInt32(reader2["active_postings"]),
+                        totalApplications = Convert.ToInt32(reader2["total_applications"])
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching company detail: {ex.Message}");
+                return StatusCode(500, new { message = "Error fetching company detail", error = ex.Message });
+            }
+        }
     }
 }

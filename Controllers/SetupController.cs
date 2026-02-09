@@ -807,5 +807,326 @@ namespace MyFirstApi.Controllers
                 });
             }
         }
+
+        [HttpGet("debug-notifications")]
+        public async Task<IActionResult> DebugNotifications()
+        {
+            try
+            {
+                using var conn = new MySqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+                await conn.OpenAsync();
+
+                var result = new Dictionary<string, object>();
+
+                // Check hiring_notifications
+                var hiringNotifs = new List<Dictionary<string, object?>>();
+                using (var cmd = new MySqlCommand("SELECT hn.id, hn.company_id, hn.title, hn.position, hn.target_career_ids, hn.is_active, c.name as company_name, c.is_approved FROM hiring_notifications hn LEFT JOIN companies c ON hn.company_id = c.id ORDER BY hn.created_at DESC LIMIT 20", conn))
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        var row = new Dictionary<string, object?>();
+                        for (int i = 0; i < reader.FieldCount; i++)
+                            row[reader.GetName(i)] = reader.IsDBNull(i) ? null : reader.GetValue(i);
+                        hiringNotifs.Add(row);
+                    }
+                }
+                result["hiringNotifications"] = hiringNotifs;
+
+                // Check student_notifications
+                var studentNotifs = new List<Dictionary<string, object?>>();
+                using (var cmd2 = new MySqlCommand("SELECT * FROM student_notifications ORDER BY created_at DESC LIMIT 20", conn))
+                using (var reader2 = await cmd2.ExecuteReaderAsync())
+                {
+                    while (await reader2.ReadAsync())
+                    {
+                        var row = new Dictionary<string, object?>();
+                        for (int i = 0; i < reader2.FieldCount; i++)
+                            row[reader2.GetName(i)] = reader2.IsDBNull(i) ? null : reader2.GetValue(i);
+                        studentNotifs.Add(row);
+                    }
+                }
+                result["studentNotifications"] = studentNotifs;
+
+                // Check user_career_progress
+                var careerProgress = new List<Dictionary<string, object?>>();
+                using (var cmd3 = new MySqlCommand("SELECT user_id, career_id, career_name, is_active FROM user_career_progress LIMIT 20", conn))
+                using (var reader3 = await cmd3.ExecuteReaderAsync())
+                {
+                    while (await reader3.ReadAsync())
+                    {
+                        var row = new Dictionary<string, object?>();
+                        for (int i = 0; i < reader3.FieldCount; i++)
+                            row[reader3.GetName(i)] = reader3.IsDBNull(i) ? null : reader3.GetValue(i);
+                        careerProgress.Add(row);
+                    }
+                }
+                result["userCareerProgress"] = careerProgress;
+
+                // Check careers table
+                var careers = new List<Dictionary<string, object?>>();
+                using (var cmd4 = new MySqlCommand("SELECT id, name FROM careers ORDER BY id", conn))
+                using (var reader4 = await cmd4.ExecuteReaderAsync())
+                {
+                    while (await reader4.ReadAsync())
+                    {
+                        var row = new Dictionary<string, object?>();
+                        for (int i = 0; i < reader4.FieldCount; i++)
+                            row[reader4.GetName(i)] = reader4.IsDBNull(i) ? null : reader4.GetValue(i);
+                        careers.Add(row);
+                    }
+                }
+                result["careers"] = careers;
+
+                // Check users (id & email only for debugging)
+                var users = new List<Dictionary<string, object?>>();
+                using (var cmd5 = new MySqlCommand("SELECT Id, Email, Username FROM Users ORDER BY Id LIMIT 20", conn))
+                using (var reader5 = await cmd5.ExecuteReaderAsync())
+                {
+                    while (await reader5.ReadAsync())
+                    {
+                        var row = new Dictionary<string, object?>();
+                        for (int i = 0; i < reader5.FieldCount; i++)
+                            row[reader5.GetName(i)] = reader5.IsDBNull(i) ? null : reader5.GetValue(i);
+                        users.Add(row);
+                    }
+                }
+                result["users"] = users;
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message, stack = ex.StackTrace });
+            }
+        }
+
+        [HttpGet("check-job-applications-schema")]
+        public async Task<IActionResult> CheckJobApplicationsSchema()
+        {
+            try
+            {
+                using var conn = new MySqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+                await conn.OpenAsync();
+                using var cmd = new MySqlCommand(
+                    "SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE, COLUMN_DEFAULT FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'job_applications' ORDER BY ORDINAL_POSITION", conn);
+                using var reader = await cmd.ExecuteReaderAsync();
+                var columns = new List<object>();
+                while (await reader.ReadAsync())
+                {
+                    columns.Add(new { 
+                        column = reader.GetString(0), 
+                        type = reader.GetString(1),
+                        nullable = reader.GetString(2),
+                        defaultVal = reader.IsDBNull(3) ? null : reader.GetString(3)
+                    });
+                }
+                return Ok(new { table = "job_applications", columns });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
+            }
+        }
+
+        // ==========================================
+        // Company Module Tables
+        // ==========================================
+
+        [HttpGet("create-company-tables")]
+        public async Task<IActionResult> CreateCompanyTables()
+        {
+            var results = new List<string>();
+            try
+            {
+                using var conn = new MySqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+                await conn.OpenAsync();
+
+                // 1. companies table
+                try
+                {
+                    var sql = @"CREATE TABLE IF NOT EXISTS companies (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        name VARCHAR(255) NOT NULL,
+                        description TEXT,
+                        industry VARCHAR(100),
+                        logo_url VARCHAR(500),
+                        website VARCHAR(500),
+                        location VARCHAR(255),
+                        contact_email VARCHAR(255),
+                        is_approved BOOLEAN DEFAULT FALSE,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                    )";
+                    using var cmd = new MySqlCommand(sql, conn);
+                    await cmd.ExecuteNonQueryAsync();
+                    results.Add("✅ companies table created");
+                }
+                catch (Exception ex) { results.Add($"⚠️ companies: {ex.Message}"); }
+
+                // 2. company_users table
+                try
+                {
+                    var sql = @"CREATE TABLE IF NOT EXISTS company_users (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        user_id INT NOT NULL,
+                        company_id INT NOT NULL,
+                        role VARCHAR(50) DEFAULT 'owner',
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
+                        UNIQUE KEY unique_user_company (user_id, company_id)
+                    )";
+                    using var cmd = new MySqlCommand(sql, conn);
+                    await cmd.ExecuteNonQueryAsync();
+                    results.Add("✅ company_users table created");
+                }
+                catch (Exception ex) { results.Add($"⚠️ company_users: {ex.Message}"); }
+
+                // 3. hiring_notifications table
+                try
+                {
+                    var sql = @"CREATE TABLE IF NOT EXISTS hiring_notifications (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        company_id INT NOT NULL,
+                        title VARCHAR(255) NOT NULL,
+                        description TEXT,
+                        position VARCHAR(255) NOT NULL,
+                        location VARCHAR(255),
+                        salary_range VARCHAR(100),
+                        requirements TEXT,
+                        target_career_ids TEXT,
+                        application_deadline DATE,
+                        is_active BOOLEAN DEFAULT TRUE,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                        FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE
+                    )";
+                    using var cmd = new MySqlCommand(sql, conn);
+                    await cmd.ExecuteNonQueryAsync();
+                    results.Add("✅ hiring_notifications table created");
+                }
+                catch (Exception ex) { results.Add($"⚠️ hiring_notifications: {ex.Message}"); }
+
+                // 4. student_notifications table
+                try
+                {
+                    var sql = @"CREATE TABLE IF NOT EXISTS student_notifications (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        user_id INT NOT NULL,
+                        hiring_notification_id INT NOT NULL,
+                        is_read BOOLEAN DEFAULT FALSE,
+                        read_at TIMESTAMP NULL,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        FOREIGN KEY (hiring_notification_id) REFERENCES hiring_notifications(id) ON DELETE CASCADE,
+                        UNIQUE KEY unique_user_notification (user_id, hiring_notification_id)
+                    )";
+                    using var cmd = new MySqlCommand(sql, conn);
+                    await cmd.ExecuteNonQueryAsync();
+                    results.Add("✅ student_notifications table created");
+                }
+                catch (Exception ex) { results.Add($"⚠️ student_notifications: {ex.Message}"); }
+
+                // 5. job_applications table - create or migrate existing table
+                try
+                {
+                    // First try to create with new schema
+                    var sql = @"CREATE TABLE IF NOT EXISTS job_applications (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        user_id INT NOT NULL,
+                        hiring_notification_id INT NOT NULL,
+                        company_id INT NOT NULL,
+                        cover_message TEXT,
+                        resume_data TEXT,
+                        status VARCHAR(50) DEFAULT 'pending',
+                        applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                        FOREIGN KEY (hiring_notification_id) REFERENCES hiring_notifications(id) ON DELETE CASCADE,
+                        FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
+                        UNIQUE KEY unique_user_application (user_id, hiring_notification_id)
+                    )";
+                    using var cmd = new MySqlCommand(sql, conn);
+                    await cmd.ExecuteNonQueryAsync();
+                    results.Add("✅ job_applications table created/exists");
+
+                    // Now add missing columns if table existed with old schema
+                    var alterStatements = new[]
+                    {
+                        "ALTER TABLE job_applications ADD COLUMN hiring_notification_id INT NULL AFTER user_id",
+                        "ALTER TABLE job_applications ADD COLUMN company_id INT NULL AFTER hiring_notification_id",
+                        "ALTER TABLE job_applications ADD COLUMN cover_message TEXT NULL",
+                        "ALTER TABLE job_applications ADD COLUMN resume_data TEXT NULL",
+                        // Make old columns nullable so company-module inserts work
+                        "ALTER TABLE job_applications MODIFY COLUMN job_id VARCHAR(255) NULL DEFAULT NULL",
+                        "ALTER TABLE job_applications MODIFY COLUMN title VARCHAR(255) NULL DEFAULT NULL",
+                        "ALTER TABLE job_applications MODIFY COLUMN company VARCHAR(255) NULL DEFAULT NULL",
+                        "ALTER TABLE job_applications MODIFY COLUMN location VARCHAR(255) NULL DEFAULT NULL"
+                    };
+                    foreach (var alter in alterStatements)
+                    {
+                        try
+                        {
+                            using var acmd = new MySqlCommand(alter, conn);
+                            await acmd.ExecuteNonQueryAsync();
+                            results.Add($"✅ Added column to job_applications");
+                        }
+                        catch (Exception aex) 
+                        { 
+                            if (!aex.Message.Contains("Duplicate column")) 
+                                results.Add($"ℹ️ job_applications alter: {aex.Message}");
+                        }
+                    }
+
+                    // Ensure status column exists (old table had application_status)
+                    try
+                    {
+                        using var scmd = new MySqlCommand("ALTER TABLE job_applications ADD COLUMN status VARCHAR(50) DEFAULT 'pending'", conn);
+                        await scmd.ExecuteNonQueryAsync();
+                        results.Add("✅ Added status column to job_applications");
+                    }
+                    catch { /* Column already exists */ }
+                }
+                catch (Exception ex) { results.Add($"⚠️ job_applications: {ex.Message}"); }
+
+                // 6. Create indexes
+                var indexes = new[]
+                {
+                    "CREATE INDEX idx_company_users_user ON company_users(user_id)",
+                    "CREATE INDEX idx_hiring_notifications_company ON hiring_notifications(company_id)",
+                    "CREATE INDEX idx_hiring_notifications_active ON hiring_notifications(is_active)",
+                    "CREATE INDEX idx_student_notifications_user ON student_notifications(user_id)",
+                    "CREATE INDEX idx_student_notifications_read ON student_notifications(user_id, is_read)",
+                    "CREATE INDEX idx_job_applications_user ON job_applications(user_id)",
+                    "CREATE INDEX idx_job_applications_company ON job_applications(company_id)"
+                };
+
+                foreach (var idx in indexes)
+                {
+                    try
+                    {
+                        using var cmd = new MySqlCommand(idx, conn);
+                        await cmd.ExecuteNonQueryAsync();
+                        results.Add($"✅ Index created");
+                    }
+                    catch { /* Index may already exist */ }
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Company module tables created successfully!",
+                    results,
+                    companyPortalUrl = $"{Request.Scheme}://{Request.Host}/company.html"
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Error creating company tables",
+                    error = ex.Message
+                });
+            }
+        }
     }
 }
