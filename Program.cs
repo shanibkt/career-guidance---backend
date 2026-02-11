@@ -6,6 +6,11 @@ using MyFirstApi.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// FORCE GLOBAL CONFIGURATION OVERRIDE (Diagnostic Fix for Azure SslMode issue)
+// This ensures ALL services (JobDatabaseService, ProfileController, etc.) use this string
+// ignoring whatever is set in Azure Environment Variables.
+builder.Configuration["ConnectionStrings:DefaultConnection"] = "Server=sql.freedb.tech;Port=3306;Database=freedb_career_guidence;User ID=freedb_shanib;Password=x%g7emc?X@uz7?W;ConvertZeroDateTime=True;AllowZeroDateTime=True;AllowPublicKeyRetrieval=True;SslMode=None;ConnectionTimeout=60;DefaultCommandTimeout=60;Pooling=true;MinimumPoolSize=0;MaximumPoolSize=100;";
+
 Console.WriteLine("Starting Career Guidance API (Full Version)...");
 Console.WriteLine($"Environment: {builder.Environment.EnvironmentName}");
 
@@ -129,6 +134,80 @@ try
         status = "healthy",
         version = "1.0",
         timestamp = DateTime.UtcNow
+    });
+
+    app.MapGet("/test-db", async (DatabaseService db) =>
+    {
+        try
+        {
+            using var conn = db.GetConnection();
+            await conn.OpenAsync();
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT 1";
+            var result = await cmd.ExecuteScalarAsync();
+            return Results.Ok(new 
+            { 
+                status = "success", 
+                message = "Database Connected Successfully!", 
+                test_result = result,
+                timestamp = DateTime.UtcNow 
+            });
+        }
+        catch (Exception ex)
+        {
+            return Results.Json(new 
+            { 
+                status = "error", 
+                message = "Database Connection Failed", 
+                error_details = ex.Message, 
+                stack_trace = ex.StackTrace 
+            }, statusCode: 500);
+        }
+    });
+
+    app.MapGet("/test-network", async () =>
+    {
+        var host = "sql.freedb.tech";
+        var port = 3306;
+        var result = new Dictionary<string, object>();
+
+        try
+        {
+            // 1. DNS Lookup
+            var ips = await System.Net.Dns.GetHostAddressesAsync(host);
+            result["dns_lookup"] = ips.Select(ip => ip.ToString()).ToArray();
+            result["dns_status"] = "Success";
+        }
+        catch (Exception ex)
+        {
+            result["dns_status"] = "Failed: " + ex.Message;
+        }
+
+        try
+        {
+            // 2. TCP Ping
+            using var client = new System.Net.Sockets.TcpClient();
+            var connectTask = client.ConnectAsync(host, port);
+            var completedTask = await Task.WhenAny(connectTask, Task.Delay(5000));
+            
+            if (completedTask == connectTask)
+            {
+                await connectTask; // Propagate exceptions
+                result["tcp_ping"] = "Success";
+                result["tcp_connected"] = client.Connected;
+            }
+            else
+            {
+                result["tcp_ping"] = "Timed out after 5000ms";
+            }
+        }
+        catch (Exception ex)
+        {
+            result["tcp_ping"] = "Failed: " + ex.Message;
+        }
+
+        result["timestamp"] = DateTime.UtcNow;
+        return Results.Ok(result);
     });
 
     app.MapControllers();
