@@ -1,17 +1,20 @@
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using MyFirstApi.Models;
 using System.Text.Json;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace MyFirstApi.Services
 {
     public class HiringNotificationService
     {
         private readonly DatabaseService _db;
+        private readonly IMemoryCache _cache;
         private readonly ILogger<HiringNotificationService> _logger;
 
-        public HiringNotificationService(DatabaseService db, ILogger<HiringNotificationService> logger)
+        public HiringNotificationService(DatabaseService db, IMemoryCache cache, ILogger<HiringNotificationService> logger)
         {
             _db = db;
+            _cache = cache;
             _logger = logger;
         }
 
@@ -32,8 +35,7 @@ namespace MyFirstApi.Services
 
                 var insertSql = @"INSERT INTO hiring_notifications 
                     (company_id, title, description, position, location, salary_range, requirements, target_career_ids, application_deadline)
-                    VALUES (@companyId, @title, @desc, @position, @location, @salary, @requirements, @careerIds, @deadline);
-                    SELECT LAST_INSERT_ID();";
+                    VALUES (@companyId, @title, @desc, @position, @location, @salary, @requirements, @careerIds, @deadline)";
 
                 using var cmd = new MySqlCommand(insertSql, conn, transaction);
                 cmd.Parameters.AddWithValue("@companyId", companyId);
@@ -46,7 +48,13 @@ namespace MyFirstApi.Services
                 cmd.Parameters.AddWithValue("@careerIds", careerIdsJson);
                 cmd.Parameters.AddWithValue("@deadline", request.ApplicationDeadline ?? (object)DBNull.Value);
 
-                var notificationId = Convert.ToInt32(await cmd.ExecuteScalarAsync());
+                await cmd.ExecuteNonQueryAsync();
+                var notificationId = (int)cmd.LastInsertedId;
+
+                if (notificationId <= 0)
+                {
+                    throw new Exception("Failed to retrieve notification ID after insertion.");
+                }
 
                 // 2. Find students with matching active careers and create student_notifications
                 // Match by both career_id AND career_name since Flutter app often sends only careerName
@@ -211,47 +219,16 @@ namespace MyFirstApi.Services
 
         public async Task<List<StudentNotificationItem>> GetStudentNotificationsAsync(int userId)
         {
+            var cacheKey = $"notifications_{userId}";
+            if (_cache.TryGetValue(cacheKey, out List<StudentNotificationItem>? cachedNotifications))
+            {
+                return cachedNotifications!;
+            }
+
             using var conn = _db.GetConnection();
             await conn.OpenAsync();
 
-            // Auto-create student_notifications for any hiring notifications that target
-            // this student's career but don't yet have a student_notifications row.
-            // This handles notifications created before the career_name matching fix.
-            try
-            {
-                var syncSql = @"INSERT IGNORE INTO student_notifications (user_id, hiring_notification_id)
-                    SELECT @userId, hn.id
-                    FROM hiring_notifications hn
-                    JOIN companies c ON hn.company_id = c.id AND c.is_approved = TRUE
-                    WHERE hn.is_active = TRUE
-                    AND NOT EXISTS (
-                        SELECT 1 FROM student_notifications sn2 
-                        WHERE sn2.user_id = @userId AND sn2.hiring_notification_id = hn.id
-                    )
-                    AND EXISTS (
-                        SELECT 1 FROM user_career_progress ucp
-                        WHERE ucp.user_id = @userId AND ucp.is_active = TRUE
-                        AND (
-                            ucp.career_id IN (
-                                SELECT c2.id FROM careers c2 
-                                WHERE JSON_CONTAINS(hn.target_career_ids, CAST(c2.id AS JSON))
-                            )
-                            OR ucp.career_name IN (
-                                SELECT c2.name FROM careers c2 
-                                WHERE JSON_CONTAINS(hn.target_career_ids, CAST(c2.id AS JSON))
-                            )
-                        )
-                    )";
-                using var syncCmd = new MySqlCommand(syncSql, conn);
-                syncCmd.Parameters.AddWithValue("@userId", userId);
-                var inserted = await syncCmd.ExecuteNonQueryAsync();
-                if (inserted > 0)
-                    _logger.LogInformation($"Auto-created {inserted} student_notifications for userId={userId}");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning($"Failed to auto-sync student_notifications for userId={userId}: {ex.Message}");
-            }
+            await SyncStudentNotificationsInternalAsync(conn, userId);
 
             var sql = @"SELECT sn.*, hn.title, hn.description, hn.position, hn.location, 
                         hn.salary_range, hn.requirements, hn.application_deadline,
@@ -291,15 +268,16 @@ namespace MyFirstApi.Services
                     HasApplied = reader.GetInt32("has_applied") > 0
                 });
             }
+
+            _cache.Set(cacheKey, notifications, TimeSpan.FromMinutes(2));
             return notifications;
         }
 
-        public async Task<int> GetUnreadCountAsync(int userId)
+        private async Task SyncStudentNotificationsInternalAsync(MySqlConnection conn, int userId)
         {
-            using var conn = _db.GetConnection();
-            await conn.OpenAsync();
+            var syncCacheKey = $"last_sync_{userId}";
+            if (_cache.TryGetValue(syncCacheKey, out _)) return;
 
-            // Also auto-sync before counting (lightweight — INSERT IGNORE is idempotent)
             try
             {
                 var syncSql = @"INSERT IGNORE INTO student_notifications (user_id, hiring_notification_id)
@@ -315,31 +293,51 @@ namespace MyFirstApi.Services
                         SELECT 1 FROM user_career_progress ucp
                         WHERE ucp.user_id = @userId AND ucp.is_active = TRUE
                         AND (
-                            ucp.career_id IN (
-                                SELECT c2.id FROM careers c2 
-                                WHERE JSON_CONTAINS(hn.target_career_ids, CAST(c2.id AS JSON))
-                            )
-                            OR ucp.career_name IN (
-                                SELECT c2.name FROM careers c2 
-                                WHERE JSON_CONTAINS(hn.target_career_ids, CAST(c2.id AS JSON))
+                            JSON_CONTAINS(hn.target_career_ids, CAST(ucp.career_id AS JSON))
+                            OR EXISTS (
+                                SELECT 1 FROM careers c2 
+                                WHERE c2.name = ucp.career_name 
+                                AND JSON_CONTAINS(hn.target_career_ids, CAST(c2.id AS JSON))
                             )
                         )
                     )";
                 using var syncCmd = new MySqlCommand(syncSql, conn);
                 syncCmd.Parameters.AddWithValue("@userId", userId);
-                await syncCmd.ExecuteNonQueryAsync();
+                var inserted = await syncCmd.ExecuteNonQueryAsync();
+                
+                if (inserted > 0)
+                    _logger.LogInformation($"Auto-created {inserted} student_notifications for userId={userId}");
+
+                _cache.Set(syncCacheKey, true, TimeSpan.FromMinutes(5));
             }
             catch (Exception ex)
             {
-                _logger.LogWarning($"Failed to auto-sync in GetUnreadCountAsync for userId={userId}: {ex.Message}");
+                _logger.LogWarning($"Failed to auto-sync student_notifications for userId={userId}: {ex.Message}");
             }
+        }
+
+        public async Task<int> GetUnreadCountAsync(int userId)
+        {
+            var cacheKey = $"unread_count_{userId}";
+            if (_cache.TryGetValue(cacheKey, out int cachedCount))
+            {
+                return cachedCount;
+            }
+
+            using var conn = _db.GetConnection();
+            await conn.OpenAsync();
+
+            await SyncStudentNotificationsInternalAsync(conn, userId);
 
             var sql = @"SELECT COUNT(*) FROM student_notifications sn
                         JOIN hiring_notifications hn ON sn.hiring_notification_id = hn.id
                         WHERE sn.user_id = @userId AND sn.is_read = FALSE AND hn.is_active = TRUE";
             using var cmd = new MySqlCommand(sql, conn);
             cmd.Parameters.AddWithValue("@userId", userId);
-            return Convert.ToInt32(await cmd.ExecuteScalarAsync());
+            
+            var count = Convert.ToInt32(await cmd.ExecuteScalarAsync());
+            _cache.Set(cacheKey, count, TimeSpan.FromMinutes(1));
+            return count;
         }
 
         public async Task<bool> MarkAsReadAsync(int userId, int notificationId)
@@ -352,7 +350,14 @@ namespace MyFirstApi.Services
             using var cmd = new MySqlCommand(sql, conn);
             cmd.Parameters.AddWithValue("@userId", userId);
             cmd.Parameters.AddWithValue("@nid", notificationId);
-            return await cmd.ExecuteNonQueryAsync() > 0;
+            
+            var success = await cmd.ExecuteNonQueryAsync() > 0;
+            if (success)
+            {
+                _cache.Remove($"notifications_{userId}");
+                _cache.Remove($"unread_count_{userId}");
+            }
+            return success;
         }
 
         // ==========================================

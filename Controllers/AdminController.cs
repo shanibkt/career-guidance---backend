@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using System.Security.Claims;
 using System.Text.Json;
 
@@ -632,13 +632,28 @@ namespace MyFirstApi.Controllers
                 using var connection = new MySqlConnection(connectionString);
                 await connection.OpenAsync();
 
-                // Delete user (cascades to all related tables)
+                // First, delete any companies owned by this user
+                // (cascade will handle hiring_notifications, job_applications, etc.)
+                var deleteCompaniesQuery = @"
+                    DELETE FROM companies 
+                    WHERE id IN (
+                        SELECT company_id FROM company_users 
+                        WHERE user_id = @UserId AND role = 'owner'
+                    )";
+                using (var deleteCompaniesCmd = new MySqlCommand(deleteCompaniesQuery, connection))
+                {
+                    deleteCompaniesCmd.Parameters.AddWithValue("@UserId", userId);
+                    var companiesDeleted = await deleteCompaniesCmd.ExecuteNonQueryAsync();
+                    Console.WriteLine($"Deleted {companiesDeleted} companies owned by user {userId}");
+                }
+
+                // Now delete user (cascades to user-related tables)
                 var query = "DELETE FROM Users WHERE Id = @UserId";
                 using var cmd = new MySqlCommand(query, connection);
                 cmd.Parameters.AddWithValue("@UserId", userId);
                 await cmd.ExecuteNonQueryAsync();
 
-                return Ok(new { message = "User deleted successfully" });
+                return Ok(new { message = "User and associated companies deleted successfully" });
             }
             catch (Exception ex)
             {

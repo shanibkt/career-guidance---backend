@@ -1,5 +1,5 @@
 using System.Text.Json;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 
 namespace MyFirstApi.Services
 {

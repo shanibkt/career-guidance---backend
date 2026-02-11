@@ -1,4 +1,4 @@
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using MyFirstApi.Models;
 using System.Text.Json;
 
@@ -29,8 +29,8 @@ namespace MyFirstApi.Services
             {
                 // 1. Insert company
                 var insertCompany = @"INSERT INTO companies (name, description, industry, website, location, contact_email) 
-                                      VALUES (@name, @desc, @industry, @website, @location, @contactEmail);
-                                      SELECT LAST_INSERT_ID();";
+                                      VALUES (@name, @desc, @industry, @website, @location, @contactEmail)";
+                
                 using var cmd = new MySqlCommand(insertCompany, conn, transaction);
                 cmd.Parameters.AddWithValue("@name", request.Name);
                 cmd.Parameters.AddWithValue("@desc", request.Description ?? (object)DBNull.Value);
@@ -39,7 +39,15 @@ namespace MyFirstApi.Services
                 cmd.Parameters.AddWithValue("@location", request.Location ?? (object)DBNull.Value);
                 cmd.Parameters.AddWithValue("@contactEmail", request.ContactEmail ?? (object)DBNull.Value);
 
-                var companyId = Convert.ToInt32(await cmd.ExecuteScalarAsync());
+                await cmd.ExecuteNonQueryAsync();
+                var companyId = (int)cmd.LastInsertedId;
+
+                if (companyId <= 0)
+                {
+                    throw new Exception("Failed to retrieve company ID after insertion.");
+                }
+
+                _logger.LogInformation($"Successfully inserted company '{request.Name}' with ID {companyId}");
 
                 // 2. Link user to company
                 var insertLink = @"INSERT INTO company_users (user_id, company_id, role) VALUES (@userId, @companyId, 'owner')";
@@ -69,8 +77,9 @@ namespace MyFirstApi.Services
                     CreatedAt = DateTime.UtcNow
                 };
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError($"Registration failed: {ex.Message}");
                 await transaction.RollbackAsync();
                 throw;
             }

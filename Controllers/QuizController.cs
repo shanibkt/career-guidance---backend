@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using System.Data;
 using System.Text.Json;
 using System.Security.Claims;

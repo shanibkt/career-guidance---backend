@@ -27,6 +27,7 @@ try
     {
         options.Filters.Add<GlobalExceptionFilter>();
     });
+    builder.Services.AddMemoryCache();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
 

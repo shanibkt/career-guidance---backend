@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using System.Data;
 using MyFirstApi.Models;
 using Microsoft.IdentityModel.Tokens;
@@ -48,14 +48,14 @@ namespace MyFirstApi.Controllers
 
                 string hashed = BCrypt.Net.BCrypt.HashPassword(req.Password);
 
-                using MySqlCommand cmd = new("INSERT INTO Users (Username, FullName, Email, PasswordHash) VALUES (@username, @fullName, @email, @passwordHash); SELECT LAST_INSERT_ID();", conn);
+                using MySqlCommand cmd = new("INSERT INTO Users (Username, FullName, Email, PasswordHash) VALUES (@username, @fullName, @email, @passwordHash)", conn);
                 cmd.Parameters.AddWithValue("@username", req.Username);
                 cmd.Parameters.AddWithValue("@fullName", req.FullName);
                 cmd.Parameters.AddWithValue("@email", req.Email);
                 cmd.Parameters.AddWithValue("@passwordHash", hashed);
 
-                object idObj = cmd.ExecuteScalar();
-                int newId = Convert.ToInt32(idObj ?? 0);
+                cmd.ExecuteNonQuery();
+                int newId = (int)cmd.LastInsertedId;
 
                 // Create profile if additional data provided
                 if (!string.IsNullOrWhiteSpace(req.Phone) || req.Age.HasValue || !string.IsNullOrWhiteSpace(req.Gender))
@@ -108,11 +108,11 @@ namespace MyFirstApi.Controllers
             }
             catch (MySqlException mex) when (mex.Number == 1062)
             {
-                return Conflict("A user with that email or username already exists.");
+                return Conflict(new { message = "A user with that email or username already exists." });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, new { message = ex.Message });
             }
         }
 
@@ -123,7 +123,7 @@ namespace MyFirstApi.Controllers
             try
             {
                 if (string.IsNullOrWhiteSpace(req.Email) || string.IsNullOrWhiteSpace(req.Password))
-                    return BadRequest("Email and password are required.");
+                    return BadRequest(new { message = "Email and password are required." });
 
                 using MySqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
                 conn.Open();
@@ -143,7 +143,7 @@ namespace MyFirstApi.Controllers
                     cmd.Parameters.AddWithValue("@email", req.Email);
 
                     using MySqlDataReader reader = cmd.ExecuteReader();
-                    if (!reader.Read()) return Unauthorized("Invalid credentials.");
+                    if (!reader.Read()) return Unauthorized(new { message = "Invalid credentials." });
 
                     // Read columns by name to avoid position mismatches
                     id = reader.GetInt32(reader.GetOrdinal("Id"));
@@ -177,18 +177,30 @@ namespace MyFirstApi.Controllers
                     catch { /* CreatedAt might not exist or have different type */ }
                 } // DataReader is closed here
 
+                // Debug logging to help diagnose password issues
+                Console.WriteLine($"🔐 Login attempt for: {email}");
+                Console.WriteLine($"   Password length: {req.Password?.Length ?? 0}");
+                Console.WriteLine($"   Hash starts with: {(hash.Length > 10 ? hash.Substring(0, 10) : hash)}...");
+                Console.WriteLine($"   Hash is BCrypt format: {hash.StartsWith("$2")}");
+
                 // Now verify password with error handling
                 bool ok = false;
                 try
                 {
                     ok = BCrypt.Net.BCrypt.Verify(req.Password, hash);
+                    Console.WriteLine($"   BCrypt.Verify result: {ok}");
                 }
                 catch (Exception ex)
                 {
-                    return StatusCode(500, $"Password verification error: {ex.Message}");
+                    Console.WriteLine($"   ❌ BCrypt.Verify exception: {ex.Message}");
+                    return StatusCode(500, new { message = $"Password verification error: {ex.Message}" });
                 }
                 
-                if (!ok) return Unauthorized("Invalid credentials.");
+                if (!ok)
+                {
+                    Console.WriteLine($"   ❌ Password does not match hash");
+                    return Unauthorized(new { message = "Invalid credentials." });
+                }
 
                 var resp = new UserResponse 
                 { 
@@ -218,7 +230,7 @@ namespace MyFirstApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, new { message = ex.Message });
             }
         }
 
@@ -365,6 +377,58 @@ namespace MyFirstApi.Controllers
                 serverTime = DateTime.UtcNow,
                 tokenExpiration = User.FindFirst("exp")?.Value
             });
+        }
+
+        // POST /api/auth/reset-password - Reset password for a user (for debugging/fixing login issues)
+        [HttpPost("reset-password")]
+        public IActionResult ResetPassword([FromBody] ResetPasswordRequest req)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(req.Email) || string.IsNullOrWhiteSpace(req.NewPassword))
+                    return BadRequest(new { message = "Email and new password are required." });
+
+                using MySqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
+                conn.Open();
+
+                // Check if user exists
+                string? existingHash = null;
+                using (var checkCmd = new MySqlCommand("SELECT PasswordHash FROM Users WHERE Email = @email", conn))
+                {
+                    checkCmd.Parameters.AddWithValue("@email", req.Email);
+                    existingHash = checkCmd.ExecuteScalar() as string;
+                }
+
+                if (existingHash == null)
+                    return NotFound(new { message = "User not found." });
+
+                // Hash new password with BCrypt
+                string newHash = BCrypt.Net.BCrypt.HashPassword(req.NewPassword);
+
+                // Update password
+                using (var updateCmd = new MySqlCommand("UPDATE Users SET PasswordHash = @hash WHERE Email = @email", conn))
+                {
+                    updateCmd.Parameters.AddWithValue("@hash", newHash);
+                    updateCmd.Parameters.AddWithValue("@email", req.Email);
+                    updateCmd.ExecuteNonQuery();
+                }
+
+                Console.WriteLine($"✅ Password reset for: {req.Email}");
+                Console.WriteLine($"   Old hash started with: {(existingHash.Length > 10 ? existingHash.Substring(0, 10) : existingHash)}");
+                Console.WriteLine($"   New hash starts with: {newHash.Substring(0, 10)}");
+
+                return Ok(new { message = "Password reset successfully. You can now login with the new password." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        public class ResetPasswordRequest
+        {
+            public string Email { get; set; } = "";
+            public string NewPassword { get; set; } = "";
         }
     }
 }

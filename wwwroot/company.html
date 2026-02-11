@@ -1128,7 +1128,13 @@
             const password = document.getElementById('loginPassword').value;
             if (!email || !password) return showError('loginError', 'Email and password required');
 
+            const btn = document.querySelector('#loginScreen button.btn-primary');
+            const originalText = btn.innerHTML;
+
             try {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner" style="display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-radius:50%;border-top-color:#fff;animation:spin 1s linear infinite;margin-right:8px"></span> Signing In...';
+
                 const res = await fetch(`${API_BASE}/auth/login`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })
@@ -1139,7 +1145,12 @@
                 token = data.token;
                 localStorage.setItem('company_token', token);
                 loadCompanyProfile();
-            } catch (e) { showError('loginError', 'Connection error: ' + e.message); }
+            } catch (e) {
+                showError('loginError', 'Connection error: ' + e.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
         }
 
         async function registerCompany() {
@@ -1152,25 +1163,38 @@
             if (!fullName || !username || !email || !password || !companyName)
                 return showError('registerError', 'Please fill in all required fields');
 
+            const btn = document.querySelector('#registerScreen button.btn-primary');
+            const originalText = btn.innerHTML;
+
             try {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner" style="display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-radius:50%;border-top-color:#fff;animation:spin 1s linear infinite;margin-right:8px"></span> Registering...';
+
                 // 1. Register user account (or login if already exists)
                 let userToken = null;
                 const regRes = await fetch(`${API_BASE}/auth/register`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ fullName, username, email, password })
                 });
-                const regData = await regRes.json();
+
+                let regData = {};
+                const regText = await regRes.text();
+                try { regData = JSON.parse(regText); } catch (e) { regData = { message: regText }; }
 
                 if (regRes.ok) {
                     userToken = regData.token;
                 } else {
-                    // If user already exists, try logging in instead
-                    if (regRes.status === 400 && regData.message && regData.message.toLowerCase().includes('already exists')) {
+                    // If user already exists (400 or 409), try logging in instead
+                    const isConflict = regRes.status === 409 || (regRes.status === 400 && regData.message && regData.message.toLowerCase().includes('already exists'));
+                    if (isConflict) {
                         const loginRes = await fetch(`${API_BASE}/auth/login`, {
                             method: 'POST', headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ email, password })
                         });
-                        const loginData = await loginRes.json();
+                        const loginText = await loginRes.text();
+                        let loginData = {};
+                        try { loginData = JSON.parse(loginText); } catch (e) { loginData = { message: loginText }; }
+
                         if (!loginRes.ok) return showError('registerError', loginData.message || 'Account exists but login failed. Check your password.');
                         userToken = loginData.token;
                     } else {
@@ -1218,7 +1242,12 @@
 
                 localStorage.setItem('company_token', token);
                 loadCompanyProfile();
-            } catch (e) { showError('registerError', 'Connection error: ' + e.message); }
+            } catch (e) {
+                showError('registerError', 'Connection error: ' + e.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
         }
 
         function doLogout() {
@@ -1659,6 +1688,13 @@
         }
 
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        // Setup modal backdrop click to close
+        document.addEventListener('click', function (e) {
+            if (e.target.classList.contains('modal-overlay')) {
+                closeModal(e.target.id);
+            }
+        });
 
         // ==========================================
         // PROFILE UPDATE
