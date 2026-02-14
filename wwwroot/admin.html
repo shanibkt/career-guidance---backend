@@ -1143,8 +1143,12 @@
     </div>
 
     <script>
-        // Dynamic API URL - works on both localhost and Azure
-        const API_URL = window.location.origin + '/api';
+        // Resolve API origin from the current host to avoid hardcoded protocol/domain issues.
+        const API_ORIGIN =
+            (window.location.origin && window.location.origin !== 'null')
+                ? window.location.origin
+                : 'https://carrier-bnawa0crdsgmcqak.eastus-01.azurewebsites.net';
+        const API_URL = `${API_ORIGIN}/api`;
         let authToken = '';
         let currentPage = 1;
         let currentSearch = '';
@@ -1182,32 +1186,21 @@
         // Login
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const emailOrUsername = document.getElementById('loginEmail').value;
+            const loginEmail = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;
 
-            // Check if input is email or username
-            const isEmail = emailOrUsername.includes('@');
+            if (!loginEmail || !password) {
+                showError('Email and password are required.');
+                return;
+            }
+
+            // Backend login currently accepts email + password.
+            if (!loginEmail.includes('@')) {
+                showError('Please enter a valid email address.');
+                return;
+            }
 
             try {
-                // If username provided, first get the email
-                let loginEmail = emailOrUsername;
-
-                if (!isEmail) {
-                    // Try to get email from username
-                    try {
-                        const userResponse = await fetch(`${API_URL}/auth/user-by-username/${emailOrUsername}`);
-                        if (userResponse.ok) {
-                            const userData = await safeJsonParse(userResponse);
-                            if (userData && userData.email) {
-                                loginEmail = userData.email;
-                            }
-                        }
-                    } catch (err) {
-                        // If username lookup fails, just try with what was provided
-                        console.log('Username lookup failed, trying as-is');
-                    }
-                }
-
                 const response = await fetch(`${API_URL}/auth/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1219,7 +1212,7 @@
                     const errorMsg = errorData?.message || errorData?.error || `Error: ${response.status} ${response.statusText}`;
 
                     if (response.status === 401) {
-                        showError('Invalid email/username or password. Please check your credentials.');
+                        showError('Invalid email or password. Please check your credentials.');
                     } else {
                         showError(errorMsg);
                     }

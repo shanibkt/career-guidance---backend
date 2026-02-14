@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using MySqlConnector;
 using System.Data;
 using MyFirstApi.Models;
@@ -7,6 +8,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Security.Cryptography;
+using MyFirstApi.Services;
 
 namespace MyFirstApi.Controllers
 {
@@ -15,10 +17,12 @@ namespace MyFirstApi.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IConfiguration _configuration;
+        private readonly IEmailService _emailService;
 
-        public AuthController(IConfiguration configuration)
+        public AuthController(IConfiguration configuration, IEmailService emailService)
         {
             _configuration = configuration;
+            _emailService = emailService;
         }
 
         // Register: creates a new user. Password is hashed with BCrypt.
@@ -234,6 +238,43 @@ namespace MyFirstApi.Controllers
             }
         }
 
+        // GET /api/auth/user-by-username/{username}
+        // Utility endpoint used by admin dashboard username fallback.
+        [HttpGet("user-by-username/{username}")]
+        public IActionResult GetUserByUsername(string username)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(username))
+                    return BadRequest(new { message = "Username is required." });
+
+                using MySqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
+                conn.Open();
+
+                using MySqlCommand cmd = new(
+                    "SELECT Id, Username, FullName, Email FROM Users WHERE Username = @username LIMIT 1",
+                    conn
+                );
+                cmd.Parameters.AddWithValue("@username", username);
+
+                using var reader = cmd.ExecuteReader();
+                if (!reader.Read())
+                    return NotFound(new { message = "User not found." });
+
+                return Ok(new
+                {
+                    id = reader.GetInt32("Id"),
+                    username = reader.GetString("Username"),
+                    fullName = reader.GetString("FullName"),
+                    email = reader.GetString("Email")
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
         // Helper method to generate JWT token
         private string GenerateJwtToken(int userId, string username, string email, string role = "user")
         {
@@ -359,6 +400,35 @@ namespace MyFirstApi.Controllers
             }
         }
 
+        // POST /api/auth/logout - revoke refresh tokens for current user
+        [HttpPost("logout")]
+        [Authorize]
+        public IActionResult Logout()
+        {
+            try
+            {
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrWhiteSpace(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+                    return Unauthorized(new { message = "Invalid user token." });
+
+                using MySqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
+                conn.Open();
+
+                using MySqlCommand cmd = new(
+                    "UPDATE refresh_tokens SET revoked = TRUE WHERE user_id = @userId AND revoked = FALSE",
+                    conn
+                );
+                cmd.Parameters.AddWithValue("@userId", userId);
+                cmd.ExecuteNonQuery();
+
+                return Ok(new { message = "Logged out successfully." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
         // GET /api/auth/verify - Test if token is valid
         [HttpGet("verify")]
         [Microsoft.AspNetCore.Authorization.Authorize]
@@ -379,14 +449,117 @@ namespace MyFirstApi.Controllers
             });
         }
 
-        // POST /api/auth/reset-password - Reset password for a user (for debugging/fixing login issues)
+        // POST /api/auth/forgot-password
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest req)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(req.Email))
+                    return BadRequest(new { message = "Email is required." });
+
+                using MySqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
+                await conn.OpenAsync();
+
+                // Check if user exists
+                int userId = 0;
+                string username = "";
+                using (var cmd = new MySqlCommand("SELECT Id, Username FROM Users WHERE Email = @email LIMIT 1", conn))
+                {
+                    cmd.Parameters.AddWithValue("@email", req.Email);
+                    using var reader = await cmd.ExecuteReaderAsync();
+                    if (await reader.ReadAsync())
+                    {
+                        userId = reader.GetInt32(0);
+                        username = reader.GetString(1);
+                    }
+                }
+
+                if (userId != 0)
+                {
+                    // Generate reset token (short lived, e.g., 15 mins)
+                    var tokenHandler = new JwtSecurityTokenHandler();
+                    var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
+                    var tokenDescriptor = new SecurityTokenDescriptor
+                    {
+                        Subject = new ClaimsIdentity(new[] 
+                        { 
+                            new Claim("id", userId.ToString()),
+                            new Claim("email", req.Email),
+                            new Claim("type", "reset_password") 
+                        }),
+                        Expires = DateTime.UtcNow.AddMinutes(15),
+                        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                    };
+                    var token = tokenHandler.WriteToken(tokenHandler.CreateToken(tokenDescriptor));
+
+                    // Send email
+                    var resetLink = $"https://your-frontend-app.com/reset-password?token={token}"; 
+                    // Note: Update with actual frontend URL or deep link scheme
+                    
+                    var message = $@"
+                        <h3>Password Reset Request</h3>
+                        <p>Hi {username},</p>
+                        <p>You requested a password reset. Please use the token below to reset your password within the app:</p>
+                        <p><b>{token}</b></p>
+                        <p>This token is valid for 15 minutes.</p>
+                        <p>If you didn't request this, purely ignore this email.</p>
+                    ";
+
+                    await _emailService.SendEmailAsync(req.Email, "Reset Your Password", message);
+                }
+
+                // Security-friendly: do not reveal whether email exists (always say we sent it if it exists)
+                return Ok(new
+                {
+                    message = "If the email exists, reset instructions have been sent."
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error processing request", error = ex.Message });
+            }
+        }
+
+        // POST /api/auth/reset-password - Reset password for a user
         [HttpPost("reset-password")]
         public IActionResult ResetPassword([FromBody] ResetPasswordRequest req)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(req.Email) || string.IsNullOrWhiteSpace(req.NewPassword))
-                    return BadRequest(new { message = "Email and new password are required." });
+                if (string.IsNullOrWhiteSpace(req.NewPassword))
+                    return BadRequest(new { message = "New password is required." });
+
+                // Accept both styles:
+                // 1) { email, newPassword } (current backend contract)
+                // 2) { token, newPassword } (frontend compatibility)
+                var email = req.Email;
+                if (string.IsNullOrWhiteSpace(email) && !string.IsNullOrWhiteSpace(req.Token))
+                {
+                    if (req.Token.Contains("@"))
+                    {
+                        email = req.Token;
+                    }
+                    else
+                    {
+                        try
+                        {
+                            var handler = new JwtSecurityTokenHandler();
+                            var jwt = handler.ReadJwtToken(req.Token);
+                            email = jwt.Claims.FirstOrDefault(c =>
+                                c.Type == ClaimTypes.Email ||
+                                c.Type == JwtRegisteredClaimNames.Email ||
+                                c.Type == "email")?.Value;
+                        }
+                        catch
+                        {
+                            // Invalid/unsupported token format.
+                        }
+                    }
+                }
+
+                if (string.IsNullOrWhiteSpace(email))
+                    return BadRequest(new { message = "Email (or valid token containing email) is required." });
 
                 using MySqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
                 conn.Open();
@@ -409,7 +582,7 @@ namespace MyFirstApi.Controllers
                 using (var updateCmd = new MySqlCommand("UPDATE Users SET PasswordHash = @hash WHERE Email = @email", conn))
                 {
                     updateCmd.Parameters.AddWithValue("@hash", newHash);
-                    updateCmd.Parameters.AddWithValue("@email", req.Email);
+                    updateCmd.Parameters.AddWithValue("@email", email);
                     updateCmd.ExecuteNonQuery();
                 }
 
@@ -429,6 +602,12 @@ namespace MyFirstApi.Controllers
         {
             public string Email { get; set; } = "";
             public string NewPassword { get; set; } = "";
+            public string Token { get; set; } = "";
+        }
+
+        public class ForgotPasswordRequest
+        {
+            public string Email { get; set; } = "";
         }
     }
 }

@@ -1143,8 +1143,12 @@
     </div>
 
     <script>
-        // Dynamic API URL - works on both localhost and Azure
-        const API_URL = window.location.origin + '/api';
+        // Resolve API origin from the current host to avoid hardcoded protocol/domain issues.
+        const API_ORIGIN =
+            (window.location.origin && window.location.origin !== 'null')
+                ? window.location.origin
+                : 'https://carrier-bnawa0crdsgmcqak.eastus-01.azurewebsites.net';
+        const API_URL = `${API_ORIGIN}/api`;
         let authToken = '';
         let currentPage = 1;
         let currentSearch = '';
@@ -1182,120 +1186,97 @@
         // Login
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const submitBtn = document.querySelector('#loginForm button[type="submit"]');
-            const originalBtnText = submitBtn.innerHTML;
+            const loginEmail = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!loginEmail || !password) {
+                showError('Email and password are required.');
+                return;
+            }
+
+            // Backend login currently accepts email + password.
+            if (!loginEmail.includes('@')) {
+                showError('Please enter a valid email address.');
+                return;
+            }
 
             try {
-                // Set loading state
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display:inline-block; width:16px; height:16px; border:2px solid rgba(255,255,255,0.3); border-radius:50%; border-top-color:#fff; animation:spin 1s linear infinite; margin-right:8px; vertical-align:middle;"></span> Signing In...';
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: loginEmail, password: password })
+                });
 
-                const emailOrUsername = document.getElementById('loginEmail').value;
-                const password = document.getElementById('loginPassword').value;
+                if (!response.ok) {
+                    const errorData = await safeJsonParse(response).catch(() => ({}));
+                    const errorMsg = errorData?.message || errorData?.error || `Error: ${response.status} ${response.statusText}`;
 
-                // Check if input is email or username
-                const isEmail = emailOrUsername.includes('@');
-
-                try {
-                    // If username provided, first get the email
-                    let loginEmail = emailOrUsername;
-
-                    if (!isEmail) {
-                        // Try to get email from username
-                        try {
-                            const userResponse = await fetch(`${API_URL}/auth/user-by-username/${emailOrUsername}`);
-                            if (userResponse.ok) {
-                                const userData = await safeJsonParse(userResponse);
-                                if (userData && userData.email) {
-                                    loginEmail = userData.email;
-                                }
-                            }
-                        } catch (err) {
-                            // If username lookup fails, just try with what was provided
-                            console.log('Username lookup failed, trying as-is');
-                        }
+                    if (response.status === 401) {
+                        showError('Invalid email or password. Please check your credentials.');
+                    } else {
+                        showError(errorMsg);
                     }
+                    return;
+                }
 
-                    const response = await fetch(`${API_URL}/auth/login`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email: loginEmail, password: password })
-                    });
+                const data = await safeJsonParse(response);
 
-                    if (!response.ok) {
-                        const errorData = await safeJsonParse(response).catch(() => ({}));
-                        const errorMsg = errorData?.message || errorData?.error || `Error: ${response.status} ${response.statusText}`;
+                if (data && data.token) {
+                    authToken = data.token;
 
-                        if (response.status === 401) {
-                            showError('Invalid email/username or password. Please check your credentials.');
-                        } else {
-                            showError(errorMsg);
-                        }
-                        return;
-                    }
+                    // Decode and validate token
+                    console.log('=== TOKEN VALIDATION ===');
+                    console.log('Token received:', authToken.substring(0, 50) + '...');
 
-                    const data = await safeJsonParse(response);
+                    try {
+                        const payload = JSON.parse(atob(data.token.split('.')[1]));
+                        console.log('Token payload:', JSON.stringify(payload, null, 2));
 
-                    if (data && data.token) {
-                        authToken = data.token;
+                        // Check all possible role claim formats
+                        const role = payload.role ||
+                            payload.Role ||
+                            payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ||
+                            payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/Role'];
 
-                        // Decode and validate token
-                        console.log('=== TOKEN VALIDATION ===');
-                        console.log('Token received:', authToken.substring(0, 50) + '...');
+                        console.log('User role:', role);
+                        console.log('Is Admin?', role?.toLowerCase() === 'admin');
 
-                        try {
-                            const payload = JSON.parse(atob(data.token.split('.')[1]));
-                            console.log('Token payload:', JSON.stringify(payload, null, 2));
-
-                            // Check all possible role claim formats
-                            const role = payload.role ||
-                                payload.Role ||
-                                payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ||
-                                payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/Role'];
-
-                            console.log('User role:', role);
-                            console.log('Is Admin?', role?.toLowerCase() === 'admin');
-
-                            // Accept both 'admin' and 'Admin' (case-insensitive check)
-                            if (!role || role.toLowerCase() !== 'admin') {
-                                showError(`Access denied. Admin privileges required. Your role: ${role || 'none'}`);
-                                localStorage.removeItem('adminToken');
-                                console.error('Role check failed. User role:', role);
-                                return;
-                            }
-
-                            // Save token after validation
-                            localStorage.setItem('adminToken', authToken);
-                            console.log('✅ Admin token saved successfully');
-
-                            const adminName = data.user?.fullName || payload.unique_name || 'Administrator';
-                            document.getElementById('adminName').textContent = adminName;
-
-                            // Set avatar initials
-                            const initials = adminName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-                            document.getElementById('userAvatar').textContent = initials;
-
-                            document.getElementById('loginScreen').style.display = 'none';
-                            document.getElementById('dashboardScreen').style.display = 'block';
-
-                            loadDashboard();
-                        } catch (tokenError) {
-                            console.error('Token decode error:', tokenError);
-                            showError('Invalid token format. Please contact administrator.');
+                        // Accept both 'admin' and 'Admin' (case-insensitive check)
+                        if (!role || role.toLowerCase() !== 'admin') {
+                            showError(`Access denied. Admin privileges required. Your role: ${role || 'none'}`);
+                            localStorage.removeItem('adminToken');
+                            console.error('Role check failed. User role:', role);
                             return;
                         }
-                    } else {
-                        showError(data?.message || 'Invalid credentials - no token received');
+
+                        // Save token after validation
+                        localStorage.setItem('adminToken', authToken);
+                        console.log('✅ Admin token saved successfully');
+
+                        const adminName = data.user?.fullName || payload.unique_name || 'Administrator';
+                        document.getElementById('adminName').textContent = adminName;
+
+                        // Set avatar initials
+                        const initials = adminName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                        document.getElementById('userAvatar').textContent = initials;
+
+                        document.getElementById('loginScreen').style.display = 'none';
+                        document.getElementById('dashboardScreen').style.display = 'block';
+
+                        loadDashboard();
+                    } catch (tokenError) {
+                        console.error('Token decode error:', tokenError);
+                        showError('Invalid token format. Please contact administrator.');
+                        return;
                     }
-                } catch (error) {
-                    console.error('Login error:', error);
-                    showError(`Connection error: ${error.message}. Is the backend running on ${API_URL}?`);
-                } finally {
-                    // Restore button state
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalBtnText;
+                } else {
+                    showError(data?.message || 'Invalid credentials - no token received');
                 }
-            });
+            } catch (error) {
+                console.error('Login error:', error);
+                showError(`Connection error: ${error.message}. Is the backend running on ${API_URL}?`);
+            }
+        });
 
         function showError(message) {
             const errorEl = document.getElementById('errorMessage');
@@ -2631,7 +2612,7 @@
                 </div>
             `;
 
-            document.getElementById('userModal').style.display = 'flex';
+            document.getElementById('userModal').classList.add('active');
         }
 
         async function exportUsers() {

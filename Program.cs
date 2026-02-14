@@ -56,6 +56,9 @@ try
     // Register Crash Reporting Service
     builder.Services.AddScoped<ICrashReportingService, LocalCrashReportingService>();
 
+    // Register Email Service
+    builder.Services.AddTransient<IEmailService, EmailService>();
+
     // Configure JWT Authentication
     var jwtSection = builder.Configuration.GetSection("Jwt");
     var jwtKey = jwtSection.GetValue<string>("Key");

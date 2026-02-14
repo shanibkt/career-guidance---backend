@@ -925,7 +925,7 @@
             </div>
         </div>
     </div>
-
+````````````````````````````````````````````
     <!-- ===== DASHBOARD ===== -->
     <div id="dashboard" class="dashboard">
         <div class="sidebar">
@@ -1098,7 +1098,13 @@
     </div>
 
     <script>
-        const API_BASE = window.location.origin + '/api';
+        const API_ORIGIN =
+            (window.location.origin && window.location.origin !== 'null')
+                ? window.location.origin
+                : 'https://carrier-bnawa0crdsgmcqak.eastus-01.azurewebsites.net';
+        const API_URL = `${API_ORIGIN}/api`;
+        // For compatibility with code using API_BASE
+        const API_BASE = API_URL;
         let token = null;
         let companyData = null;
         let careerStats = [];
