@@ -39,14 +39,25 @@ namespace MyFirstApi.Controllers
                 using MySqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
                 conn.Open();
 
-                // Check if user already exists
-                using (MySqlCommand checkCmd = new("SELECT Id FROM Users WHERE Email = @email LIMIT 1", conn))
+                // Check if email already exists
+                using (MySqlCommand checkEmailCmd = new("SELECT Id FROM Users WHERE Email = @email LIMIT 1", conn))
                 {
-                    checkCmd.Parameters.AddWithValue("@email", req.Email);
-                    using var reader = checkCmd.ExecuteReader();
+                    checkEmailCmd.Parameters.AddWithValue("@email", req.Email);
+                    using var reader = checkEmailCmd.ExecuteReader();
                     if (reader.Read())
                     {
-                        return BadRequest(new { message = "User already exists" });
+                        return Conflict(new { message = "This email is already registered. Please login or use a different email." });
+                    }
+                }
+
+                // Check if username already exists
+                using (MySqlCommand checkUsernameCmd = new("SELECT Id FROM Users WHERE Username = @username LIMIT 1", conn))
+                {
+                    checkUsernameCmd.Parameters.AddWithValue("@username", req.Username);
+                    using var reader = checkUsernameCmd.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        return Conflict(new { message = "This username is already taken. Please choose a different username." });
                     }
                 }
 
@@ -112,7 +123,20 @@ namespace MyFirstApi.Controllers
             }
             catch (MySqlException mex) when (mex.Number == 1062)
             {
-                return Conflict(new { message = "A user with that email or username already exists." });
+                // Duplicate key error - try to determine which field
+                string errorMsg = mex.Message.ToLower();
+                if (errorMsg.Contains("email"))
+                {
+                    return Conflict(new { message = "This email is already registered. Please login or use a different email." });
+                }
+                else if (errorMsg.Contains("username"))
+                {
+                    return Conflict(new { message = "This username is already taken. Please choose a different username." });
+                }
+                else
+                {
+                    return Conflict(new { message = "A user with that email or username already exists." });
+                }
             }
             catch (Exception ex)
             {

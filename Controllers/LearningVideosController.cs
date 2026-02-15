@@ -28,7 +28,8 @@ namespace MyFirstApi.Controllers
 
                 string query = @"
                     SELECT id, skill_name, video_title, video_description, 
-                           youtube_video_id, duration_minutes, thumbnail_url
+                           youtube_video_id, duration_minutes, thumbnail_url,
+                           (transcript IS NOT NULL AND transcript <> '') as has_transcript
                     FROM learning_videos
                     ORDER BY skill_name";
 
@@ -50,7 +51,8 @@ namespace MyFirstApi.Controllers
                         durationMinutes = reader.GetInt32("duration_minutes"),
                         thumbnailUrl = reader.IsDBNull(reader.GetOrdinal("thumbnail_url"))
                             ? $"https://img.youtube.com/vi/{reader.GetString("youtube_video_id")}/maxresdefault.jpg"
-                            : reader.GetString("thumbnail_url")
+                            : reader.GetString("thumbnail_url"),
+                        hasTranscript = reader.GetBoolean("has_transcript")
                     });
                 }
 
@@ -97,7 +99,8 @@ namespace MyFirstApi.Controllers
 
                 string query = $@"
                     SELECT id, skill_name, video_title, video_description, 
-                           youtube_video_id, duration_minutes, thumbnail_url
+                           youtube_video_id, duration_minutes, thumbnail_url,
+                           (transcript IS NOT NULL AND transcript <> '') as has_transcript
                     FROM learning_videos
                     WHERE skill_name IN ({string.Join(",", placeholders)})
                     ORDER BY FIELD(skill_name, {string.Join(",", placeholders)})";
@@ -126,7 +129,8 @@ namespace MyFirstApi.Controllers
                         durationMinutes = reader.GetInt32("duration_minutes"),
                         thumbnailUrl = reader.IsDBNull(reader.GetOrdinal("thumbnail_url"))
                             ? $"https://img.youtube.com/vi/{videoId}/maxresdefault.jpg"
-                            : reader.GetString("thumbnail_url")
+                            : reader.GetString("thumbnail_url"),
+                        hasTranscript = reader.GetBoolean("has_transcript")
                     });
                 }
 
@@ -155,7 +159,8 @@ namespace MyFirstApi.Controllers
 
                 string query = @"
                     SELECT id, skill_name, video_title, video_description, 
-                           youtube_video_id, duration_minutes, thumbnail_url
+                           youtube_video_id, duration_minutes, thumbnail_url,
+                           (transcript IS NOT NULL AND transcript <> '') as has_transcript
                     FROM learning_videos
                     WHERE skill_name = @skillName
                     LIMIT 1";
@@ -179,7 +184,8 @@ namespace MyFirstApi.Controllers
                         durationMinutes = reader.GetInt32("duration_minutes"),
                         thumbnailUrl = reader.IsDBNull(reader.GetOrdinal("thumbnail_url"))
                             ? $"https://img.youtube.com/vi/{videoId}/maxresdefault.jpg"
-                            : reader.GetString("thumbnail_url")
+                            : reader.GetString("thumbnail_url"),
+                        hasTranscript = reader.GetBoolean("has_transcript")
                     };
 
                     return Ok(video);
@@ -330,10 +336,10 @@ namespace MyFirstApi.Controllers
                 string insertQuery = @"
                     INSERT INTO learning_videos (
                         skill_name, video_title, video_description, youtube_video_id, 
-                        duration_minutes, thumbnail_url
+                        duration_minutes, thumbnail_url, transcript
                     ) VALUES (
                         @skillName, @videoTitle, @videoDescription, @youtubeVideoId,
-                        @durationMinutes, @thumbnailUrl
+                        @durationMinutes, @thumbnailUrl, @transcript
                     )";
 
                 using MySqlCommand insertCmd = new(insertQuery, conn);
@@ -343,6 +349,7 @@ namespace MyFirstApi.Controllers
                 insertCmd.Parameters.AddWithValue("@youtubeVideoId", request.YoutubeVideoId);
                 insertCmd.Parameters.AddWithValue("@durationMinutes", request.DurationMinutes);
                 insertCmd.Parameters.AddWithValue("@thumbnailUrl", request.ThumbnailUrl ?? (object)DBNull.Value);
+                insertCmd.Parameters.AddWithValue("@transcript", request.Transcript ?? (object)DBNull.Value);
 
                 int rowsAffected = insertCmd.ExecuteNonQuery();
 
@@ -403,6 +410,7 @@ namespace MyFirstApi.Controllers
                         youtube_video_id = @youtubeVideoId,
                         duration_minutes = @durationMinutes,
                         thumbnail_url = @thumbnailUrl,
+                        transcript = @transcript,
                         updated_at = CURRENT_TIMESTAMP
                     WHERE id = @id";
 
@@ -414,6 +422,7 @@ namespace MyFirstApi.Controllers
                 updateCmd.Parameters.AddWithValue("@youtubeVideoId", request.YoutubeVideoId);
                 updateCmd.Parameters.AddWithValue("@durationMinutes", request.DurationMinutes);
                 updateCmd.Parameters.AddWithValue("@thumbnailUrl", request.ThumbnailUrl ?? (object)DBNull.Value);
+                updateCmd.Parameters.AddWithValue("@transcript", request.Transcript ?? (object)DBNull.Value);
 
                 int rowsAffected = updateCmd.ExecuteNonQuery();
 

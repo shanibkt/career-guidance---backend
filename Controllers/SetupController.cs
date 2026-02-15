@@ -1128,5 +1128,56 @@ namespace MyFirstApi.Controllers
                 });
             }
         }
+        // GET /api/setup/add-transcript-column
+        [HttpGet("add-transcript-column")]
+        public IActionResult AddTranscriptColumn()
+        {
+            try
+            {
+                using MySqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
+                conn.Open();
+
+                var results = new List<string>();
+
+                // Check if transcript column exists
+                string checkSql = @"
+                    SELECT COUNT(*) 
+                    FROM information_schema.COLUMNS 
+                    WHERE TABLE_SCHEMA = DATABASE() 
+                    AND TABLE_NAME = 'learning_videos' 
+                    AND COLUMN_NAME = 'transcript'";
+                
+                using MySqlCommand checkCmd = new(checkSql, conn);
+                var exists = Convert.ToInt32(checkCmd.ExecuteScalar()) > 0;
+
+                if (!exists)
+                {
+                    string alterSql = "ALTER TABLE learning_videos ADD COLUMN transcript MEDIUMTEXT NULL AFTER youtube_video_id";
+                    using MySqlCommand alterCmd = new(alterSql, conn);
+                    alterCmd.ExecuteNonQuery();
+                    results.Add("✅ transcript column added as MEDIUMTEXT");
+                }
+                else
+                {
+                    results.Add("⚠️ transcript column already exists");
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Database schema update completed",
+                    results = results
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Failed to update database schema",
+                    error = ex.Message
+                });
+            }
+        }
     }
 }
