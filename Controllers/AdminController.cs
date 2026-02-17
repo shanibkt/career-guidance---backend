@@ -107,20 +107,29 @@ namespace MyFirstApi.Controllers
 
                 // Simplified query - just get basic user info
                 var query = $@"
-                    SELECT 
-                        u.Id,
-                        u.Username,
-                        u.FullName,
-                        u.Email,
-                        u.CreatedAt
-                    FROM Users u
-                    WHERE 1=1 {searchCondition}
-                    ORDER BY {orderByColumn} {orderDirection}
-                    LIMIT @PageSize OFFSET @Offset";
+                SELECT 
+                    u.Id,
+                    u.Username,
+                    u.FullName,
+                    u.Email,
+                    u.CreatedAt,
+                    COALESCE(cp.career_name, up.career_path) as SelectedCareer,
+                    (SELECT COUNT(*) FROM video_watch_history WHERE user_id = u.Id) as TotalVideos,
+                    (SELECT COUNT(*) FROM video_watch_history WHERE user_id = u.Id AND is_completed = TRUE) as CompletedVideos,
+                    COALESCE(cp.overall_progress, 0.0) as OverallProgress,
+                    EXISTS(SELECT 1 FROM user_resumes WHERE user_id = u.Id) as HasResume,
+                    COALESCE((SELECT MAX(last_watched) FROM video_watch_history WHERE user_id = u.Id), u.CreatedAt) as LastActive,
+                    COALESCE((SELECT SUM(duration_minutes) FROM video_watch_history v JOIN learning_videos lv ON v.video_id = lv.video_id WHERE v.user_id = u.Id), 0) as TotalWatchTime
+                FROM Users u
+                LEFT JOIN user_career_progress cp ON u.Id = cp.user_id AND cp.is_active = TRUE
+                LEFT JOIN UserProfiles up ON u.Id = up.UserId
+                WHERE 1=1 {searchCondition}
+                ORDER BY {orderByColumn} {orderDirection}
+                LIMIT @PageSize OFFSET @Offset";
 
                 using var cmd = new MySqlCommand(query, connection);
                 cmd.Parameters.AddWithValue("@PageSize", pageSize);
-                cmd.Parameters.AddWithValue("@Offset", offset);
+                cmd.Parameters.AddWithValue("@Offset", (page - 1) * pageSize);
                 if (!string.IsNullOrEmpty(search))
                     cmd.Parameters.AddWithValue("@Search", $"%{search}%");
 
@@ -138,13 +147,13 @@ namespace MyFirstApi.Controllers
                             FullName = reader.GetString(2),
                             Email = reader.GetString(3),
                             CreatedAt = reader.GetDateTime(4),
-                            SelectedCareer = null,
-                            TotalVideosWatched = 0,
-                            CompletedVideos = 0,
-                            OverallProgress = 0.0,
-                            HasResume = false,
-                            LastActive = reader.GetDateTime(4), // Use CreatedAt as LastActive
-                            TotalWatchTimeMinutes = 0
+                            SelectedCareer = reader.IsDBNull(5) ? null : reader.GetString(5),
+                            TotalVideosWatched = reader.GetInt32(6),
+                            CompletedVideos = reader.GetInt32(7),
+                            OverallProgress = reader.GetDouble(8),
+                            HasResume = reader.GetBoolean(9),
+                            LastActive = reader.GetDateTime(10),
+                            TotalWatchTimeMinutes = Convert.ToInt32(reader.GetValue(11))
                         });
                     }
                 } // DataReader is closed here
@@ -517,12 +526,19 @@ namespace MyFirstApi.Controllers
                 }
                 catch { stats.ActiveUsersWeek = 0; }
 
-                // Total careers selected
-                try
-                {
-                    using var cmd = new MySqlCommand("SELECT COUNT(*) FROM user_career_progress WHERE is_active = TRUE", connection);
-                    stats.TotalCareersSelected = Convert.ToInt32(await cmd.ExecuteScalarAsync());
-                }
+                // Total careers selected (Students with goals)
+        try
+        {
+            var countQuery = @"
+                SELECT COUNT(DISTINCT user_id) 
+                FROM (
+                    SELECT user_id FROM user_career_progress WHERE is_active = TRUE
+                    UNION
+                    SELECT UserId as user_id FROM UserProfiles WHERE career_path IS NOT NULL
+                ) enrollment";
+            using var cmd = new MySqlCommand(countQuery, connection);
+            stats.TotalCareersSelected = Convert.ToInt32(await cmd.ExecuteScalarAsync());
+        }
                 catch { stats.TotalCareersSelected = 0; }
 
                 // Total videos watched
@@ -559,16 +575,19 @@ namespace MyFirstApi.Controllers
                 catch { stats.AverageProgress = 0; }
 
                 // Popular careers
-                try
-                {
-                    var popularQuery = @"
-                        SELECT career_name, COUNT(*) as count 
-                        FROM user_career_progress 
-                        WHERE is_active = TRUE 
-                        GROUP BY career_name 
-                        ORDER BY count DESC 
-                        LIMIT 10";
-                    using var cmd = new MySqlCommand(popularQuery, connection);
+        try
+        {
+            var popularQuery = @"
+                SELECT career_name, COUNT(DISTINCT user_id) as student_count 
+                FROM (
+                    SELECT user_id, career_name FROM user_career_progress WHERE is_active = TRUE
+                    UNION ALL
+                    SELECT UserId as user_id, career_path as career_name FROM UserProfiles WHERE career_path IS NOT NULL
+                ) enrollment
+                GROUP BY career_name 
+                ORDER BY student_count DESC 
+                LIMIT 10";
+            using var cmd = new MySqlCommand(popularQuery, connection);
                     using var reader = await cmd.ExecuteReaderAsync();
                     while (await reader.ReadAsync())
                     {

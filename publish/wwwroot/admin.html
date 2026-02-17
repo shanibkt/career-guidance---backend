@@ -799,6 +799,135 @@
                 min-width: 100%;
             }
         }
+
+        /* Mobile Responsive Core Enhancements */
+        @media (max-width: 768px) {
+            .navbar {
+                display: none !important;
+            }
+
+            .mobile-header {
+                display: flex !important;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 64px;
+                background: var(--bg-secondary);
+                border-bottom: 1px solid var(--border-color);
+                align-items: center;
+                justify-content: space-between;
+                padding: 0 20px;
+                z-index: 1000;
+                backdrop-filter: blur(12px);
+            }
+
+            .container {
+                padding: 84px 16px 24px !important;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important;
+                gap: 12px !important;
+            }
+
+            .stat-card {
+                padding: 16px !important;
+            }
+
+            .stat-card .number {
+                font-size: 24px !important;
+            }
+
+            .tabs {
+                gap: 4px !important;
+                padding: 6px !important;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .tab {
+                padding: 10px 16px !important;
+                font-size: 13px !important;
+            }
+
+            .search-bar {
+                flex-direction: column !important;
+                gap: 10px !important;
+            }
+
+            .search-bar input {
+                width: 100% !important;
+            }
+
+            .search-bar button {
+                width: 100% !important;
+            }
+
+            table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+
+            .modal-content {
+                width: 95% !important;
+                margin: 20px auto !important;
+                padding: 20px !important;
+            }
+
+            /* Responsive helper for tables */
+            #usersTableContainer,
+            #videosTableContainer,
+            #resumesTableContainer,
+            #companiesTableContainer {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                border-radius: 12px;
+                border: 1px solid var(--border-color);
+            }
+        }
+
+        .mobile-header {
+            display: none;
+        }
+
+        .hamburger {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-menu {
+            position: fixed;
+            top: 64px;
+            left: 0;
+            right: 0;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 20px;
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 999;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .mobile-menu.active {
+            display: flex;
+        }
+
+        .mobile-menu .tab {
+            text-align: left;
+            width: 100%;
+            background: var(--bg-tertiary);
+        }
     </style>
 </head>
 
@@ -832,7 +961,30 @@
     </div>
 
     <!-- Dashboard -->
+
+    <!-- Dashboard -->
     <div class="dashboard" id="dashboardScreen">
+        <!-- Mobile Header -->
+        <div class="mobile-header">
+            <h2 style="font-size: 18px;">📊 Admin</h2>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <div class="user-avatar" style="width: 32px; height: 32px; font-size: 12px;">A</div>
+                <button class="hamburger" onclick="toggleMobileMenu()">☰</button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Overlay -->
+        <div class="mobile-menu" id="mobileMenu">
+            <button class="tab active" onclick="switchTab('users'); toggleMobileMenu()">👥 Users</button>
+            <button class="tab" onclick="switchTab('videos'); toggleMobileMenu()">🎥 Videos</button>
+            <button class="tab" onclick="switchTab('categories'); toggleMobileMenu()">💼 Careers</button>
+            <button class="tab" onclick="switchTab('activities'); toggleMobileMenu()">📈 Activities</button>
+            <button class="tab" onclick="switchTab('resumes'); toggleMobileMenu()">📄 Resumes</button>
+            <button class="tab" onclick="switchTab('companies'); toggleMobileMenu()">🏢 Companies</button>
+            <button class="tab" onclick="logout()" style="color: var(--danger); background: rgba(239, 68, 68, 0.1);">🚪
+                Logout</button>
+        </div>
+
         <div class="navbar">
             <h2>📊 Admin Dashboard</h2>
             <div class="user-info">
@@ -1047,7 +1199,7 @@
                     <input type="text" id="thumbnailUrl" placeholder="Leave empty for auto-generated">
                 </div>
                 <div class="form-group">
-                    <label>Transcript <a href="https://www.downloadyoutubesubtitles.com/" target="_blank"
+                    <label>Transcript <a href="https://notegpt.io/youtube-subtitle-downloader/" target="_blank"
                             style="font-size: 12px;">(Download subtitles)</a></label>
                     <textarea id="videoTranscript" rows="10"
                         placeholder="Paste full subtitle/transcript content here..."
@@ -1135,7 +1287,11 @@
     <div class="modal" id="careerVideosModal">
         <div class="modal-content" style="max-width: 1000px;">
             <div class="modal-header">
-                <h2 id="careerVideosTitle">Career Videos</h2>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <h2 id="careerVideosTitle" style="margin: 0;">Career Videos</h2>
+                    <button onclick="openVideoPicker()" class="btn-login" style="padding: 8px 16px; font-size: 13px; background: var(--accent-gradient);">🔗 Link Existing Video</button>
+                    <button id="addVideoButtonForCareer" class="btn-login" style="padding: 8px 16px; font-size: 13px; background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3);">➕ Create New Video</button>
+                </div>
                 <button class="modal-close" onclick="closeModal('careerVideosModal')">&times;</button>
             </div>
             <div id="careerVideosContent" style="max-height: 600px; overflow-y: auto;"></div>
@@ -1688,13 +1844,17 @@
             container.innerHTML = html;
         }
 
-        async function showVideoForm(videoId) {
+        async function showVideoForm(videoId, suggestedSkill = '') {
             const modal = document.getElementById('videoModal');
             const form = document.getElementById('videoForm');
 
             form.reset();
             document.getElementById('videoId').value = '';
-            document.getElementById('transcriptLength').textContent = '0 characters';
+                        document.getElementById('transcriptLength').textContent = '0 characters';
+            
+            if (suggestedSkill) {
+                document.getElementById('videoSkillName').value = suggestedSkill;
+            }
 
             if (videoId) {
                 document.getElementById('videoModalTitle').textContent = 'Edit Video';
@@ -2026,11 +2186,14 @@
         function searchCategories() {
             const searchTerm = document.getElementById('categorySearchInput').value.toLowerCase();
             const container = document.getElementById('categoriesTableContainer');
-            const cards = container.querySelectorAll('[onclick^="filterVideosByCategory"]');
+            // Select all career cards within the grid
+            const cards = container.querySelectorAll('div[onmouseover]');
 
             cards.forEach(card => {
-                const categoryName = card.textContent.toLowerCase();
-                if (categoryName.includes(searchTerm)) {
+                // Find all text elements to search within
+                const contentText = card.textContent.toLowerCase();
+
+                if (contentText.includes(searchTerm)) {
                     card.style.display = '';
                 } else {
                     card.style.display = 'none';
@@ -2167,7 +2330,18 @@
             }
         }
 
+        let currentCareerIdForVideos, currentCareerNameForVideos;
         async function viewCareerVideos(careerId, careerName) {
+            currentCareerIdForVideos = careerId;
+            currentCareerNameForVideos = careerName;
+            const addBtn = document.getElementById('addVideoButtonForCareer');
+            if (addBtn) {
+                addBtn.style.display = 'block';
+                addBtn.onclick = () => {
+                    closeModal('careerVideosModal');
+                    showVideoForm(null, careerName);
+                };
+            }
             document.getElementById('careerVideosTitle').textContent = `Videos for ${careerName}`;
             document.getElementById('careerVideosContent').innerHTML = '<div class="loading">Loading videos...</div>';
             document.getElementById('careerVideosModal').classList.add('active');
@@ -2181,7 +2355,19 @@
                     throw new Error('Failed to load videos');
                 }
 
-                const videos = await safeJsonParse(response);
+                                const videos = await safeJsonParse(response);
+                
+                // Fetch career skills to use for linking
+                const careerResponse = await fetch(`${API_URL}/admin/careers`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const careers = await safeJsonParse(careerResponse);
+                const career = careers.find(c => c.id === careerId);
+                if (career) {
+                    try {
+                        currentCareerSkills = typeof career.key_skills === 'string' ? JSON.parse(career.key_skills) : career.key_skills || [];
+                    } catch(e) { currentCareerSkills = []; }
+                }
 
                 if (!videos || videos.length === 0) {
                     document.getElementById('careerVideosContent').innerHTML = `
@@ -2189,6 +2375,10 @@
                             <div style="font-size: 64px; margin-bottom: 16px;">📹</div>
                             <h3>No videos found</h3>
                             <p>No learning videos match the skills for this career</p>
+                            <button onclick="closeModal('careerVideosModal'); showVideoForm(null, '${careerName}')" 
+                                    style="margin-top: 16px; padding: 10px 20px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                                ➕ Add First Video
+                            </button>
                         </div>
                     `;
                     return;
@@ -2784,7 +2974,187 @@
                 else { const d = await res.json(); alert(d.message || 'Failed'); }
             } catch (e) { alert('Error: ' + e.message); }
         }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('active');
+        }
+    
+        let allVideosForPicker = [];
+        let currentCareerForAssignment = null;
+        let selectedVideoForAssignment = null;
+
+        async function openVideoPicker() {
+            const modal = document.getElementById('videoPickerModal');
+            modal.classList.add('active');
+            
+            // Get current career data from the global state set in viewCareerVideos
+            // We'll extract it from the title for now or store it globally.
+            // Let's assume currentCareerId and currentCareerName are set globally.
+            
+            loadVideosForPicker();
+        }
+
+        async function loadVideosForPicker() {
+            const container = document.getElementById('videoPickerContent');
+            container.innerHTML = '<div class="loading">Loading videos...</div>';
+
+            try {
+                const response = await fetch(`${API_URL}/learningvideos`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (!response.ok) throw new Error('Failed to load videos');
+
+                const data = await safeJsonParse(response);
+                allVideosForPicker = data.videos || [];
+                displayPickerVideos(allVideosForPicker);
+            } catch (error) {
+                console.error('Picker error:', error);
+                container.innerHTML = `<p style="color: red; padding: 20px;">Error: ${error.message}</p>`;
+            }
+        }
+
+        function displayPickerVideos(videos) {
+            const container = document.getElementById('videoPickerContent');
+            
+            if (videos.length === 0) {
+                container.innerHTML = '<p style="text-align: center; padding: 40px;">No videos found in the system.</p>';
+                return;
+            }
+
+            let html = '<div style="display: grid; gap: 12px;">';
+            videos.forEach(video => {
+                html += `
+                    <div class="video-picker-item" onclick="selectVideoForSkillAssignment(${video.id}, '${video.videoTitle.replace(/'/g, "\'")}')" 
+                         style="display: flex; gap: 16px; padding: 12px; background: var(--bg-tertiary); border-radius: 12px; border: 1px solid var(--border-color); cursor: pointer; transition: all 0.2s;">
+                        <img src="${video.thumbnailUrl}" style="width: 120px; height: 68px; object-fit: cover; border-radius: 8px;">
+                        <div style="flex: 1;">
+                            <h4 style="margin: 0 0 4px 0; font-size: 14px;">${video.videoTitle}</h4>
+                            <p style="margin: 0; font-size: 12px; color: var(--text-secondary);">Current Skill: ${video.skillName}</p>
+                            <p style="margin: 4px 0 0 0; font-size: 11px; color: var(--text-muted);">${video.durationMinutes} mins</p>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function filterPickerVideos() {
+            const term = document.getElementById('videoPickerSearch').value.toLowerCase();
+            const filtered = allVideosForPicker.filter(v => 
+                v.videoTitle.toLowerCase().includes(term) || 
+                v.skillName.toLowerCase().includes(term)
+            );
+            displayPickerVideos(filtered);
+        }
+
+        let currentCareerSkills = [];
+
+        async function selectVideoForSkillAssignment(videoId, videoTitle) {
+            selectedVideoForAssignment = allVideosForPicker.find(v => v.id === videoId);
+            
+            // Open skill selector
+            const modal = document.getElementById('skillSelectorModal');
+            const container = document.getElementById('skillOptionsContainer');
+            
+            container.innerHTML = '';
+            
+            if (!currentCareerSkills || currentCareerSkills.length === 0) {
+                alert('This career has no skills defined to link to.');
+                return;
+            }
+
+            currentCareerSkills.forEach(skill => {
+                const btn = document.createElement('button');
+                btn.className = 'tab';
+                btn.style.textAlign = 'left';
+                btn.style.width = '100%';
+                btn.style.background = 'var(--bg-tertiary)';
+                btn.style.marginBottom = '5px';
+                btn.innerHTML = `🎯 ${skill}`;
+                btn.onclick = () => assignVideoToSkill(videoId, skill);
+                container.appendChild(btn);
+            });
+
+            modal.classList.add('active');
+        }
+
+        async function assignVideoToSkill(videoId, skillName) {
+            if (!confirm(`Are you sure you want to assign "${selectedVideoForAssignment.videoTitle}" to the skill "${skillName}"?`)) return;
+
+            try {
+                // We need to fetch the full video details for the update
+                // or the backend needs a specific 'update skill' endpoint.
+                // Looking at LearningVideosController.cs, UpdateVideo requires all fields.
+                
+                const video = selectedVideoForAssignment;
+                const updateData = {
+                    skillName: skillName, // The change
+                    videoTitle: video.videoTitle,
+                    videoDescription: video.videoDescription || '',
+                    youtubeVideoId: video.youtubeVideoId,
+                    durationMinutes: video.durationMinutes,
+                    thumbnailUrl: video.thumbnailUrl || '',
+                    transcript: '' // We might lose the transcript if we don't fetch it, but usually skill update is separate
+                };
+
+                const response = await fetch(`${API_URL}/learningvideos/${videoId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(updateData)
+                });
+
+                if (response.ok) {
+                    alert('Video linked successfully!');
+                    closeModal('skillSelectorModal');
+                    closeModal('videoPickerModal');
+                    // Refresh career videos
+                    viewCareerVideos(currentCareerIdForVideos, currentCareerNameForVideos);
+                } else {
+                    const error = await response.json();
+                    alert(`Error: ${error.message || 'Failed to update video'}`);
+                }
+            } catch (error) {
+                console.error('Assignment error:', error);
+                alert('Network error. Check console.');
+            }
+        }
+
     </script>
+
+    <!-- Video Picker Modal -->
+    <div class="modal" id="videoPickerModal">
+        <div class="modal-content" style="max-width: 900px;">
+            <div class="modal-header">
+                <h2>Select Video to Link</h2>
+                <button class="modal-close" onclick="closeModal('videoPickerModal')">&times;</button>
+            </div>
+            <div class="search-bar" style="margin-bottom: 20px;">
+                <input type="text" id="videoPickerSearch" placeholder="Search videos by title or skill..." oninput="filterPickerVideos()">
+            </div>
+            <div id="videoPickerContent" style="max-height: 500px; overflow-y: auto;">
+                <div class="loading">Loading available videos...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Skill Selector Modal -->
+    <div class="modal" id="skillSelectorModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2>Select Skill</h2>
+                <button class="modal-close" onclick="closeModal('skillSelectorModal')">&times;</button>
+            </div>
+            <p style="margin-bottom: 20px; color: var(--text-secondary);">Assign this video to which skill in this career?</p>
+            <div id="skillOptionsContainer" style="display: flex; flex-direction: column; gap: 10px;"></div>
+        </div>
+    </div>
+
 </body>
 
 </html>

@@ -71,8 +71,20 @@ namespace MyFirstApi.Controllers
                 };
                 profileReader.Close();
 
+                // Determine the correct column name for career name
+                string nameColumn = "name";
+                try
+                {
+                    using var checkColCmd = new MySqlCommand(
+                        "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'careers' AND COLUMN_NAME IN ('name', 'career_name')", conn);
+                    using var colReader = checkColCmd.ExecuteReader();
+                    if (colReader.Read()) nameColumn = colReader.GetString(0);
+                    colReader.Close();
+                }
+                catch { }
+
                 // Get all careers
-                string careersQuery = "SELECT id, name, description, required_education, key_skills FROM careers";
+                string careersQuery = $"SELECT id, {nameColumn}, description, required_education, key_skills FROM careers";
                 using MySqlCommand careersCmd = new(careersQuery, conn);
                 using var careersReader = careersCmd.ExecuteReader();
 
@@ -82,7 +94,7 @@ namespace MyFirstApi.Controllers
                     careers.Add(new
                     {
                         id = careersReader.GetInt32("id"),
-                        career_name = careersReader.GetString("name"),
+                        career_name = careersReader.GetString(nameColumn),
                         description = careersReader.IsDBNull(careersReader.GetOrdinal("description")) ? "" : careersReader.GetString("description"),
                         required_education = careersReader.IsDBNull(careersReader.GetOrdinal("required_education")) ? "" : careersReader.GetString("required_education"),
                         key_skills = careersReader.IsDBNull(careersReader.GetOrdinal("key_skills")) ? "[]" : careersReader.GetString("key_skills")
@@ -183,7 +195,7 @@ namespace MyFirstApi.Controllers
                 conn.Open();
 
                 string query = @"
-                    SELECT r.id, r.career_id, c.career_name as career_name, r.match_percentage, 
+                    SELECT r.id, r.career_id, c.name as career_name, r.match_percentage, 
                            r.reasoning, r.strengths, r.areas_to_develop, r.created_at
                     FROM recommendations r
                     JOIN careers c ON r.career_id = c.id

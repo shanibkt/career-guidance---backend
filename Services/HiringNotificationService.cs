@@ -68,11 +68,27 @@ namespace MyFirstApi.Services
                     }
                     var inClause = string.Join(",", careerParams);
 
-                    // Match students by career_id OR by career_name (via careers table lookup)
-                    var findStudentsSql = $@"SELECT DISTINCT user_id FROM user_career_progress 
-                                           WHERE is_active = TRUE AND (
-                                               career_id IN ({inClause})
-                                               OR career_name IN (SELECT name FROM careers WHERE id IN ({inClause}))
+                    // Determine the correct column name for career name
+                    string nameColumn = "name";
+                    try
+                    {
+                        using var checkColCmd = new MySqlCommand(
+                            "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'careers' AND COLUMN_NAME IN ('name', 'career_name') LIMIT 1", conn, transaction);
+                        var colResult = await checkColCmd.ExecuteScalarAsync();
+                        if (colResult != null) nameColumn = colResult.ToString();
+                    }
+                    catch { }
+
+                    // Match students by career_id OR by career_name (via careers table lookup) from both progress and profiles
+                    var findStudentsSql = $@"SELECT DISTINCT enrollment.user_id 
+                                           FROM (
+                                               SELECT user_id, career_id, career_name FROM user_career_progress WHERE is_active = TRUE
+                                               UNION
+                                               SELECT UserId as user_id, NULL as career_id, career_path as career_name FROM UserProfiles WHERE career_path IS NOT NULL
+                                           ) enrollment
+                                           WHERE (
+                                               enrollment.career_id IN ({inClause})
+                                               OR enrollment.career_name IN (SELECT {nameColumn} FROM careers WHERE id IN ({inClause}))
                                            )";
 
                     using var cmd2 = new MySqlCommand(findStudentsSql, conn, transaction);
@@ -280,26 +296,44 @@ namespace MyFirstApi.Services
 
             try
             {
-                var syncSql = @"INSERT IGNORE INTO student_notifications (user_id, hiring_notification_id)
+                // Determine the correct column name for career name
+                string nameColumn = "name";
+                try
+                {
+                    using var checkColCmd = new MySqlCommand(
+                        "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'careers' AND COLUMN_NAME IN ('name', 'career_name') LIMIT 1", conn);
+                    var colResult = await checkColCmd.ExecuteScalarAsync();
+                    if (colResult != null) nameColumn = colResult.ToString();
+                }
+                catch { }
+
+                var syncSql = $@"INSERT IGNORE INTO student_notifications (user_id, hiring_notification_id)
                     SELECT @userId, hn.id
                     FROM hiring_notifications hn
                     JOIN companies c ON hn.company_id = c.id AND c.is_approved = TRUE
+                    -- Join with either active career progress OR profile career path
+                    JOIN (
+                        SELECT user_id, career_id, career_name, selected_at 
+                        FROM user_career_progress 
+                        WHERE user_id = @userId AND is_active = TRUE
+                        UNION
+                        SELECT UserId as user_id, NULL as career_id, career_path as career_name, CreatedAt as selected_at
+                        FROM UserProfiles
+                        WHERE UserId = @userId AND career_path IS NOT NULL
+                    ) enrollment ON (
+                        JSON_CONTAINS(hn.target_career_ids, CAST(enrollment.career_id AS JSON))
+                        OR EXISTS (
+                            SELECT 1 FROM careers c2 
+                            WHERE c2.{nameColumn} = enrollment.career_name 
+                            AND JSON_CONTAINS(hn.target_career_ids, CAST(c2.id AS JSON))
+                        )
+                    )
                     WHERE hn.is_active = TRUE
+                    -- 🔥 Filter: Only show notifications created after (or just before) career selection
+                    AND hn.created_at >= DATE_SUB(enrollment.selected_at, INTERVAL 3 DAY)
                     AND NOT EXISTS (
                         SELECT 1 FROM student_notifications sn2 
                         WHERE sn2.user_id = @userId AND sn2.hiring_notification_id = hn.id
-                    )
-                    AND EXISTS (
-                        SELECT 1 FROM user_career_progress ucp
-                        WHERE ucp.user_id = @userId AND ucp.is_active = TRUE
-                        AND (
-                            JSON_CONTAINS(hn.target_career_ids, CAST(ucp.career_id AS JSON))
-                            OR EXISTS (
-                                SELECT 1 FROM careers c2 
-                                WHERE c2.name = ucp.career_name 
-                                AND JSON_CONTAINS(hn.target_career_ids, CAST(c2.id AS JSON))
-                            )
-                        )
                     )";
                 using var syncCmd = new MySqlCommand(syncSql, conn);
                 syncCmd.Parameters.AddWithValue("@userId", userId);
@@ -369,13 +403,29 @@ namespace MyFirstApi.Services
             using var conn = _db.GetConnection();
             await conn.OpenAsync();
 
+            // Determine the correct column name for career name
+            string nameColumn = "name";
+            try
+            {
+                using var checkColCmd = new MySqlCommand(
+                    "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'careers' AND COLUMN_NAME IN ('name', 'career_name') LIMIT 1", conn);
+                var colResult = await checkColCmd.ExecuteScalarAsync();
+                if (colResult != null) nameColumn = colResult.ToString();
+            }
+            catch { }
+
             // Match by both career_id AND career_name since Flutter app often sends only careerName (career_id is NULL)
-            var sql = @"SELECT c.id as career_id, c.name as career_name, 
-                        COUNT(DISTINCT ucp.user_id) as student_count
+            // Union both career progress and user profiles to get a comprehensive student count
+            var sql = $@"SELECT c.id as career_id, c.{nameColumn} as career_name, 
+                        COUNT(DISTINCT enrollment.user_id) as student_count
                         FROM careers c
-                        LEFT JOIN user_career_progress ucp ON (c.id = ucp.career_id OR c.name = ucp.career_name) AND ucp.is_active = TRUE
-                        GROUP BY c.id, c.name
-                        ORDER BY student_count DESC, c.name ASC";
+                        LEFT JOIN (
+                            SELECT user_id, career_id, career_name FROM user_career_progress WHERE is_active = TRUE
+                            UNION
+                            SELECT UserId as user_id, NULL as career_id, career_path as career_name FROM UserProfiles WHERE career_path IS NOT NULL
+                        ) enrollment ON (c.id = enrollment.career_id OR c.{nameColumn} = enrollment.career_name)
+                        GROUP BY c.id, c.{nameColumn}
+                        ORDER BY student_count DESC, c.{nameColumn} ASC";
 
             using var cmd = new MySqlCommand(sql, conn);
             using var reader = (MySqlDataReader)await cmd.ExecuteReaderAsync();

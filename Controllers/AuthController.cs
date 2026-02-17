@@ -484,6 +484,7 @@ namespace MyFirstApi.Controllers
 
                 using MySqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
                 await conn.OpenAsync();
+                Console.WriteLine($"🔍 ForgotPassword request for: '{req.Email}'");
 
                 // Check if user exists
                 int userId = 0;
@@ -499,44 +500,46 @@ namespace MyFirstApi.Controllers
                     }
                 }
 
-                if (userId != 0)
+                if (userId == 0)
                 {
-                    // Generate reset token (short lived, e.g., 15 mins)
-                    var tokenHandler = new JwtSecurityTokenHandler();
-                    var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
-                    var tokenDescriptor = new SecurityTokenDescriptor
-                    {
-                        Subject = new ClaimsIdentity(new[] 
-                        { 
-                            new Claim("id", userId.ToString()),
-                            new Claim("email", req.Email),
-                            new Claim("type", "reset_password") 
-                        }),
-                        Expires = DateTime.UtcNow.AddMinutes(15),
-                        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-                    };
-                    var token = tokenHandler.WriteToken(tokenHandler.CreateToken(tokenDescriptor));
-
-                    // Send email
-                    var resetLink = $"https://your-frontend-app.com/reset-password?token={token}"; 
-                    // Note: Update with actual frontend URL or deep link scheme
-                    
-                    var message = $@"
-                        <h3>Password Reset Request</h3>
-                        <p>Hi {username},</p>
-                        <p>You requested a password reset. Please use the token below to reset your password within the app:</p>
-                        <p><b>{token}</b></p>
-                        <p>This token is valid for 15 minutes.</p>
-                        <p>If you didn't request this, purely ignore this email.</p>
-                    ";
-
-                    await _emailService.SendEmailAsync(req.Email, "Reset Your Password", message);
+                    return NotFound(new { message = "User with this email not found." });
                 }
 
-                // Security-friendly: do not reveal whether email exists (always say we sent it if it exists)
+                // Generate reset token (short lived, e.g., 15 mins)
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = new ClaimsIdentity(new[] 
+                    { 
+                        new Claim("id", userId.ToString()),
+                        new Claim("email", req.Email),
+                        new Claim("type", "reset_password") 
+                    }),
+                    Expires = DateTime.UtcNow.AddMinutes(15),
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                };
+                var token = tokenHandler.WriteToken(tokenHandler.CreateToken(tokenDescriptor));
+
+                // Send email
+                var resetLink = $"https://your-frontend-app.com/reset-password?token={token}"; 
+                // Note: Update with actual frontend URL or deep link scheme
+                
+                var message = $@"
+                    <h3>Password Reset Request</h3>
+                    <p>Hi {username},</p>
+                    <p>You requested a password reset. Please use the token below to reset your password within the app:</p>
+                    <p><b>{token}</b></p>
+                    <p>This token is valid for 15 minutes.</p>
+                    <p>If you didn't request this, purely ignore this email.</p>
+                ";
+
+                await _emailService.SendEmailAsync(req.Email, "Reset Your Password", message);
+                Console.WriteLine($"✅ ForgotPassword: Token sent to '{req.Email}'. Token starts with: {token.Substring(0, 10)}...");
+
                 return Ok(new
                 {
-                    message = "If the email exists, reset instructions have been sent."
+                    message = "Reset instructions have been sent to your email."
                 });
             }
             catch (Exception ex)
@@ -583,7 +586,12 @@ namespace MyFirstApi.Controllers
                 }
 
                 if (string.IsNullOrWhiteSpace(email))
+                {
+                    Console.WriteLine("❌ ResetPassword failed: Email is null/empty. Request Token: " + (req.Token ?? "null"));
                     return BadRequest(new { message = "Email (or valid token containing email) is required." });
+                }
+
+                Console.WriteLine($"🔍 ResetPassword attempting lookup for email: '{email}'");
 
                 using MySqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
                 conn.Open();
@@ -592,12 +600,17 @@ namespace MyFirstApi.Controllers
                 string? existingHash = null;
                 using (var checkCmd = new MySqlCommand("SELECT PasswordHash FROM Users WHERE Email = @email", conn))
                 {
-                    checkCmd.Parameters.AddWithValue("@email", req.Email);
+                    checkCmd.Parameters.AddWithValue("@email", email);
                     existingHash = checkCmd.ExecuteScalar() as string;
                 }
 
                 if (existingHash == null)
+                {
+                    Console.WriteLine($"❌ ResetPassword failed: User not found for email '{email}'");
                     return NotFound(new { message = "User not found." });
+                }
+
+                Console.WriteLine($"✅ ResetPassword found existing user. Proceeding to update hash.");
 
                 // Hash new password with BCrypt
                 string newHash = BCrypt.Net.BCrypt.HashPassword(req.NewPassword);

@@ -320,9 +320,21 @@ namespace MyFirstApi.Controllers
                 var totalQuestions = questionsList.Count;
                 var overallPercentage = totalQuestions > 0 ? (decimal)totalCorrect / totalQuestions * 100 : 0;
 
+                // Determine the correct column name for career name
+                string nameColumn = "name";
+                try
+                {
+                    using var checkColCmd = new MySqlCommand(
+                        "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'careers' AND COLUMN_NAME IN ('name', 'career_name')", conn);
+                    using var colReader = checkColCmd.ExecuteReader();
+                    if (colReader.Read()) nameColumn = colReader.GetString(0);
+                    colReader.Close();
+                }
+                catch { }
+
                 // Load careers and calculate matches
-                _logger.LogInformation("🎯 Loading careers for matching...");
-                string careersQuery = "SELECT id, name, key_skills, average_salary FROM careers";
+                _logger.LogInformation($"🎯 Loading careers using column: {nameColumn}");
+                string careersQuery = $"SELECT id, {nameColumn}, key_skills, average_salary FROM careers";
                 using MySqlCommand careersCmd = new(careersQuery, conn);
                 using var careersReader = careersCmd.ExecuteReader();
 
@@ -333,9 +345,9 @@ namespace MyFirstApi.Controllers
                     try
                     {
                         var careerId = careersReader.GetInt32("id");
-                        var careerName = careersReader.IsDBNull(careersReader.GetOrdinal("name")) 
+                        var careerName = careersReader.IsDBNull(careersReader.GetOrdinal(nameColumn)) 
                             ? "Unknown" 
-                            : careersReader.GetString("name");
+                            : careersReader.GetString(nameColumn);
                         
                         if (careersReader.IsDBNull(careersReader.GetOrdinal("key_skills")))
                         {
@@ -421,6 +433,54 @@ namespace MyFirstApi.Controllers
                 updateCmd.Parameters.AddWithValue("@totalScore", totalCorrect);
                 updateCmd.Parameters.AddWithValue("@totalQuestions", totalQuestions);
                 updateCmd.ExecuteNonQuery();
+
+                // 🚀 UPDATE USER PROFILE SKILLS
+                // We want skills where user scored > 50% to be added to their profile
+                var strongSkills = skillBreakdown
+                    .Where(s => s.Percentage >= 50)
+                    .Select(s => s.Skill)
+                    .ToList();
+
+                if (strongSkills.Any())
+                {
+                    _logger.LogInformation($"Updating profile with {strongSkills.Count} strong skills");
+                    
+                    // 1. Get current skills
+                    string getSkillsQuery = "SELECT Skills FROM UserProfiles WHERE UserId = @userId";
+                    using MySqlCommand getSkillsCmd = new(getSkillsQuery, conn);
+                    getSkillsCmd.Parameters.AddWithValue("@userId", userId);
+                    
+                    var existingSkillsJson = getSkillsCmd.ExecuteScalar()?.ToString();
+                    var existingSkills = new List<string>();
+                    
+                    if (!string.IsNullOrEmpty(existingSkillsJson))
+                    {
+                        try {
+                            existingSkills = JsonSerializer.Deserialize<List<string>>(existingSkillsJson) ?? new List<string>();
+                        } catch { /* ignore parse errors */ }
+                    }
+
+                    // 2. Merge skills (case-insensitive deduplication)
+                    foreach (var skill in strongSkills)
+                    {
+                        if (!existingSkills.Any(s => s.Equals(skill, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            existingSkills.Add(skill);
+                        }
+                    }
+
+                    // 3. Save back to profile
+                    string saveSkillsQuery = @"
+                        INSERT INTO UserProfiles (UserId, Skills) 
+                        VALUES (@userId, @skills) 
+                        ON DUPLICATE KEY UPDATE Skills = @skills";
+                    
+                    using MySqlCommand saveSkillsCmd = new(saveSkillsQuery, conn);
+                    saveSkillsCmd.Parameters.AddWithValue("@userId", userId);
+                    saveSkillsCmd.Parameters.AddWithValue("@skills", JsonSerializer.Serialize(existingSkills));
+                    saveSkillsCmd.ExecuteNonQuery();
+                    _logger.LogInformation("✅ User profile skills updated");
+                }
 
                 return Ok(new SubmitQuizResponse
                 {
