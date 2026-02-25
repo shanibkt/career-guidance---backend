@@ -119,7 +119,7 @@ namespace MyFirstApi.Controllers
                     COALESCE(cp.overall_progress, 0.0) as OverallProgress,
                     EXISTS(SELECT 1 FROM user_resumes WHERE user_id = u.Id) as HasResume,
                     COALESCE((SELECT MAX(last_watched) FROM video_watch_history WHERE user_id = u.Id), u.CreatedAt) as LastActive,
-                    COALESCE((SELECT SUM(duration_minutes) FROM video_watch_history v JOIN learning_videos lv ON v.video_id = lv.video_id WHERE v.user_id = u.Id), 0) as TotalWatchTime
+                    0 as TotalWatchTime
                 FROM Users u
                 LEFT JOIN user_career_progress cp ON u.Id = cp.user_id AND cp.is_active = TRUE
                 LEFT JOIN UserProfiles up ON u.Id = up.UserId
@@ -140,23 +140,42 @@ namespace MyFirstApi.Controllers
                 {
                     while (await reader.ReadAsync())
                     {
-                        users.Add(new UserActivitySummary
+                        try
                         {
-                            UserId = reader.GetInt32(0),
-                            Username = reader.GetString(1),
-                            FullName = reader.GetString(2),
-                            Email = reader.GetString(3),
-                            CreatedAt = reader.GetDateTime(4),
-                            SelectedCareer = reader.IsDBNull(5) ? null : reader.GetString(5),
-                            TotalVideosWatched = reader.GetInt32(6),
-                            CompletedVideos = reader.GetInt32(7),
-                            OverallProgress = reader.GetDouble(8),
-                            HasResume = reader.GetBoolean(9),
-                            LastActive = reader.GetDateTime(10),
-                            TotalWatchTimeMinutes = Convert.ToInt32(reader.GetValue(11))
-                        });
+                            // Safely parse DateTime values that may be zero (0000-00-00) in MySQL
+                            DateTime createdAt = DateTime.UtcNow;
+                            var createdAtRaw = reader.GetValue(4);
+                            if (createdAtRaw is DateTime caDt && caDt != DateTime.MinValue)
+                                createdAt = caDt;
+
+                            DateTime? lastActive = null;
+                            var lastActiveRaw = reader.GetValue(10);
+                            if (lastActiveRaw is DateTime laDt && laDt != DateTime.MinValue)
+                                lastActive = laDt;
+
+                            users.Add(new UserActivitySummary
+                            {
+                                UserId = reader.GetInt32(0),
+                                Username = reader.IsDBNull(1) ? "" : reader.GetString(1),
+                                FullName = reader.IsDBNull(2) ? "" : reader.GetString(2),
+                                Email = reader.IsDBNull(3) ? "" : reader.GetString(3),
+                                CreatedAt = createdAt,
+                                SelectedCareer = reader.IsDBNull(5) ? null : reader.GetString(5),
+                                TotalVideosWatched = reader.GetInt32(6),
+                                CompletedVideos = reader.GetInt32(7),
+                                OverallProgress = reader.GetDouble(8),
+                                HasResume = reader.GetBoolean(9),
+                                LastActive = lastActive,
+                                TotalWatchTimeMinutes = Convert.ToInt32(reader.GetValue(11))
+                            });
+                        }
+                        catch (Exception rowEx)
+                        {
+                            Console.WriteLine($"⚠️ Skipping row due to read error: {rowEx.Message}");
+                        }
                     }
                 } // DataReader is closed here
+
 
                 // Now get total count (DataReader is closed, this is safe now)
                 var countQuery = $@"
