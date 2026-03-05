@@ -78,3 +78,13 @@ C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\De
 C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Debug\net9.0\publish\publish\publish\MyFirstApi.deps.json
 C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Debug\net9.0\publish\publish\publish\MyFirstApi.runtimeconfig.json
 C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Debug\net9.0\publish\publish\publish\MyFirstApi.staticwebassets.endpoints.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Debug\net9.0\publish\publish\publish\publish\web.config
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Debug\net9.0\publish\publish\db_check.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Debug\net9.0\publish\publish\db_check_2.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Debug\net9.0\publish\publish\db_check_3.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Debug\net9.0\publish\publish\db_check_final.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Debug\net9.0\publish\publish\publish\publish\appsettings.Development.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Debug\net9.0\publish\publish\publish\publish\appsettings.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Debug\net9.0\publish\publish\publish\publish\MyFirstApi.deps.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Debug\net9.0\publish\publish\publish\publish\MyFirstApi.runtimeconfig.json
+C:\Users\shani\OneDrive\Desktop\career-guidance\career-guidance---backend\bin\Debug\net9.0\publish\publish\publish\publish\MyFirstApi.staticwebassets.endpoints.json
